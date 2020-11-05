@@ -7,8 +7,8 @@ Initially we should use the following fields:
 ENA field name | DwC | suggested formatting | Comments
 ------------ | ------------- | ------------- | -------------
 `accession` | `occurrenceID` | | This is the primary key
-`accession` | `associatedSequences` | https://www.ebi.ac.uk/ena/browser/api/embl/`<value>` | 
-`accession` | `references` | https://www.ebi.ac.uk/ena/browser/view/`<value>` | 
+`accession` | `associatedSequences` | https://www.ebi.ac.uk/ena/browser/api/embl/value | 
+`accession` | `references` | https://www.ebi.ac.uk/ena/browser/view/value | 
 `location` | `decimalLatitude`, `decimalLongitude` | | contains both lat and lon, must be splitted
 `country` | `country`, `locality`| | Has format `<country>:<locality>` , must be splitted
 `identified_by` | `identifiedBy` | | 
@@ -18,7 +18,7 @@ ENA field name | DwC | suggested formatting | Comments
 `specimen_voucher` | `basisOfRecord` | `<value> IS NOT NULL ? "PreservedSpecimen" : "MaterialSample"` | 
 `sequence_md5` | `taxonID` | ASV:`<value>` | As proposed [here](https://docs.gbif-uat.org/publishing-dna-derived-data/1.0/en/#data-mapping). Allows to search for identical sequence variants
 `scientific_name` | `scientificName` | |
-`tax_id` | `taxonConceptID` | https://www.ebi.ac.uk/ena/browser/view/Taxon:`<value>` | Initially we should see how far we get by just supplying scientificName. But we may need a subsequent call to their [taxonApi](https://www.ebi.ac.uk/ena/browser/api/xml/30069) to retreive higher taxonomic ranks 
+`tax_id` | `taxonConceptID` | https://www.ebi.ac.uk/ena/browser/view/Taxon:value | Initially we should see how far we get by just supplying scientificName. But we may need a subsequent call to their [taxonApi](https://www.ebi.ac.uk/ena/browser/api/xml/30069) to retreive higher taxonomic ranks 
 `altitude` | `minimumElevationInMeters`, `maximumElevationInMeters` | | Should we populate bot max and min?
 `sex` | `sex` | | 
 
