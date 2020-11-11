@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.gbif</groupId>
+        <artifactId>motherpom</artifactId>
+        <version>50</version>
+    </parent>
+
+    <artifactId>embl-adapter</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <scm>
+        <connection>scm:git:git@github.com:gbif/embl-adapter.git</connection>
+        <url>https://github.com/gbif/embl-adapter</url>
+        <developerConnection>scm:git:git@github.com:gbif/embl-adapter.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <repositories>
+        <repository>
+            <id>gbif-all</id>
+            <url>http://repository.gbif.org/content/groups/gbif</url>
+        </repository>
+        <repository>
+            <id>gbif-thirdparty</id>
+            <url>http://repository.gbif.org/content/repositories/thirdparty/</url>
+        </repository>
+        <repository>
+            <id>cloudera-release</id>
+            <url>http://repository.cloudera.com/artifactory/cloudera-repos/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>gbif-release</id>
+            <url>http://repository.gbif.org/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>gbif-snapshot</id>
+            <url>http://repository.gbif.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <properties>
+        <spring-cloud-openfeign.version>2.2.1.RELEASE</spring-cloud-openfeign.version>
+        <gbif-common.version>0.47</gbif-common.version>
+        <gbif-common-ws.version>1.9</gbif-common-ws.version>
+        <dwc-api.version>1.29</dwc-api.version>
+        <dwca-io.version>2.8</dwca-io.version>
+        <feign.version>10.4.0</feign.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+            <version>${spring-cloud-openfeign.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.gbif</groupId>
+            <artifactId>gbif-common</artifactId>
+            <version>${gbif-common.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.gbif</groupId>
+            <artifactId>gbif-common-ws</artifactId>
+            <version>${gbif-common-ws.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.gbif</groupId>
+            <artifactId>dwc-api</artifactId>
+            <version>${dwc-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.gbif</groupId>
+            <artifactId>dwca-io</artifactId>
+            <version>${dwca-io.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-core</artifactId>
+            <version>${feign.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-slf4j</artifactId>
+            <version>${feign.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-hystrix</artifactId>
+            <version>${feign.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-jackson</artifactId>
+            <version>${feign.version}</version>
+        </dependency>
+    </dependencies>
+    
+</project>
