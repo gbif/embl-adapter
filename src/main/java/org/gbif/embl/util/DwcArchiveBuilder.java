@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.gbif.embl.util.EmblAdapterConstants.LOCATION_PATTERN;
 import static org.gbif.embl.util.EmblAdapterConstants.MATERIAL_SAMPLE;
 import static org.gbif.embl.util.EmblAdapterConstants.PRESERVED_SPECIMEN;
@@ -63,7 +64,7 @@ public class DwcArchiveBuilder {
       pw.println(
           EmblAdapterConstants.TERMS.stream()
               .map(Term::simpleName)
-              .collect(Collectors.joining(";"))
+              .collect(Collectors.joining("\t"))
       );
 
       emblResponseList
@@ -74,24 +75,24 @@ public class DwcArchiveBuilder {
   }
 
   private String joinDataTogether(EmblResponse data) {
-    return String.join(";",
-        data.getAccession(),
-        data.getAccession(), // TODO: 16/11/2020 format?
+    return String.join("\t",
+        trimToEmpty(data.getAccession()),
+        trimToEmpty(data.getAccession()), // TODO: 16/11/2020 format?
         toLatitude(data.getLocation()),
         toLongitude(data.getLocation()),
         toCountry(data.getCountry()),
         toLocality(data.getCountry()),
-        data.getIdentifiedBy(),
-        data.getCollectedBy(),
-        data.getCollectionDate(),
-        data.getSpecimenVoucher(),
+        trimToEmpty(data.getIdentifiedBy()),
+        trimToEmpty(data.getCollectedBy()),
+        trimToEmpty(data.getCollectionDate()),
+        trimToEmpty(data.getSpecimenVoucher()),
         toBasisOfRecord(data.getSpecimenVoucher()),
         toTaxonId(data.getSequenceMd5()),
-        data.getScientificName(),
-        data.getTaxId(), // TODO: 16/11/2020 format data
-        data.getAltitude(),
-        data.getAltitude(),
-        data.getSex()
+        trimToEmpty(data.getScientificName()),
+        trimToEmpty(data.getTaxId()), // TODO: 16/11/2020 format data
+        trimToEmpty(data.getAltitude()),
+        trimToEmpty(data.getAltitude()),
+        trimToEmpty(data.getSex())
         );
   }
 
@@ -104,11 +105,19 @@ public class DwcArchiveBuilder {
   }
 
   private CharSequence toCountry(String country) {
-    return StringUtils.isNotBlank(country) ? country.split(":")[0] : "";
+    if (StringUtils.isNotBlank(country) && country.contains(":")) {
+      return country.split(":")[0];
+    }
+
+    return "";
   }
 
   private CharSequence toLocality(String country) {
-    return StringUtils.isNotBlank(country) ? country.split(":")[1] : "";
+    if (StringUtils.isNotBlank(country) && country.contains(":")) {
+      return country.split(":")[1];
+    }
+
+    return "";
   }
 
   private CharSequence toLatitude(String location) {
