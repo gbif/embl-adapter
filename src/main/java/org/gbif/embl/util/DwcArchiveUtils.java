@@ -99,11 +99,7 @@ public class DwcArchiveUtils {
     Archive downloadArchive = new Archive();
     downloadArchive.setMetadataLocation(METADATA_FILENAME);
 
-    ArchiveFile coreFile = createArchiveFile(
-        CORE_FILENAME,
-        DwcTerm.Occurrence,
-        Arrays.asList(DwcTerm.occurrenceID)
-        );
+    ArchiveFile coreFile = createArchiveFile(CORE_FILENAME, DwcTerm.Occurrence, EmblAdapterConstants.TERMS);
     downloadArchive.setCore(coreFile);
 
     try {

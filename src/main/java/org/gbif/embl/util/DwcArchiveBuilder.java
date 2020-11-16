@@ -1,6 +1,8 @@
 package org.gbif.embl.util;
 
+import org.apache.commons.lang3.StringUtils;
 import org.gbif.dwc.terms.DwcTerm;
+import org.gbif.dwc.terms.Term;
 import org.gbif.embl.api.EmblResponse;
 import org.gbif.utils.file.CompressionUtil;
 import org.gbif.utils.file.FileUtils;
@@ -14,6 +16,12 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.stream.Collectors;
+
+import static org.gbif.embl.util.EmblAdapterConstants.LOCATION_PATTERN;
+import static org.gbif.embl.util.EmblAdapterConstants.MATERIAL_SAMPLE;
+import static org.gbif.embl.util.EmblAdapterConstants.PRESERVED_SPECIMEN;
 
 public class DwcArchiveBuilder {
 
@@ -52,7 +60,11 @@ public class DwcArchiveBuilder {
   private void createCoreFile(List<EmblResponse> emblResponseList) throws IOException {
     File csvOutputFile = new File(archiveDir, EmblAdapterConstants.CORE_FILENAME);
     try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
-      pw.println(String.join(";", DwcTerm.occurrenceID.simpleName()));
+      pw.println(
+          EmblAdapterConstants.TERMS.stream()
+              .map(Term::simpleName)
+              .collect(Collectors.joining(";"))
+      );
 
       emblResponseList
           .stream()
@@ -62,7 +74,61 @@ public class DwcArchiveBuilder {
   }
 
   private String joinDataTogether(EmblResponse data) {
-    return String.join(";", data.getAccession());
+    return String.join(";",
+        data.getAccession(),
+        data.getAccession(), // TODO: 16/11/2020 format?
+        toLatitude(data.getLocation()),
+        toLongitude(data.getLocation()),
+        toCountry(data.getCountry()),
+        toLocality(data.getCountry()),
+        data.getIdentifiedBy(),
+        data.getCollectedBy(),
+        data.getCollectionDate(),
+        data.getSpecimenVoucher(),
+        toBasisOfRecord(data.getSpecimenVoucher()),
+        toTaxonId(data.getSequenceMd5()),
+        data.getScientificName(),
+        data.getTaxId(), // TODO: 16/11/2020 format data
+        data.getAltitude(),
+        data.getAltitude(),
+        data.getSex()
+        );
+  }
+
+  private CharSequence toTaxonId(String data) {
+    return "ASV:" + data;
+  }
+
+  private CharSequence toBasisOfRecord(String data) {
+    return StringUtils.isNotBlank(data) ? PRESERVED_SPECIMEN : MATERIAL_SAMPLE;
+  }
+
+  private CharSequence toCountry(String country) {
+    return StringUtils.isNotBlank(country) ? country.split(":")[0] : "";
+  }
+
+  private CharSequence toLocality(String country) {
+    return StringUtils.isNotBlank(country) ? country.split(":")[1] : "";
+  }
+
+  private CharSequence toLatitude(String location) {
+    if (StringUtils.isNotBlank(location)) {
+      Matcher matcher = LOCATION_PATTERN.matcher(location);
+      if (matcher.find()) {
+        return matcher.group(1);
+      }
+    }
+    return "";
+  }
+
+  private CharSequence toLongitude(String location) {
+    if (StringUtils.isNotBlank(location)) {
+      Matcher matcher = LOCATION_PATTERN.matcher(location);
+      if (matcher.find()) {
+        return matcher.group(2);
+      }
+    }
+    return "";
   }
 
   private void generateMetadata() throws IOException {

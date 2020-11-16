@@ -16,7 +16,7 @@ public class EmblResponse {
   private String sequenceMd5;
   private String scientificName;
   private String taxId;
-  private String attitude;
+  private String altitude;
   private String sex;
 
   public String getAccession() {
@@ -106,12 +106,12 @@ public class EmblResponse {
     this.taxId = taxId;
   }
 
-  public String getAttitude() {
-    return attitude;
+  public String getAltitude() {
+    return altitude;
   }
 
-  public void setAttitude(String attitude) {
-    this.attitude = attitude;
+  public void setAltitude(String altitude) {
+    this.altitude = altitude;
   }
 
   public String getSex() {
@@ -135,7 +135,7 @@ public class EmblResponse {
         .add("sequenceMd5='" + sequenceMd5 + "'")
         .add("scientificName='" + scientificName + "'")
         .add("taxId='" + taxId + "'")
-        .add("attitude='" + attitude + "'")
+        .add("altitude='" + altitude + "'")
         .add("sex='" + sex + "'")
         .toString();
   }
