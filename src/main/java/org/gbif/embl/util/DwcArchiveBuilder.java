@@ -1,7 +1,6 @@
 package org.gbif.embl.util;
 
 import org.gbif.dwc.terms.DwcTerm;
-import org.gbif.dwc.terms.GbifTerm;
 import org.gbif.embl.api.EmblResponse;
 import org.gbif.utils.file.CompressionUtil;
 import org.gbif.utils.file.FileUtils;
@@ -53,17 +52,17 @@ public class DwcArchiveBuilder {
   private void createCoreFile(List<EmblResponse> emblResponseList) throws IOException {
     File csvOutputFile = new File(archiveDir, EmblAdapterConstants.CORE_FILENAME);
     try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
-      pw.println(String.join(";", GbifTerm.gbifID.simpleName(), DwcTerm.occurrenceID.simpleName()));
+      pw.println(String.join(";", DwcTerm.occurrenceID.simpleName()));
 
       emblResponseList
           .stream()
-          .map(this::squash)
+          .map(this::joinDataTogether)
           .forEach(pw::println);
     }
   }
 
-  private String squash(EmblResponse data) {
-    return String.join(";", "ad43e954-dd79-4986-ae34-9ccdbd8bf568", data.getAccession());
+  private String joinDataTogether(EmblResponse data) {
+    return String.join(";", data.getAccession());
   }
 
   private void generateMetadata() throws IOException {

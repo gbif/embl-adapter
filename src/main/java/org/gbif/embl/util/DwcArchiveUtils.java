@@ -1,7 +1,6 @@
 package org.gbif.embl.util;
 
 import org.gbif.dwc.terms.DwcTerm;
-import org.gbif.dwc.terms.GbifTerm;
 import org.gbif.dwc.terms.Term;
 import org.gbif.dwc.Archive;
 import org.gbif.dwc.ArchiveField;
@@ -51,7 +50,7 @@ public class DwcArchiveUtils {
    * Used to generate the meta.xml with the help of the dwca-writer
    */
   public static ArchiveFile createArchiveFile(String filename, Term rowType, Iterable<? extends Term> columns,
-                                              Map<? extends Term,String> defaultColumns) {
+                                              Map<? extends Term, String> defaultColumns) {
     ArchiveFile af = buildBaseArchive(filename, rowType);
     int index = 0;
     for (Term term : columns) {
@@ -62,16 +61,15 @@ public class DwcArchiveUtils {
       af.addField(field);
       index++;
     }
-    for (Map.Entry<? extends Term,String> defaultTerm : defaultColumns.entrySet()) {
+    for (Map.Entry<? extends Term, String> defaultTerm : defaultColumns.entrySet()) {
       ArchiveField defaultField = new ArchiveField();
       defaultField.setTerm(defaultTerm.getKey());
       defaultField.setDefaultValue(defaultTerm.getValue());
       af.addField(defaultField);
     }
-    ArchiveField coreId = af.getField(GbifTerm.gbifID);
-    // TODO: 12/11/2020 remove gbifID?
+    ArchiveField coreId = af.getField(DwcTerm.occurrenceID);
     if (coreId == null) {
-      throw new IllegalArgumentException("Archive columns MUST include the gbif:gbifID term");
+      throw new IllegalArgumentException("Archive columns MUST include the occurrenceID term");
     }
     af.setId(coreId);
     return af;
@@ -101,13 +99,10 @@ public class DwcArchiveUtils {
     Archive downloadArchive = new Archive();
     downloadArchive.setMetadataLocation(METADATA_FILENAME);
 
-    // TODO: 11/11/2020 DwcTerm.Occurrence?
-    // TODO: 11/11/2020 set all columns
-    // TODO: 11/11/2020 default columns?
     ArchiveFile coreFile = createArchiveFile(
         CORE_FILENAME,
         DwcTerm.Occurrence,
-        Arrays.asList(GbifTerm.gbifID, DwcTerm.occurrenceID)
+        Arrays.asList(DwcTerm.occurrenceID)
         );
     downloadArchive.setCore(coreFile);
 
