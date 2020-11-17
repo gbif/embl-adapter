@@ -19,11 +19,14 @@ import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
+import static org.gbif.embl.util.EmblAdapterConstants.ASSOCIATED_SEQUENCES_URL;
 import static org.gbif.embl.util.EmblAdapterConstants.COUNTRY_DELIMITER;
 import static org.gbif.embl.util.EmblAdapterConstants.DEFAULT_DELIMITER;
 import static org.gbif.embl.util.EmblAdapterConstants.LOCATION_PATTERN;
 import static org.gbif.embl.util.EmblAdapterConstants.MATERIAL_SAMPLE;
 import static org.gbif.embl.util.EmblAdapterConstants.PRESERVED_SPECIMEN;
+import static org.gbif.embl.util.EmblAdapterConstants.REFERENCES_URL;
+import static org.gbif.embl.util.EmblAdapterConstants.TAXON_CONCEPT_ID_URL;
 import static org.gbif.embl.util.EmblAdapterConstants.TAXON_ID_PREFIX;
 
 public class DwcArchiveBuilder {
@@ -78,7 +81,8 @@ public class DwcArchiveBuilder {
   private String joinDataTogether(EmblResponse data) {
     return String.join(DEFAULT_DELIMITER,
         trimToEmpty(data.getAccession()),
-        trimToEmpty(data.getAccession()), // TODO: 16/11/2020 format?
+        toAssociatedSequences(data.getAccession()),
+        toReferences(data.getAccession()),
         toLatitude(data.getLocation()),
         toLongitude(data.getLocation()),
         toCountry(data.getCountry()),
@@ -90,15 +94,27 @@ public class DwcArchiveBuilder {
         toBasisOfRecord(data.getSpecimenVoucher()),
         toTaxonId(data.getSequenceMd5()),
         trimToEmpty(data.getScientificName()),
-        trimToEmpty(data.getTaxId()), // TODO: 16/11/2020 format data
+        toTaxonConceptId(data.getTaxId()),
         trimToEmpty(data.getAltitude()),
         trimToEmpty(data.getAltitude()),
         trimToEmpty(data.getSex())
         );
   }
 
+  private CharSequence toTaxonConceptId(String data) {
+    return StringUtils.isNotBlank(data) ? TAXON_CONCEPT_ID_URL + data : StringUtils.EMPTY;
+  }
+
+  private CharSequence toReferences(String data) {
+    return StringUtils.isNotBlank(data) ? REFERENCES_URL + data : StringUtils.EMPTY;
+  }
+
+  private CharSequence toAssociatedSequences(String data) {
+    return StringUtils.isNotBlank(data) ? ASSOCIATED_SEQUENCES_URL + data : StringUtils.EMPTY;
+  }
+
   private CharSequence toTaxonId(String data) {
-    return TAXON_ID_PREFIX + data;
+    return StringUtils.isNotBlank(data) ? TAXON_ID_PREFIX + data : StringUtils.EMPTY;
   }
 
   private CharSequence toBasisOfRecord(String data) {

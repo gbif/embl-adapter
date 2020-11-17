@@ -1,5 +1,6 @@
 package org.gbif.embl.util;
 
+import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 
@@ -18,15 +19,17 @@ public final class EmblAdapterConstants {
   public static final String DEFAULT_DELIMITER = "\t";
   public static final String COUNTRY_DELIMITER = ":";
   public static final String TAXON_ID_PREFIX = "ASV:";
+  public static final String ASSOCIATED_SEQUENCES_URL = "https://www.ebi.ac.uk/ena/browser/api/embl/";
+  public static final String REFERENCES_URL = "https://www.ebi.ac.uk/ena/browser/view/";
+  public static final String TAXON_CONCEPT_ID_URL = "https://www.ebi.ac.uk/ena/browser/view/Taxon:";
 
   public static final String PRESERVED_SPECIMEN = "PreservedSpecimen";
   public static final String MATERIAL_SAMPLE = "MaterialSample";
 
-  // TODO: 16/11/2020 no such term 'references'
   public static final List<Term> TERMS = Arrays.asList(DwcTerm.occurrenceID, DwcTerm.associatedSequences,
-      DwcTerm.decimalLatitude, DwcTerm.decimalLongitude, DwcTerm.country, DwcTerm.locality, DwcTerm.identifiedBy,
-      DwcTerm.recordedBy, DwcTerm.eventDate, DwcTerm.catalogNumber, DwcTerm.basisOfRecord, DwcTerm.taxonID,
-      DwcTerm.scientificName, DwcTerm.taxonConceptID, DwcTerm.minimumElevationInMeters,
+      DcTerm.references, DwcTerm.decimalLatitude, DwcTerm.decimalLongitude, DwcTerm.country, DwcTerm.locality,
+      DwcTerm.identifiedBy, DwcTerm.recordedBy, DwcTerm.eventDate, DwcTerm.catalogNumber, DwcTerm.basisOfRecord,
+      DwcTerm.taxonID, DwcTerm.scientificName, DwcTerm.taxonConceptID, DwcTerm.minimumElevationInMeters,
       DwcTerm.maximumElevationInMeters, DwcTerm.sex);
 
   private EmblAdapterConstants() {
