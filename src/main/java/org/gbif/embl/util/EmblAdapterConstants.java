@@ -15,6 +15,10 @@ public final class EmblAdapterConstants {
 
   public static final Pattern LOCATION_PATTERN = Pattern.compile("([0-9.]+\\s+\\w)\\s+([0-9.]+\\s+\\w)");
 
+  public static final String DEFAULT_DELIMITER = "\t";
+  public static final String COUNTRY_DELIMITER = ":";
+  public static final String TAXON_ID_PREFIX = "ASV:";
+
   public static final String PRESERVED_SPECIMEN = "PreservedSpecimen";
   public static final String MATERIAL_SAMPLE = "MaterialSample";
 

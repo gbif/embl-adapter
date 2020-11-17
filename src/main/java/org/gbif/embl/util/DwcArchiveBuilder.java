@@ -1,7 +1,6 @@
 package org.gbif.embl.util;
 
 import org.apache.commons.lang3.StringUtils;
-import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 import org.gbif.embl.api.EmblResponse;
 import org.gbif.utils.file.CompressionUtil;
@@ -20,9 +19,12 @@ import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
+import static org.gbif.embl.util.EmblAdapterConstants.COUNTRY_DELIMITER;
+import static org.gbif.embl.util.EmblAdapterConstants.DEFAULT_DELIMITER;
 import static org.gbif.embl.util.EmblAdapterConstants.LOCATION_PATTERN;
 import static org.gbif.embl.util.EmblAdapterConstants.MATERIAL_SAMPLE;
 import static org.gbif.embl.util.EmblAdapterConstants.PRESERVED_SPECIMEN;
+import static org.gbif.embl.util.EmblAdapterConstants.TAXON_ID_PREFIX;
 
 public class DwcArchiveBuilder {
 
@@ -50,8 +52,7 @@ public class DwcArchiveBuilder {
       LOG.info("Zipping archive {}", archiveDir);
       CompressionUtil.zipDir(archiveDir, zipFile, true);
     } catch (IOException e) {
-      // TODO: 11/11/2020 process exception somehow
-      e.printStackTrace();
+      LOG.error("Error while building archive", e);
     } finally {
       // always cleanUp temp dir
       cleanupFS();
@@ -64,7 +65,7 @@ public class DwcArchiveBuilder {
       pw.println(
           EmblAdapterConstants.TERMS.stream()
               .map(Term::simpleName)
-              .collect(Collectors.joining("\t"))
+              .collect(Collectors.joining(DEFAULT_DELIMITER))
       );
 
       emblResponseList
@@ -75,7 +76,7 @@ public class DwcArchiveBuilder {
   }
 
   private String joinDataTogether(EmblResponse data) {
-    return String.join("\t",
+    return String.join(DEFAULT_DELIMITER,
         trimToEmpty(data.getAccession()),
         trimToEmpty(data.getAccession()), // TODO: 16/11/2020 format?
         toLatitude(data.getLocation()),
@@ -97,7 +98,7 @@ public class DwcArchiveBuilder {
   }
 
   private CharSequence toTaxonId(String data) {
-    return "ASV:" + data;
+    return TAXON_ID_PREFIX + data;
   }
 
   private CharSequence toBasisOfRecord(String data) {
@@ -105,19 +106,19 @@ public class DwcArchiveBuilder {
   }
 
   private CharSequence toCountry(String country) {
-    if (StringUtils.isNotBlank(country) && country.contains(":")) {
-      return country.split(":")[0];
+    if (StringUtils.isNotBlank(country) && country.contains(COUNTRY_DELIMITER)) {
+      return country.split(COUNTRY_DELIMITER)[0];
     }
 
-    return "";
+    return StringUtils.EMPTY;
   }
 
   private CharSequence toLocality(String country) {
-    if (StringUtils.isNotBlank(country) && country.contains(":")) {
-      return country.split(":")[1];
+    if (StringUtils.isNotBlank(country) && country.contains(COUNTRY_DELIMITER)) {
+      return country.split(COUNTRY_DELIMITER)[1];
     }
 
-    return "";
+    return StringUtils.EMPTY;
   }
 
   private CharSequence toLatitude(String location) {
@@ -127,7 +128,7 @@ public class DwcArchiveBuilder {
         return matcher.group(1);
       }
     }
-    return "";
+    return StringUtils.EMPTY;
   }
 
   private CharSequence toLongitude(String location) {
@@ -137,7 +138,7 @@ public class DwcArchiveBuilder {
         return matcher.group(2);
       }
     }
-    return "";
+    return StringUtils.EMPTY;
   }
 
   private void generateMetadata() throws IOException {

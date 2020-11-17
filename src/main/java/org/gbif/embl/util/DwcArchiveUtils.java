@@ -9,7 +9,6 @@ import org.gbif.dwc.MetaDescriptorWriter;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
@@ -18,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.gbif.embl.util.EmblAdapterConstants.CORE_FILENAME;
+import static org.gbif.embl.util.EmblAdapterConstants.DEFAULT_DELIMITER;
 import static org.gbif.embl.util.EmblAdapterConstants.DESCRIPTOR_FILENAME;
 import static org.gbif.embl.util.EmblAdapterConstants.METADATA_FILENAME;
 
@@ -27,8 +27,6 @@ import static org.gbif.embl.util.EmblAdapterConstants.METADATA_FILENAME;
 public class DwcArchiveUtils {
 
   private static final Logger LOG = LoggerFactory.getLogger(DwcArchiveUtils.class);
-
-  private static final String DEFAULT_DELIMITER = ";";
 
   /**
    * Hidden constructor.
@@ -69,7 +67,7 @@ public class DwcArchiveUtils {
     }
     ArchiveField coreId = af.getField(DwcTerm.occurrenceID);
     if (coreId == null) {
-      throw new IllegalArgumentException("Archive columns MUST include the occurrenceID term");
+      throw new IllegalArgumentException("Archive columns MUST include the dwc:occurrenceID term");
     }
     af.setId(coreId);
     return af;
