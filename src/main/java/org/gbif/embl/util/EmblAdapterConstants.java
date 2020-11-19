@@ -32,6 +32,15 @@ public final class EmblAdapterConstants {
       DwcTerm.taxonID, DwcTerm.scientificName, DwcTerm.taxonConceptID, DwcTerm.minimumElevationInMeters,
       DwcTerm.maximumElevationInMeters, DwcTerm.sex);
 
+  public static final List<String> FIELDS = Arrays.asList("accession", "location", "country", "identified_by",
+      "collected_by", "collection_date", "specimen_voucher", "sequence_md5", "scientific_name", "tax_id", "altitude",
+      "sex");
+  public static final String RESULT_SEQUENCE = "sequnece";
+  public static final String FORMAT_JSON = "json";
+  public static final String QUERY_GEO_BOX = "geo_box1(-90,-180,90,180)";
+  public static final String QUERY_SPECIMEN_VOUCHER = "specimen_voucher=\"*\"";
+  public static final String QUERY_IDENTIFIED_BY = "identified_by=\"*\"";
+
   private EmblAdapterConstants() {
   }
 }

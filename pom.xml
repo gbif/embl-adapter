@@ -60,6 +60,7 @@
         <metainf-services.version>1.5</metainf-services.version>
         <feign.version>10.4.0</feign.version>
         <wagon-ssh.version>2.4</wagon-ssh.version>
+        <guava.version>17.0</guava.version>
     </properties>
 
     <dependencyManagement>
@@ -135,6 +136,11 @@
             <artifactId>metainf-services</artifactId>
             <version>${metainf-services.version}</version>
             <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
         </dependency>
         <dependency>
             <groupId>io.github.openfeign</groupId>
