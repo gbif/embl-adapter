@@ -9,6 +9,7 @@ import java.io.File;
 import java.util.Date;
 import java.util.List;
 
+import static org.gbif.embl.util.EmblAdapterConstants.QUERY_COUNTRY;
 import static org.gbif.embl.util.EmblAdapterConstants.QUERY_GEO_BOX;
 import static org.gbif.embl.util.EmblAdapterConstants.QUERY_IDENTIFIED_BY;
 import static org.gbif.embl.util.EmblAdapterConstants.QUERY_SPECIMEN_VOUCHER;
@@ -30,6 +31,7 @@ public class EmblAdapter {
     List<EmblResponse> result = sequencesWithCoordinates();
     result.addAll(sequencesWithCatalogNumber());
     result.addAll(sequencesWithIdentifiedBy());
+    result.addAll(sequencesWithCountry());
 
     DwcArchiveBuilder dwcArchiveBuilder = new DwcArchiveBuilder();
     dwcArchiveBuilder.buildArchive(
@@ -46,5 +48,9 @@ public class EmblAdapter {
 
   public List<EmblResponse> sequencesWithIdentifiedBy() {
     return emblClient.search(QUERY_IDENTIFIED_BY, 100);
+  }
+
+  public List<EmblResponse> sequencesWithCountry() {
+    return emblClient.search(QUERY_COUNTRY, 100);
   }
 }

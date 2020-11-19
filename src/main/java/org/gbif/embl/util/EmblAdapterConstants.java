@@ -40,6 +40,7 @@ public final class EmblAdapterConstants {
   public static final String QUERY_GEO_BOX = "geo_box1(-90,-180,90,180)";
   public static final String QUERY_SPECIMEN_VOUCHER = "specimen_voucher=\"*\"";
   public static final String QUERY_IDENTIFIED_BY = "identified_by=\"*\"";
+  public static final String QUERY_COUNTRY = "country=\"*\"";
 
   private EmblAdapterConstants() {
   }
