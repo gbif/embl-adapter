@@ -39,18 +39,18 @@ public class EmblAdapter {
   }
 
   public List<EmblResponse> sequencesWithCoordinates() {
-    return emblClient.search(QUERY_GEO_BOX, 100);
+    return emblClient.search(QUERY_GEO_BOX, 100, 0);
   }
 
   public List<EmblResponse> sequencesWithCatalogNumber() {
-    return emblClient.search(QUERY_SPECIMEN_VOUCHER, 100);
+    return emblClient.search(QUERY_SPECIMEN_VOUCHER, 100, 0);
   }
 
   public List<EmblResponse> sequencesWithIdentifiedBy() {
-    return emblClient.search(QUERY_IDENTIFIED_BY, 100);
+    return emblClient.search(QUERY_IDENTIFIED_BY, 100, 0);
   }
 
   public List<EmblResponse> sequencesWithCountry() {
-    return emblClient.search(QUERY_COUNTRY, 100);
+    return emblClient.search(QUERY_COUNTRY, 100, 0);
   }
 }

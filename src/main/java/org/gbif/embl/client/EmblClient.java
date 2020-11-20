@@ -25,10 +25,11 @@ public interface EmblClient {
       @RequestParam("format") String format,
       @RequestParam("query") String query,
       @RequestParam("limit") int limit,
+      @RequestParam("offset") long offset,
       @RequestParam("fields") List<String> fields
   );
 
-  default List<EmblResponse> search(String query, int limit) {
-    return search(RESULT_SEQUENCE, FORMAT_JSON, query, limit, FIELDS);
+  default List<EmblResponse> search(String query, int limit, long offset) {
+    return search(RESULT_SEQUENCE, FORMAT_JSON, query, limit, offset, FIELDS);
   }
 }
