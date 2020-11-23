@@ -1,5 +1,7 @@
 package org.gbif.embl.cli;
 
+import org.gbif.api.model.common.paging.Pageable;
+import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.embl.api.EmblResponse;
 import org.gbif.embl.client.EmblClient;
 import org.gbif.embl.util.DwcArchiveBuilder;
@@ -17,6 +19,7 @@ import static org.gbif.embl.util.EmblAdapterConstants.QUERY_SPECIMEN_VOUCHER;
 public class EmblAdapter {
 
   private static final String ARCHIVE_NAME = "embl-archive_%s.zip";
+  private static final Pageable DEFAULT_PAGE = new PagingRequest(0, 100);
 
   private final EmblClient emblClient;
 
@@ -39,18 +42,18 @@ public class EmblAdapter {
   }
 
   public List<EmblResponse> sequencesWithCoordinates() {
-    return emblClient.search(QUERY_GEO_BOX, 100, 0);
+    return emblClient.search(DEFAULT_PAGE, QUERY_GEO_BOX);
   }
 
   public List<EmblResponse> sequencesWithCatalogNumber() {
-    return emblClient.search(QUERY_SPECIMEN_VOUCHER, 100, 0);
+    return emblClient.search(DEFAULT_PAGE, QUERY_SPECIMEN_VOUCHER);
   }
 
   public List<EmblResponse> sequencesWithIdentifiedBy() {
-    return emblClient.search(QUERY_IDENTIFIED_BY, 100, 0);
+    return emblClient.search(DEFAULT_PAGE, QUERY_IDENTIFIED_BY);
   }
 
   public List<EmblResponse> sequencesWithCountry() {
-    return emblClient.search(QUERY_COUNTRY, 100, 0);
+    return emblClient.search(DEFAULT_PAGE, QUERY_COUNTRY);
   }
 }
