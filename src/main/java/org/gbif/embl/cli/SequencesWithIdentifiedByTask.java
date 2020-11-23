@@ -15,9 +15,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.gbif.embl.util.EmblAdapterConstants.INSERT;
 
-public class SequencesWithCountryTask implements Runnable {
+public class SequencesWithIdentifiedByTask implements Runnable {
 
-  private static final Logger LOG = LoggerFactory.getLogger(SequencesWithCountryTask.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SequencesWithIdentifiedByTask.class);
 
   private static final int LIMIT = 100;
 
@@ -25,21 +25,22 @@ public class SequencesWithCountryTask implements Runnable {
   private final AtomicLong offset = new AtomicLong(0);
   private final EmblClient emblClient;
 
-  public SequencesWithCountryTask(long numRecords, EmblClient emblClient) {
+  public SequencesWithIdentifiedByTask(long numRecords, EmblClient emblClient) {
     this.numRecords = numRecords;
     this.emblClient = emblClient;
   }
 
   @Override
   public void run() {
-    LOG.info("SequencesWithCountryTask started!");
+    LOG.info("SequencesWithIdentifiedByTask started!");
     while (offset.get() < numRecords) {
       // decide on offset, limit
       LOG.info("Offset: {}, limit: {}", offset, LIMIT);
 
       // perform request by client
       // increment offset
-      List<EmblResponse> emblResponseList = emblClient.searchSequencesWithCountry(new PagingRequest(offset.getAndAdd(LIMIT), LIMIT));
+      List<EmblResponse> emblResponseList =
+          emblClient.searchSequencesWithIdentifiedBy(new PagingRequest(offset.getAndAdd(LIMIT), LIMIT));
 
       // store data to DB
       try (Connection connection = DbConnectionUtils.dataSource.getConnection();
@@ -62,7 +63,7 @@ public class SequencesWithCountryTask implements Runnable {
       }
 
       // TODO: 23/11/2020 notify about finish?
-      LOG.info("SequencesWithCountryTask finished!");
+      LOG.info("SequencesWithIdentifiedByTask finished!");
     }
   }
 }

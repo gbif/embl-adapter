@@ -14,6 +14,9 @@ import java.util.List;
 import static org.gbif.embl.util.EmblAdapterConstants.FIELDS;
 import static org.gbif.embl.util.EmblAdapterConstants.FORMAT_JSON;
 import static org.gbif.embl.util.EmblAdapterConstants.QUERY_COUNTRY;
+import static org.gbif.embl.util.EmblAdapterConstants.QUERY_GEO_BOX;
+import static org.gbif.embl.util.EmblAdapterConstants.QUERY_IDENTIFIED_BY;
+import static org.gbif.embl.util.EmblAdapterConstants.QUERY_SPECIMEN_VOUCHER;
 import static org.gbif.embl.util.EmblAdapterConstants.RESULT_SEQUENCE;
 
 @RequestMapping("search")
@@ -37,5 +40,17 @@ public interface EmblClient {
 
   default List<EmblResponse> searchSequencesWithCountry(Pageable pageable) {
     return search(pageable, RESULT_SEQUENCE, FORMAT_JSON, QUERY_COUNTRY, FIELDS);
+  }
+
+  default List<EmblResponse> searchSequencesWithCoordinates(Pageable pageable) {
+    return search(pageable, RESULT_SEQUENCE, FORMAT_JSON, QUERY_GEO_BOX, FIELDS);
+  }
+
+  default List<EmblResponse> searchSequencesWithSpecimenVoucher(Pageable pageable) {
+    return search(pageable, RESULT_SEQUENCE, FORMAT_JSON, QUERY_SPECIMEN_VOUCHER, FIELDS);
+  }
+
+  default List<EmblResponse> searchSequencesWithIdentifiedBy(Pageable pageable) {
+    return search(pageable, RESULT_SEQUENCE, FORMAT_JSON, QUERY_IDENTIFIED_BY, FIELDS);
   }
 }

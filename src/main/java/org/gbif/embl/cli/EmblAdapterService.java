@@ -33,10 +33,12 @@ public class EmblAdapterService extends AbstractIdleService {
 
   private final ScheduledExecutorService scheduler;
   private final SequencesWithCountryTask sequencesWithCountryTask;
+  private final SequencesWithCoordinatesTask sequencesWithCoordinatesTask;
 
   private final Integer frequencyInDays;
   private final Integer startHour;
   private final Integer startMinute;
+  private final Long initialDelay;
 
   public EmblAdapterService(EmblAdapterConfiguration config) {
     this.scheduler = Executors.newScheduledThreadPool(1);
@@ -46,6 +48,7 @@ public class EmblAdapterService extends AbstractIdleService {
         .withConnectionPoolConfig(CONNECTION_POOL_CONFIG)
         .build(EmblClient.class);
     this.sequencesWithCountryTask = new SequencesWithCountryTask(1000, emblClient);
+    this.sequencesWithCoordinatesTask = new SequencesWithCoordinatesTask(1000, emblClient);
 
     if (StringUtils.contains(config.startTime, ":")) {
       String[] timeParts = config.startTime.split(":");
@@ -55,37 +58,40 @@ public class EmblAdapterService extends AbstractIdleService {
       this.startHour = null;
       this.startMinute = null;
     }
-  }
-
-  @Override
-  protected void startUp() {
-    LOG.info("Service started!");
 
     long initialDelay = 0;
-    if (startHour != null && startMinute != null) {
-      LocalTime t = LocalTime.of(startHour, startMinute);
+    if (this.startHour != null) {
+      LocalTime t = LocalTime.of(this.startHour, this.startMinute);
       initialDelay = LocalTime.now().until(t, ChronoUnit.MINUTES);
     }
 
     // if the delay is passed then start it next day
     if (initialDelay < 0) {
-      initialDelay = initialDelay + ChronoUnit.DAYS.getDuration().toMinutes();
+      this.initialDelay = initialDelay + ChronoUnit.DAYS.getDuration().toMinutes();
+    } else {
+      this.initialDelay = initialDelay;
     }
+  }
 
-    scheduler.scheduleAtFixedRate(
-        sequencesWithCountryTask,
-        initialDelay,
-        frequencyInDays * (ChronoUnit.DAYS.getDuration().toMinutes()),
-        TimeUnit.MINUTES);
-    scheduler.scheduleAtFixedRate(
-        sequencesWithCountryTask,
-        initialDelay,
-        frequencyInDays * (ChronoUnit.DAYS.getDuration().toMinutes()),
-        TimeUnit.MINUTES);
+  @Override
+  protected void startUp() {
+    LOG.info("Service started!");
+    scheduleTask(sequencesWithCountryTask);
+    scheduleTask(sequencesWithCountryTask);
+    scheduleTask(sequencesWithCoordinatesTask);
+    scheduleTask(sequencesWithCoordinatesTask);
   }
 
   @Override
   protected void shutDown() {
     scheduler.shutdown();
+  }
+
+  private void scheduleTask(Runnable runnable) {
+    scheduler.scheduleAtFixedRate(
+        runnable,
+        initialDelay,
+        frequencyInDays * (ChronoUnit.DAYS.getDuration().toMinutes()),
+        TimeUnit.MINUTES);
   }
 }
