@@ -14,6 +14,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 @SuppressWarnings("UnstableApiUsage")
 public class EmblAdapterService extends AbstractIdleService {
@@ -31,37 +32,39 @@ public class EmblAdapterService extends AbstractIdleService {
   private static final int DEFAULT_START_MINUTE = 0;
   private static final int DEFAULT_FREQUENCY = 7;
 
+  private final EmblClient emblClient;
   private final ScheduledExecutorService scheduler;
-  private final SequencesWithCountryTask sequencesWithCountryTask;
-  private final SequencesWithCoordinatesTask sequencesWithCoordinatesTask;
 
   private final Integer frequencyInDays;
-  private final Integer startHour;
-  private final Integer startMinute;
   private final Long initialDelay;
 
+  private final AtomicLong offsetSequencesWithCountry = new AtomicLong(0);
+  private final AtomicLong offsetSequencesWithCoordinates = new AtomicLong(0);
+  private final AtomicLong offsetSequencesWithCatalogNumber = new AtomicLong(0);
+  private final AtomicLong offsetSequencesWithIdentifiedBy = new AtomicLong(0);
+
   public EmblAdapterService(EmblAdapterConfiguration config) {
-    this.scheduler = Executors.newScheduledThreadPool(1);
+    this.scheduler = Executors.newScheduledThreadPool(8);
     this.frequencyInDays = ObjectUtils.defaultIfNull(config.frequencyInDays, DEFAULT_FREQUENCY);
-    EmblClient emblClient = new ClientBuilder()
+    this.emblClient = new ClientBuilder()
         .withUrl("https://www.ebi.ac.uk/ena/portal/api/")
         .withConnectionPoolConfig(CONNECTION_POOL_CONFIG)
         .build(EmblClient.class);
-    this.sequencesWithCountryTask = new SequencesWithCountryTask(1000, emblClient);
-    this.sequencesWithCoordinatesTask = new SequencesWithCoordinatesTask(1000, emblClient);
 
+    Integer startHour;
+    Integer startMinute;
     if (StringUtils.contains(config.startTime, ":")) {
       String[] timeParts = config.startTime.split(":");
-      this.startHour = NumberUtils.toInt(timeParts[0], DEFAULT_START_HOUR);
-      this.startMinute = NumberUtils.toInt(timeParts[1], DEFAULT_START_MINUTE);
+      startHour = NumberUtils.toInt(timeParts[0], DEFAULT_START_HOUR);
+      startMinute = NumberUtils.toInt(timeParts[1], DEFAULT_START_MINUTE);
     } else {
-      this.startHour = null;
-      this.startMinute = null;
+      startHour = null;
+      startMinute = null;
     }
 
     long initialDelay = 0;
-    if (this.startHour != null) {
-      LocalTime t = LocalTime.of(this.startHour, this.startMinute);
+    if (startHour != null) {
+      LocalTime t = LocalTime.of(startHour, startMinute);
       initialDelay = LocalTime.now().until(t, ChronoUnit.MINUTES);
     }
 
@@ -75,11 +78,15 @@ public class EmblAdapterService extends AbstractIdleService {
 
   @Override
   protected void startUp() {
-    LOG.info("Service started!");
-    scheduleTask(sequencesWithCountryTask);
-    scheduleTask(sequencesWithCountryTask);
-    scheduleTask(sequencesWithCoordinatesTask);
-    scheduleTask(sequencesWithCoordinatesTask);
+    LOG.info("Service started");
+    scheduleTask(new SequencesWithCountryTask(500L, offsetSequencesWithCountry, emblClient));
+    scheduleTask(new SequencesWithCountryTask(500L, offsetSequencesWithCountry, emblClient));
+    scheduleTask(new SequencesWithCoordinatesTask(500L, offsetSequencesWithCoordinates, emblClient));
+    scheduleTask(new SequencesWithCoordinatesTask(500L, offsetSequencesWithCoordinates, emblClient));
+    scheduleTask(new SequencesWithCatalogNumberTask(500L, offsetSequencesWithCatalogNumber, emblClient));
+    scheduleTask(new SequencesWithCatalogNumberTask(500L, offsetSequencesWithCatalogNumber, emblClient));
+    scheduleTask(new SequencesWithIdentifiedByTask(500L, offsetSequencesWithIdentifiedBy, emblClient));
+    scheduleTask(new SequencesWithIdentifiedByTask(500L, offsetSequencesWithIdentifiedBy, emblClient));
   }
 
   @Override

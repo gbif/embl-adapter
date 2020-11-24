@@ -9,7 +9,7 @@ public final class DbConnectionUtils {
 
   static {
     HikariConfig config = new HikariConfig();
-    config.setJdbcUrl("jdbc:postgresql://localhost:5432/test_insert");
+    config.setJdbcUrl("jdbc:postgresql://localhost:5432/embl_db");
     config.setUsername("mpodolskiy");
     config.setPassword("");
     config.addDataSourceProperty("minimumIdle", "5");
