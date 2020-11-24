@@ -61,7 +61,7 @@ public class EmblResponse {
     this.collectedBy = collectedBy;
   }
 
-  @JsonProperty("collected_date")
+  @JsonProperty("collection_date")
   public String getCollectionDate() {
     return collectionDate;
   }
