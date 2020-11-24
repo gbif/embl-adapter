@@ -1,0 +1,29 @@
+<configuration>
+
+  <property name="defaultPattern" value="%-5level [%date{'yyyy-MM-dd HH:mm:ss,SSSZ'}] [%thread] %logger: %msg%n%xEx"/>
+
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <charset>UTF-8</charset>
+      <pattern>${defaultPattern}</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+    <file>embl_adapter.log</file>
+    <encoder>
+      <charset>UTF-8</charset>
+      <pattern>${defaultPattern}</pattern>
+    </encoder>
+  </appender>
+
+  <logger name="org.apache.http" level="ERROR" />
+  <logger name="com.zaxxer.hikari" level="ERROR" />
+  <logger name="org.gbif.embl" level="INFO" />
+
+  <root>
+    <appender-ref ref="CONSOLE" />
+    <appender-ref ref="FILE" />
+  </root>
+
+</configuration>
