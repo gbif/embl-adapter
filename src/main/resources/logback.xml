@@ -17,6 +17,7 @@
     </encoder>
   </appender>
 
+  <logger name="org.gbif.dwc" level="ERROR" />
   <logger name="org.apache.http" level="ERROR" />
   <logger name="com.zaxxer.hikari" level="ERROR" />
   <logger name="org.gbif.embl" level="INFO" />

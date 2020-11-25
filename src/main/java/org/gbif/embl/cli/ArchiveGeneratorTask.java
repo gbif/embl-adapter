@@ -1,10 +1,10 @@
 package org.gbif.embl.cli;
 
-import org.gbif.embl.util.DbConnectionUtils;
 import org.gbif.embl.util.DwcArchiveBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sql.DataSource;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -20,12 +20,18 @@ public class ArchiveGeneratorTask implements Runnable {
 
   private static final String ARCHIVE_NAME_TEMPLATE = "embl-archive_%s.zip";
 
+  private final DataSource dataSource;
+
+  public ArchiveGeneratorTask(DataSource dataSource) {
+    this.dataSource = dataSource;
+  }
+
   @Override
   public void run() {
     LOG.info("Start creating archive");
     DwcArchiveBuilder dwcArchiveBuilder = new DwcArchiveBuilder();
 
-    try (Connection connection = DbConnectionUtils.dataSource.getConnection();
+    try (Connection connection = dataSource.getConnection();
          Statement statement = connection.createStatement();
          ResultSet resultSet = statement.executeQuery(SELECT)) {
       String archiveName = String.format(ARCHIVE_NAME_TEMPLATE, new Date().getTime());

@@ -6,6 +6,7 @@ import org.gbif.embl.client.EmblClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sql.DataSource;
 import java.util.List;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicLong;
@@ -18,11 +19,12 @@ public class SequencesWithCatalogNumberTask extends SequencesTask {
   private final EmblClient emblClient;
 
   public SequencesWithCatalogNumberTask(
+      DataSource dataSource,
       CyclicBarrier barrier,
       long numRecords,
       AtomicLong offset,
       EmblClient emblClient) {
-    super(barrier, numRecords);
+    super(dataSource, barrier, numRecords);
     this.offset = offset;
     this.emblClient = emblClient;
   }

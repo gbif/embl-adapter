@@ -1,6 +1,8 @@
 package org.gbif.embl.cli;
 
 import com.google.common.util.concurrent.AbstractIdleService;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -9,6 +11,7 @@ import org.gbif.ws.client.ClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sql.DataSource;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.CyclicBarrier;
@@ -33,6 +36,7 @@ public class EmblAdapterService extends AbstractIdleService {
   private static final int DEFAULT_START_MINUTE = 0;
   private static final int DEFAULT_FREQUENCY = 7;
 
+  private final DataSource dataSource;
   private final EmblClient emblClient;
   private final ScheduledExecutorService scheduler;
 
@@ -46,6 +50,16 @@ public class EmblAdapterService extends AbstractIdleService {
 
   public EmblAdapterService(EmblAdapterConfiguration config) {
     this.scheduler = Executors.newScheduledThreadPool(8);
+
+    HikariConfig hikariConfig = new HikariConfig();
+    hikariConfig.setJdbcUrl(config.db.url);
+    hikariConfig.setUsername(config.db.user);
+    hikariConfig.setPassword(config.db.password);
+    hikariConfig.setMaximumPoolSize(config.db.maximumPoolSize);
+    hikariConfig.setConnectionTimeout(config.db.connectionTimeout);
+
+    this.dataSource = new HikariDataSource(hikariConfig);
+
     this.frequencyInDays = ObjectUtils.defaultIfNull(config.frequencyInDays, DEFAULT_FREQUENCY);
     this.emblClient = new ClientBuilder()
         .withUrl("https://www.ebi.ac.uk/ena/portal/api/")
@@ -80,15 +94,29 @@ public class EmblAdapterService extends AbstractIdleService {
   @Override
   protected void startUp() {
     LOG.info("Service started");
-    CyclicBarrier barrier = new CyclicBarrier(8, new ArchiveGeneratorTask());
-    scheduleTask(new SequencesWithCountryTask(barrier, 500L, offsetSequencesWithCountry, emblClient));
-    scheduleTask(new SequencesWithCountryTask(barrier, 500L, offsetSequencesWithCountry, emblClient));
-    scheduleTask(new SequencesWithCoordinatesTask(barrier, 500L, offsetSequencesWithCoordinates, emblClient));
-    scheduleTask(new SequencesWithCoordinatesTask(barrier, 500L, offsetSequencesWithCoordinates, emblClient));
-    scheduleTask(new SequencesWithCatalogNumberTask(barrier, 500L, offsetSequencesWithCatalogNumber, emblClient));
-    scheduleTask(new SequencesWithCatalogNumberTask(barrier, 500L, offsetSequencesWithCatalogNumber, emblClient));
-    scheduleTask(new SequencesWithIdentifiedByTask(barrier, 500L, offsetSequencesWithIdentifiedBy, emblClient));
-    scheduleTask(new SequencesWithIdentifiedByTask(barrier, 500L, offsetSequencesWithIdentifiedBy, emblClient));
+    CyclicBarrier barrier = new CyclicBarrier(8, new ArchiveGeneratorTask(dataSource));
+    scheduleTask(
+        new SequencesWithCountryTask(dataSource, barrier, 500L, offsetSequencesWithCountry, emblClient));
+    scheduleTask(
+        new SequencesWithCountryTask(dataSource, barrier, 500L, offsetSequencesWithCountry, emblClient));
+    scheduleTask(
+        new SequencesWithCoordinatesTask(
+            dataSource, barrier, 500L, offsetSequencesWithCoordinates, emblClient));
+    scheduleTask(
+        new SequencesWithCoordinatesTask(
+            dataSource, barrier, 500L, offsetSequencesWithCoordinates, emblClient));
+    scheduleTask(
+        new SequencesWithCatalogNumberTask(
+            dataSource, barrier, 500L, offsetSequencesWithCatalogNumber, emblClient));
+    scheduleTask(
+        new SequencesWithCatalogNumberTask(
+            dataSource, barrier, 500L, offsetSequencesWithCatalogNumber, emblClient));
+    scheduleTask(
+        new SequencesWithIdentifiedByTask(
+            dataSource, barrier, 500L, offsetSequencesWithIdentifiedBy, emblClient));
+    scheduleTask(
+        new SequencesWithIdentifiedByTask(
+            dataSource, barrier, 500L, offsetSequencesWithIdentifiedBy, emblClient));
   }
 
   @Override

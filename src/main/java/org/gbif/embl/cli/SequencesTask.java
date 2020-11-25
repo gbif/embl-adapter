@@ -1,9 +1,9 @@
 package org.gbif.embl.cli;
 
 import org.gbif.embl.api.EmblResponse;
-import org.gbif.embl.util.DbConnectionUtils;
 import org.slf4j.Logger;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -18,10 +18,15 @@ public abstract class SequencesTask implements Runnable {
 
   public static final int LIMIT = 100;
 
+  private final DataSource dataSource;
   private final CyclicBarrier barrier;
   private final long numRecords;
 
-  public SequencesTask(CyclicBarrier barrier, long numRecords) {
+  public SequencesTask(
+      DataSource dataSource,
+      CyclicBarrier barrier,
+      long numRecords) {
+    this.dataSource = dataSource;
     this.barrier = barrier;
     this.numRecords = numRecords;
   }
@@ -39,7 +44,7 @@ public abstract class SequencesTask implements Runnable {
       List<EmblResponse> emblResponseList = getEmblData();
 
       // store data to DB
-      try (Connection connection = DbConnectionUtils.dataSource.getConnection();
+      try (Connection connection = dataSource.getConnection();
            Statement statement = connection.createStatement()) {
         getLog().debug("Start writing DB");
         connection.setAutoCommit(false);
@@ -59,7 +64,7 @@ public abstract class SequencesTask implements Runnable {
     }
 
     getOffset().set(0L);
-    getLog().info("Task finished, offset reset to {}", getOffset().get());
+    getLog().info("Task finished, reset offset to {}", getOffset().get());
 
     try {
       barrier.await();
