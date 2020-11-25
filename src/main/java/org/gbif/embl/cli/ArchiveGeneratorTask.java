@@ -39,7 +39,7 @@ public class ArchiveGeneratorTask implements Runnable {
           new File("output", archiveName), resultSet);
       LOG.info("Archive {} was created", archiveName);
     } catch (SQLException e) {
-      LOG.error("SQL exception while running archive building task");
+      LOG.error("SQL exception while running archive building task", e);
     }
   }
 }

@@ -69,7 +69,7 @@ public abstract class SequencesTask implements Runnable {
     try {
       barrier.await();
     } catch (InterruptedException | BrokenBarrierException e) {
-      getLog().error("Exception while waiting other tasks");
+      getLog().error("Exception while waiting other tasks", e);
     }
   }
 

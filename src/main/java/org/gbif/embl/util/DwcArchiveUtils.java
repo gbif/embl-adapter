@@ -24,7 +24,7 @@ import static org.gbif.embl.util.EmblAdapterConstants.METADATA_FILENAME;
 /**
  * Utility class for Darwin Core Archive handling during the file creation.
  */
-public class DwcArchiveUtils {
+public final class DwcArchiveUtils {
 
   private static final Logger LOG = LoggerFactory.getLogger(DwcArchiveUtils.class);
 
