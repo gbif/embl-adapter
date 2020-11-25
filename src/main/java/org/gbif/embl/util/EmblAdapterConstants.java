@@ -16,6 +16,19 @@ public final class EmblAdapterConstants {
 
   public static final String INSERT = "INSERT INTO embl_data VALUES " +
       "('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') ON CONFLICT DO NOTHING";
+  public static final String SELECT = "SELECT accession,\n" +
+      "       location,\n" +
+      "       country,\n" +
+      "       identified_by,\n" +
+      "       collected_by,\n" +
+      "       collection_date,\n" +
+      "       specimen_voucher,\n" +
+      "       sequence_md5,\n" +
+      "       scientific_name,\n" +
+      "       tax_id,\n" +
+      "       altitude,\n" +
+      "       sex\n" +
+      "FROM embl_data";
 
   public static final Pattern LOCATION_PATTERN = Pattern.compile("([0-9.]+\\s+\\w)\\s+([0-9.]+\\s+\\w)");
 

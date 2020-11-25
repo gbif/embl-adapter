@@ -8,6 +8,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.gbif.embl.util.EmblAdapterConstants.INSERT;
@@ -16,19 +18,21 @@ public abstract class SequencesTask implements Runnable {
 
   public static final int LIMIT = 100;
 
+  private final CyclicBarrier barrier;
   private final long numRecords;
 
-  public SequencesTask(long numRecords) {
+  public SequencesTask(CyclicBarrier barrier, long numRecords) {
+    this.barrier = barrier;
     this.numRecords = numRecords;
   }
 
   @Override
   public void run() {
     getLog().info("Task started");
-    getLog().info("Records to retrieve: {}. Offset initial: {}", numRecords, getOffset().get());
+    getLog().debug("Records to retrieve: {}. Offset initial: {}", numRecords, getOffset().get());
     while (getOffset().get() < numRecords) {
       // decide on offset, limit
-      getLog().info("Iteration: Offset: {}, limit: {}", getOffset().get(), LIMIT);
+      getLog().debug("Iteration: Offset: {}, limit: {}", getOffset().get(), LIMIT);
 
       // perform request by client
       // increment offset
@@ -50,14 +54,18 @@ public abstract class SequencesTask implements Runnable {
         connection.commit();
         getLog().debug("Finish writing DB");
       } catch (SQLException e) {
-        e.printStackTrace();
         getLog().error("Exception", e);
       }
     }
 
-    // TODO: 23/11/2020 notify about finish?
     getOffset().set(0L);
     getLog().info("Task finished, offset reset to {}", getOffset().get());
+
+    try {
+      barrier.await();
+    } catch (InterruptedException | BrokenBarrierException e) {
+      getLog().error("Exception while waiting other tasks");
+    }
   }
 
   protected abstract List<EmblResponse> getEmblData();

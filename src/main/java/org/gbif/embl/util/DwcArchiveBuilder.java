@@ -2,7 +2,6 @@ package org.gbif.embl.util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.gbif.dwc.terms.Term;
-import org.gbif.embl.api.EmblResponse;
 import org.gbif.utils.file.CompressionUtil;
 import org.gbif.utils.file.FileUtils;
 import org.slf4j.Logger;
@@ -13,8 +12,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
@@ -37,7 +37,7 @@ public class DwcArchiveBuilder {
   // TODO: 11/11/2020 use proper dir
   private final File archiveDir = new File("archives/temp" + prefix);
 
-  public void buildArchive(File zipFile, List<EmblResponse> emblResponseList) {
+  public void buildArchive(File zipFile, ResultSet rs) {
     LOG.info("Start building the archive {} ", zipFile.getPath());
 
     try {
@@ -50,7 +50,7 @@ public class DwcArchiveBuilder {
       // meta.xml
       DwcArchiveUtils.createArchiveDescriptor(archiveDir);
       // occurrence.txt
-      createCoreFile(emblResponseList);
+      createCoreFile(rs);
       // zip up
       LOG.info("Zipping archive {}", archiveDir);
       CompressionUtil.zipDir(archiveDir, zipFile, true);
@@ -62,7 +62,7 @@ public class DwcArchiveBuilder {
     }
   }
 
-  private void createCoreFile(List<EmblResponse> emblResponseList) throws IOException {
+  private void createCoreFile(ResultSet resultSet) throws IOException {
     File csvOutputFile = new File(archiveDir, EmblAdapterConstants.CORE_FILENAME);
     try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
       pw.println(
@@ -71,34 +71,35 @@ public class DwcArchiveBuilder {
               .collect(Collectors.joining(DEFAULT_DELIMITER))
       );
 
-      emblResponseList
-          .stream()
-          .map(this::joinDataTogether)
-          .forEach(pw::println);
+      while (resultSet.next()) {
+        pw.println(joinData(resultSet));
+      }
+    } catch (SQLException e) {
+      LOG.error("SQL exception while creating core file", e);
     }
   }
 
-  private String joinDataTogether(EmblResponse data) {
+  private String joinData(ResultSet rs) throws SQLException {
     return String.join(DEFAULT_DELIMITER,
-        trimToEmpty(data.getAccession()),
-        toAssociatedSequences(data.getAccession()),
-        toReferences(data.getAccession()),
-        toLatitude(data.getLocation()),
-        toLongitude(data.getLocation()),
-        toCountry(data.getCountry()),
-        toLocality(data.getCountry()),
-        trimToEmpty(data.getIdentifiedBy()),
-        trimToEmpty(data.getCollectedBy()),
-        trimToEmpty(data.getCollectionDate()),
-        trimToEmpty(data.getSpecimenVoucher()),
-        toBasisOfRecord(data.getSpecimenVoucher()),
-        toTaxonId(data.getSequenceMd5()),
-        trimToEmpty(data.getScientificName()),
-        toTaxonConceptId(data.getTaxId()),
-        trimToEmpty(data.getAltitude()),
-        trimToEmpty(data.getAltitude()),
-        trimToEmpty(data.getSex())
-        );
+        trimToEmpty(rs.getString("accession")),
+        toAssociatedSequences(rs.getString("accession")),
+        toReferences(rs.getString("accession")),
+        toLatitude(rs.getString("location")),
+        toLongitude(rs.getString("location")),
+        toCountry(rs.getString("country")),
+        toLocality(rs.getString("country")),
+        trimToEmpty(rs.getString("identified_by")),
+        trimToEmpty(rs.getString("collected_by")),
+        trimToEmpty(rs.getString("collection_date")),
+        trimToEmpty(rs.getString("specimen_voucher")),
+        toBasisOfRecord(rs.getString("specimen_voucher")),
+        toTaxonId(rs.getString("sequence_md5")),
+        trimToEmpty(rs.getString("scientific_name")),
+        toTaxonConceptId(rs.getString("tax_id")),
+        trimToEmpty(rs.getString("altitude")),
+        trimToEmpty(rs.getString("altitude")),
+        trimToEmpty(rs.getString("sex"))
+    );
   }
 
   private CharSequence toTaxonConceptId(String data) {

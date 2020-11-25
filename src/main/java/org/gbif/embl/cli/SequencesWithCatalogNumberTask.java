@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class SequencesWithCatalogNumberTask extends SequencesTask {
@@ -16,8 +17,12 @@ public class SequencesWithCatalogNumberTask extends SequencesTask {
   private final AtomicLong offset;
   private final EmblClient emblClient;
 
-  public SequencesWithCatalogNumberTask(long numRecords, AtomicLong offset, EmblClient emblClient) {
-    super(numRecords);
+  public SequencesWithCatalogNumberTask(
+      CyclicBarrier barrier,
+      long numRecords,
+      AtomicLong offset,
+      EmblClient emblClient) {
+    super(barrier, numRecords);
     this.offset = offset;
     this.emblClient = emblClient;
   }
