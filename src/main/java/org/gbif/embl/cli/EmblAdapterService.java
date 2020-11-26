@@ -26,13 +26,6 @@ public class EmblAdapterService extends AbstractIdleService {
 
   private static final Logger LOG = LoggerFactory.getLogger(EmblAdapterService.class);
 
-  private static final ClientBuilder.ConnectionPoolConfig CONNECTION_POOL_CONFIG =
-      ClientBuilder.ConnectionPoolConfig.builder()
-          .timeout(10000)
-          .maxConnections(100)
-          .maxPerRoute(100)
-          .build();
-
   private static final int DEFAULT_START_HOUR = 0;
   private static final int DEFAULT_START_MINUTE = 0;
   private static final int DEFAULT_FREQUENCY = 7;
@@ -64,7 +57,12 @@ public class EmblAdapterService extends AbstractIdleService {
     this.frequencyInDays = ObjectUtils.defaultIfNull(config.frequencyInDays, DEFAULT_FREQUENCY);
     this.emblClient = new ClientBuilder()
         .withUrl(config.emblEbiApi)
-        .withConnectionPoolConfig(CONNECTION_POOL_CONFIG)
+        .withConnectionPoolConfig(
+            ClientBuilder.ConnectionPoolConfig.builder()
+                .timeout(config.client.timeout)
+                .maxConnections(config.client.maxConnections)
+                .maxPerRoute(config.client.maxPerRoute)
+                .build())
         .withExponentialBackoffRetry(
             Duration.ofMillis(config.client.initialInterval), config.client.multiplier, config.client.maxAttempts)
         .build(EmblClient.class);
