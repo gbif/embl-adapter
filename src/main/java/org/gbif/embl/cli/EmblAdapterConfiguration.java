@@ -14,6 +14,10 @@ public class EmblAdapterConfiguration {
   @NotNull public DbConfiguration db = new DbConfiguration();
 
   @NotNull
+  @Parameter(names = "--embl-ebi-api")
+  public String emblEbiApi = "https://www.ebi.ac.uk/ena/portal/api/";
+
+  @NotNull
   @Parameter(names = "--start-time")
   public String startTime;
 

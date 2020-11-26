@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
+import java.time.Duration;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.CyclicBarrier;
@@ -62,8 +63,9 @@ public class EmblAdapterService extends AbstractIdleService {
 
     this.frequencyInDays = ObjectUtils.defaultIfNull(config.frequencyInDays, DEFAULT_FREQUENCY);
     this.emblClient = new ClientBuilder()
-        .withUrl("https://www.ebi.ac.uk/ena/portal/api/")
+        .withUrl(config.emblEbiApi)
         .withConnectionPoolConfig(CONNECTION_POOL_CONFIG)
+        .withExponentialBackoffRetry(Duration.ofSeconds(5L), 1.5, 3)
         .build(EmblClient.class);
 
     Integer startHour;
