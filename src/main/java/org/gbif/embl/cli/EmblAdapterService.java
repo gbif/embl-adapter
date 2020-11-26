@@ -65,7 +65,8 @@ public class EmblAdapterService extends AbstractIdleService {
     this.emblClient = new ClientBuilder()
         .withUrl(config.emblEbiApi)
         .withConnectionPoolConfig(CONNECTION_POOL_CONFIG)
-        .withExponentialBackoffRetry(Duration.ofSeconds(5L), 1.5, 3)
+        .withExponentialBackoffRetry(
+            Duration.ofMillis(config.client.initialInterval), config.client.multiplier, config.client.maxAttempts)
         .build(EmblClient.class);
 
     Integer startHour;

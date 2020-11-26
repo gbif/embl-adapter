@@ -11,7 +11,13 @@ public class EmblAdapterConfiguration {
 
   @ParametersDelegate
   @Valid
-  @NotNull public DbConfiguration db = new DbConfiguration();
+  @NotNull
+  public DbConfiguration db = new DbConfiguration();
+
+  @ParametersDelegate
+  @Valid
+  @NotNull
+  public ClientConfiguration client = new ClientConfiguration();
 
   @NotNull
   @Parameter(names = "--embl-ebi-api")
