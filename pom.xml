@@ -213,7 +213,9 @@
                                 <exclude>META-INF/*.SF</exclude>
                                 <exclude>META-INF/*.DSA</exclude>
                                 <exclude>META-INF/*.RSA</exclude>
-                                <exclude>application.yml</exclude>
+                                <exclude>logback.xml</exclude>
+                                <exclude>eml.xml</exclude>
+                                <exclude>db.sql</exclude>
                             </excludes>
                         </filter>
                     </filters>
