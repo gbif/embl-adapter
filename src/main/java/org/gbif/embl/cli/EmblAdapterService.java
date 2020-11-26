@@ -94,14 +94,9 @@ public class EmblAdapterService extends AbstractIdleService {
   @Override
   protected void startUp() {
     LOG.info("Service started");
-    CyclicBarrier barrier = new CyclicBarrier(8, new ArchiveGeneratorTask(dataSource));
+    CyclicBarrier barrier = new CyclicBarrier(5);
     scheduleTask(
         new SequencesWithCountryTask(dataSource, barrier, 500L, offsetSequencesWithCountry, emblClient));
-    scheduleTask(
-        new SequencesWithCountryTask(dataSource, barrier, 500L, offsetSequencesWithCountry, emblClient));
-    scheduleTask(
-        new SequencesWithCoordinatesTask(
-            dataSource, barrier, 500L, offsetSequencesWithCoordinates, emblClient));
     scheduleTask(
         new SequencesWithCoordinatesTask(
             dataSource, barrier, 500L, offsetSequencesWithCoordinates, emblClient));
@@ -109,14 +104,9 @@ public class EmblAdapterService extends AbstractIdleService {
         new SequencesWithCatalogNumberTask(
             dataSource, barrier, 500L, offsetSequencesWithCatalogNumber, emblClient));
     scheduleTask(
-        new SequencesWithCatalogNumberTask(
-            dataSource, barrier, 500L, offsetSequencesWithCatalogNumber, emblClient));
-    scheduleTask(
         new SequencesWithIdentifiedByTask(
             dataSource, barrier, 500L, offsetSequencesWithIdentifiedBy, emblClient));
-    scheduleTask(
-        new SequencesWithIdentifiedByTask(
-            dataSource, barrier, 500L, offsetSequencesWithIdentifiedBy, emblClient));
+    scheduleTask(new ArchiveGeneratorTask(dataSource, barrier));
   }
 
   @Override

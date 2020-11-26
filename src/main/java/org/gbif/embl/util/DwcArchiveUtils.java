@@ -92,8 +92,7 @@ public final class DwcArchiveUtils {
    * Creates an meta.xml descriptor file in the directory parameter.
    */
   public static void createArchiveDescriptor(File directory) {
-    LOG.info("Creating archive meta.xml descriptor");
-
+    LOG.info("Creating archive descriptor file meta.xml in {}", directory);
     Archive downloadArchive = new Archive();
     downloadArchive.setMetadataLocation(METADATA_FILENAME);
 

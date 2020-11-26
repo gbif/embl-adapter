@@ -67,6 +67,8 @@ public abstract class SequencesTask implements Runnable {
     getLog().info("Task finished, reset offset to {}", getOffset().get());
 
     try {
+      String threadName = Thread.currentThread().getName();
+      getLog().info("thread {} barrier waiting", threadName);
       barrier.await();
     } catch (InterruptedException | BrokenBarrierException e) {
       getLog().error("Exception while waiting other tasks", e);

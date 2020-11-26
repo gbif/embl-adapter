@@ -29,19 +29,35 @@ import static org.gbif.embl.util.EmblAdapterConstants.REFERENCES_URL;
 import static org.gbif.embl.util.EmblAdapterConstants.TAXON_CONCEPT_ID_URL;
 import static org.gbif.embl.util.EmblAdapterConstants.TAXON_ID_PREFIX;
 
+@SuppressWarnings("ResultOfMethodCallIgnored")
 public class DwcArchiveBuilder {
 
   private static final Logger LOG = LoggerFactory.getLogger(DwcArchiveBuilder.class);
 
-  private final long prefix = new Date().getTime();
-  // TODO: 11/11/2020 use proper dir
-  private final File archiveDir = new File("archives/temp" + prefix);
+  private final String workingDirectory;
+  private final File archiveDir;
+
+  public DwcArchiveBuilder(String workingDirectory) {
+    this.workingDirectory = workingDirectory;
+    this.archiveDir = new File(workingDirectory + "/temp" + new Date().getTime());
+  }
 
   public void buildArchive(File zipFile, ResultSet rs) {
     LOG.info("Start building the archive {} ", zipFile.getPath());
 
     try {
+      if (!zipFile.getParentFile().exists()) {
+        LOG.debug("Directory {} does not exist, creating", zipFile.getParent());
+        zipFile.getParentFile().mkdir();
+      }
+
+      if (!archiveDir.exists()) {
+        LOG.debug("Directory {} does not exist, creating", archiveDir);
+        archiveDir.mkdir();
+      }
+
       if (zipFile.exists()) {
+        LOG.debug("Archive file already exists, deleting");
         zipFile.delete();
       }
 
@@ -57,12 +73,13 @@ public class DwcArchiveBuilder {
     } catch (IOException e) {
       LOG.error("Error while building archive", e);
     } finally {
-      // always cleanUp temp dir
-      cleanupFS();
+      // always clean temp dir
+      cleanTempDir();
     }
   }
 
   private void createCoreFile(ResultSet resultSet) throws IOException {
+    LOG.debug("Creating core file {} in {}", EmblAdapterConstants.CORE_FILENAME, archiveDir);
     File csvOutputFile = new File(archiveDir, EmblAdapterConstants.CORE_FILENAME);
     try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
       pw.println(
@@ -159,16 +176,20 @@ public class DwcArchiveBuilder {
   }
 
   private void generateMetadata() throws IOException {
-    File source = new File("src/main/resources/eml.xml");
-    if (!archiveDir.exists()) {
-      archiveDir.mkdir();
+    LOG.debug("Creating metadata file eml.xml in {}", archiveDir);
+    File file = new File(workingDirectory, "eml.xml");
+
+    if (file.exists()) {
+      LOG.debug("Metadata file is present, copying");
+      File target = new File(archiveDir, "eml.xml");
+      Files.copy(file.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING);
+    } else {
+      LOG.error("Metadata file eml.xml is not present in {}", workingDirectory);
     }
-    File target = new File(archiveDir, "eml.xml");
-    Files.copy(source.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING);
   }
 
-  private void cleanupFS() {
-    LOG.info("Cleaning up archive directory {}", archiveDir.getPath());
+  private void cleanTempDir() {
+    LOG.debug("Cleaning up archive directory {}", archiveDir.getPath());
     if (archiveDir.exists()) {
       FileUtils.deleteDirectoryRecursively(archiveDir);
     }
