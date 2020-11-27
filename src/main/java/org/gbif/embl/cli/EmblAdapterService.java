@@ -36,6 +36,7 @@ public class EmblAdapterService extends AbstractIdleService {
 
   private final Integer frequencyInDays;
   private final Long initialDelay;
+  private final Integer limit;
 
   private final AtomicLong offsetSequencesWithCountry = new AtomicLong(0);
   private final AtomicLong offsetSequencesWithCoordinates = new AtomicLong(0);
@@ -54,6 +55,7 @@ public class EmblAdapterService extends AbstractIdleService {
 
     this.dataSource = new HikariDataSource(hikariConfig);
 
+    this.limit = config.limit;
     this.frequencyInDays = ObjectUtils.defaultIfNull(config.frequencyInDays, DEFAULT_FREQUENCY);
     this.emblClient = new ClientBuilder()
         .withUrl(config.emblEbiApi)
@@ -96,17 +98,30 @@ public class EmblAdapterService extends AbstractIdleService {
   protected void startUp() {
     LOG.info("Service started");
     CyclicBarrier barrier = new CyclicBarrier(5);
+
+    Integer numSequencesWithCountry = limit;
+    Integer numSequencesWithCoordinates = limit;
+    Integer numSequencesWithCatalogNumber = limit;
+    Integer numSequencesWithIdentifiedBy = limit;
+    if (limit == null) {
+      numSequencesWithCountry = emblClient.countSequencesWithCountry();
+      numSequencesWithCoordinates = emblClient.countSequencesWithCoordinates();
+      numSequencesWithCatalogNumber = emblClient.countSequencesWithSpecimenVoucher();
+      numSequencesWithIdentifiedBy = emblClient.countSequencesWithIdentifiedBy();
+    }
+
     scheduleTask(
-        new SequencesWithCountryTask(dataSource, barrier, 500L, offsetSequencesWithCountry, emblClient));
+        new SequencesWithCountryTask(
+            dataSource, barrier, numSequencesWithCountry, offsetSequencesWithCountry, emblClient));
     scheduleTask(
         new SequencesWithCoordinatesTask(
-            dataSource, barrier, 500L, offsetSequencesWithCoordinates, emblClient));
+            dataSource, barrier, numSequencesWithCoordinates, offsetSequencesWithCoordinates, emblClient));
     scheduleTask(
         new SequencesWithCatalogNumberTask(
-            dataSource, barrier, 500L, offsetSequencesWithCatalogNumber, emblClient));
+            dataSource, barrier, numSequencesWithCatalogNumber, offsetSequencesWithCatalogNumber, emblClient));
     scheduleTask(
         new SequencesWithIdentifiedByTask(
-            dataSource, barrier, 500L, offsetSequencesWithIdentifiedBy, emblClient));
+            dataSource, barrier, numSequencesWithIdentifiedBy, offsetSequencesWithIdentifiedBy, emblClient));
     scheduleTask(new ArchiveGeneratorTask(dataSource, barrier));
   }
 

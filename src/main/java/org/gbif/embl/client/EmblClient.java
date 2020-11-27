@@ -19,11 +19,11 @@ import static org.gbif.embl.util.EmblAdapterConstants.QUERY_IDENTIFIED_BY;
 import static org.gbif.embl.util.EmblAdapterConstants.QUERY_SPECIMEN_VOUCHER;
 import static org.gbif.embl.util.EmblAdapterConstants.RESULT_SEQUENCE;
 
-@RequestMapping("search")
 public interface EmblClient {
 
   @RequestMapping(
       method = RequestMethod.GET,
+      path = "search",
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
   List<EmblResponse> search(
@@ -34,23 +34,45 @@ public interface EmblClient {
       @RequestParam("fields") List<String> fields
   );
 
-  default List<EmblResponse> search(Pageable pageable, String query) {
-    return search(pageable, RESULT_SEQUENCE, FORMAT_JSON, query, FIELDS);
-  }
+  @RequestMapping(
+      method = RequestMethod.GET,
+      path = "count",
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseBody
+  String count(
+      @RequestParam("result") String result,
+      @RequestParam("query") String query
+  );
 
   default List<EmblResponse> searchSequencesWithCountry(Pageable pageable) {
     return search(pageable, RESULT_SEQUENCE, FORMAT_JSON, QUERY_COUNTRY, FIELDS);
+  }
+
+  default Integer countSequencesWithCountry() {
+    return Integer.valueOf(count(RESULT_SEQUENCE, QUERY_COUNTRY));
   }
 
   default List<EmblResponse> searchSequencesWithCoordinates(Pageable pageable) {
     return search(pageable, RESULT_SEQUENCE, FORMAT_JSON, QUERY_GEO_BOX, FIELDS);
   }
 
+  default Integer countSequencesWithCoordinates() {
+    return Integer.valueOf(count(RESULT_SEQUENCE, QUERY_GEO_BOX));
+  }
+
   default List<EmblResponse> searchSequencesWithSpecimenVoucher(Pageable pageable) {
     return search(pageable, RESULT_SEQUENCE, FORMAT_JSON, QUERY_SPECIMEN_VOUCHER, FIELDS);
   }
 
+  default Integer countSequencesWithSpecimenVoucher() {
+    return Integer.valueOf(count(RESULT_SEQUENCE, QUERY_SPECIMEN_VOUCHER));
+  }
+
   default List<EmblResponse> searchSequencesWithIdentifiedBy(Pageable pageable) {
     return search(pageable, RESULT_SEQUENCE, FORMAT_JSON, QUERY_IDENTIFIED_BY, FIELDS);
+  }
+
+  default Integer countSequencesWithIdentifiedBy() {
+    return Integer.valueOf(count(RESULT_SEQUENCE, QUERY_IDENTIFIED_BY));
   }
 }

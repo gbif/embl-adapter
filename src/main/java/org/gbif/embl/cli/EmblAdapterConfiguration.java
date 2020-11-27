@@ -38,6 +38,8 @@ public class EmblAdapterConfiguration {
   public String toString() {
     return new StringJoiner(", ", EmblAdapterConfiguration.class.getSimpleName() + "[", "]")
         .add("db=" + db)
+        .add("client=" + client)
+        .add("emblEbiApi='" + emblEbiApi + "'")
         .add("startTime='" + startTime + "'")
         .add("frequencyInDays=" + frequencyInDays)
         .add("limit=" + limit)

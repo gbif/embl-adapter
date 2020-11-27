@@ -49,11 +49,19 @@ public abstract class SequencesTask implements Runnable {
         getLog().debug("Start writing DB");
         connection.setAutoCommit(false);
         for (EmblResponse item : emblResponseList) {
-          statement.addBatch(String.format(INSERT, item.getAccession(), item.getLocation(),
-              item.getCountry().replace("'", "''"), item.getIdentifiedBy(), item.getCollectedBy(),
-              item.getCollectionDate(), item.getSpecimenVoucher().replace("'", "''"),
-              item.getSequenceMd5(), item.getScientificName().replace("'", "''"),
-              item.getTaxId(), item.getAltitude(), item.getSex()));
+          statement.addBatch(String.format(INSERT,
+              item.getAccession(),
+              escapeApostrophes(item.getLocation()),
+              escapeApostrophes(item.getCountry()),
+              escapeApostrophes(item.getIdentifiedBy()),
+              escapeApostrophes(item.getCollectedBy()),
+              item.getCollectionDate(),
+              escapeApostrophes(item.getSpecimenVoucher()),
+              item.getSequenceMd5(),
+              escapeApostrophes(item.getScientificName()),
+              item.getTaxId(),
+              item.getAltitude(),
+              item.getSex()));
         }
         statement.executeBatch();
         connection.commit();
@@ -73,6 +81,10 @@ public abstract class SequencesTask implements Runnable {
     } catch (InterruptedException | BrokenBarrierException e) {
       getLog().error("Exception while waiting other tasks", e);
     }
+  }
+
+  private String escapeApostrophes(String str) {
+    return str.replaceAll("'", "''");
   }
 
   protected abstract List<EmblResponse> getEmblData();
