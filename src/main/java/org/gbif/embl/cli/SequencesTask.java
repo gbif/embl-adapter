@@ -16,19 +16,20 @@ import static org.gbif.embl.util.EmblAdapterConstants.INSERT;
 
 public abstract class SequencesTask implements Runnable {
 
-  public static final int LIMIT = 100;
-
   private final DataSource dataSource;
   private final CyclicBarrier barrier;
   private final long numRecords;
+  private final int limit;
 
   public SequencesTask(
       DataSource dataSource,
       CyclicBarrier barrier,
-      long numRecords) {
+      long numRecords,
+      int limit) {
     this.dataSource = dataSource;
     this.barrier = barrier;
     this.numRecords = numRecords;
+    this.limit = limit;
   }
 
   @Override
@@ -36,8 +37,7 @@ public abstract class SequencesTask implements Runnable {
     getLog().info("Task started");
     getLog().debug("Records to retrieve: {}. Offset initial: {}", numRecords, getOffset().get());
     while (getOffset().get() < numRecords) {
-      // decide on offset, limit
-      getLog().debug("Iteration: Offset: {}, limit: {}", getOffset().get(), LIMIT);
+      getLog().debug("Iteration: Offset: {}, limit: {}", getOffset().get(), limit);
 
       // perform request by client
       // increment offset
@@ -71,7 +71,7 @@ public abstract class SequencesTask implements Runnable {
       }
     }
 
-    getOffset().set(0L);
+//    getOffset().set(0L);
     getLog().info("Task finished, reset offset to {}", getOffset().get());
 
     try {

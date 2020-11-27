@@ -32,7 +32,10 @@ public class EmblAdapterConfiguration {
   public Integer frequencyInDays = 7;
 
   @Parameter(names = "--limit")
-  public Integer limit;
+  public Integer limit = 500;
+
+  @Parameter(names = "--num-records")
+  public Integer numRecords;
 
   @Override
   public String toString() {
@@ -43,6 +46,7 @@ public class EmblAdapterConfiguration {
         .add("startTime='" + startTime + "'")
         .add("frequencyInDays=" + frequencyInDays)
         .add("limit=" + limit)
+        .add("numRecords=" + numRecords)
         .toString();
   }
 }

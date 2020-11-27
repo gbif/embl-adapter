@@ -16,6 +16,7 @@ public class SequencesWithCatalogNumberTask extends SequencesTask {
   private static final Logger LOG = LoggerFactory.getLogger(SequencesWithCatalogNumberTask.class);
 
   private final AtomicLong offset;
+  private final int limit;
   private final EmblClient emblClient;
 
   public SequencesWithCatalogNumberTask(
@@ -23,9 +24,11 @@ public class SequencesWithCatalogNumberTask extends SequencesTask {
       CyclicBarrier barrier,
       long numRecords,
       AtomicLong offset,
+      int limit,
       EmblClient emblClient) {
-    super(dataSource, barrier, numRecords);
+    super(dataSource, barrier, numRecords, limit);
     this.offset = offset;
+    this.limit = limit;
     this.emblClient = emblClient;
   }
 
@@ -33,7 +36,7 @@ public class SequencesWithCatalogNumberTask extends SequencesTask {
   protected List<EmblResponse> getEmblData() {
     LOG.debug("Getting EMBL data...");
     List<EmblResponse> result =
-        emblClient.searchSequencesWithSpecimenVoucher(new PagingRequest(offset.getAndAdd(LIMIT), LIMIT));
+        emblClient.searchSequencesWithSpecimenVoucher(new PagingRequest(offset.getAndAdd(limit), limit));
     LOG.debug("EMBL data retrieved: {} records", result.size());
     return result;
   }
