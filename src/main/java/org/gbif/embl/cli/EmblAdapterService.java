@@ -38,6 +38,7 @@ public class EmblAdapterService extends AbstractIdleService {
   private final Long initialDelay;
   private final Integer numRecords;
   private final Integer limit;
+  private final String workingDirectory;
 
   private final AtomicLong offsetSequencesWithCountry = new AtomicLong(0);
   private final AtomicLong offsetSequencesWithCoordinates = new AtomicLong(0);
@@ -58,6 +59,7 @@ public class EmblAdapterService extends AbstractIdleService {
 
     this.numRecords = config.numRecords;
     this.limit = config.limit;
+    this.workingDirectory = config.workingDirectory;
     this.frequencyInDays = ObjectUtils.defaultIfNull(config.frequencyInDays, DEFAULT_FREQUENCY);
     this.emblClient = new ClientBuilder()
         .withUrl(config.emblEbiApi)
@@ -113,7 +115,7 @@ public class EmblAdapterService extends AbstractIdleService {
       numSequencesWithIdentifiedBy = emblClient.countSequencesWithIdentifiedBy();
     }
 
-    scheduleTask(new ArchiveGeneratorTask(dataSource, barrier));
+    scheduleTask(new ArchiveGeneratorTask(dataSource, barrier, workingDirectory));
 
     scheduleTask(
         new SequencesWithCountryTask(

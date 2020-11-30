@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.io.File;
-import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -25,10 +24,15 @@ public class ArchiveGeneratorTask implements Runnable {
 
   private final DataSource dataSource;
   private final CyclicBarrier barrier;
+  private final String workingDirectory;
 
-  public ArchiveGeneratorTask(DataSource dataSource, CyclicBarrier barrier) {
+  public ArchiveGeneratorTask(
+      DataSource dataSource,
+      CyclicBarrier barrier,
+      String workingDirectory) {
     this.dataSource = dataSource;
     this.barrier = barrier;
+    this.workingDirectory = workingDirectory;
   }
 
   @Override
@@ -44,19 +48,14 @@ public class ArchiveGeneratorTask implements Runnable {
     try (Connection connection = dataSource.getConnection();
          Statement statement = connection.createStatement();
          ResultSet resultSet = statement.executeQuery(SELECT)) {
-      File jarFile = new File(
-          ArchiveGeneratorTask.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
-      String jarDir = jarFile.getParentFile().getPath();
-      DwcArchiveBuilder dwcArchiveBuilder = new DwcArchiveBuilder(jarDir);
+      DwcArchiveBuilder dwcArchiveBuilder = new DwcArchiveBuilder(workingDirectory);
 
       String archiveName = String.format(ARCHIVE_NAME_TEMPLATE, new Date().getTime());
       dwcArchiveBuilder.buildArchive(
-          new File(jarDir + "/output", archiveName), resultSet);
+          new File(workingDirectory + "/output", archiveName), resultSet);
       LOG.info("Archive {} was created", archiveName);
     } catch (SQLException e) {
       LOG.error("SQL exception while running archive building task", e);
-    } catch (URISyntaxException e) {
-      LOG.error("URI syntax exception while running archive building task", e);
     }
   }
 }

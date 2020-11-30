@@ -37,6 +37,10 @@ public class EmblAdapterConfiguration {
   @Parameter(names = "--num-records")
   public Integer numRecords;
 
+  @NotNull
+  @Parameter(names = "--working-directory")
+  public String workingDirectory;
+
   @Override
   public String toString() {
     return new StringJoiner(", ", EmblAdapterConfiguration.class.getSimpleName() + "[", "]")
@@ -47,6 +51,7 @@ public class EmblAdapterConfiguration {
         .add("frequencyInDays=" + frequencyInDays)
         .add("limit=" + limit)
         .add("numRecords=" + numRecords)
+        .add("workingDirectory=" + workingDirectory)
         .toString();
   }
 }
