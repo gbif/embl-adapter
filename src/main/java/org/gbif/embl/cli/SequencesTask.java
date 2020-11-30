@@ -76,7 +76,8 @@ public abstract class SequencesTask implements Runnable {
 
     try {
       String threadName = Thread.currentThread().getName();
-      getLog().info("thread {} barrier waiting", threadName);
+      getLog().info(
+          "thread {} barrier waiting; total number of waiting tasks: {}", threadName, barrier.getNumberWaiting());
       barrier.await();
     } catch (InterruptedException | BrokenBarrierException e) {
       getLog().error("Exception while waiting other tasks", e);

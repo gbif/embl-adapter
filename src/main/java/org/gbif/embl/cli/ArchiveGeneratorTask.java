@@ -33,7 +33,7 @@ public class ArchiveGeneratorTask implements Runnable {
 
   @Override
   public void run() {
-    LOG.info("Waiting for the tasks");
+    LOG.info("Task started, waiting for the others to finish");
     try {
       barrier.await();
     } catch (InterruptedException | BrokenBarrierException e) {
