@@ -99,7 +99,7 @@ public class EmblAdapterService extends AbstractIdleService {
   @Override
   protected void startUp() {
     LOG.info("Service started");
-    CyclicBarrier barrier = new CyclicBarrier(8);
+    CyclicBarrier barrier = new CyclicBarrier(5);
     LOG.debug("Created barrier of {} tasks", barrier.getParties());
 
     Integer numSequencesWithCountry = numRecords;

@@ -71,8 +71,7 @@ public abstract class SequencesTask implements Runnable {
       }
     }
 
-//    getOffset().set(0L);
-    getLog().info("Task finished, reset offset to {}", getOffset().get());
+    getLog().info("Task finished");
 
     try {
       String threadName = Thread.currentThread().getName();
@@ -82,10 +81,13 @@ public abstract class SequencesTask implements Runnable {
     } catch (InterruptedException | BrokenBarrierException e) {
       getLog().error("Exception while waiting other tasks", e);
     }
+
+    getOffset().set(0L);
+    getLog().info("Reset offset to {}", getOffset().get());
   }
 
   private String escapeApostrophes(String str) {
-    return str.replaceAll("'", "''");
+    return str.replace("'", "''");
   }
 
   protected abstract List<EmblResponse> getEmblData();
