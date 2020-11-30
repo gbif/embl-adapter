@@ -41,6 +41,10 @@ public class EmblAdapterConfiguration {
   @Parameter(names = "--working-directory")
   public String workingDirectory;
 
+  @NotNull
+  @Parameter(names = "--metadata-file")
+  public String metadataFile;
+
   @Override
   public String toString() {
     return new StringJoiner(", ", EmblAdapterConfiguration.class.getSimpleName() + "[", "]")
@@ -52,6 +56,7 @@ public class EmblAdapterConfiguration {
         .add("limit=" + limit)
         .add("numRecords=" + numRecords)
         .add("workingDirectory=" + workingDirectory)
+        .add("metadataFile=" + metadataFile)
         .toString();
   }
 }

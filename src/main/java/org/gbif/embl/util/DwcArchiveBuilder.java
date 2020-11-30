@@ -35,10 +35,12 @@ public class DwcArchiveBuilder {
   private static final Logger LOG = LoggerFactory.getLogger(DwcArchiveBuilder.class);
 
   private final String workingDirectory;
+  private final String metadataFilePath;
   private final File archiveDir;
 
-  public DwcArchiveBuilder(String workingDirectory) {
+  public DwcArchiveBuilder(String workingDirectory, String metadataFilePath) {
     this.workingDirectory = workingDirectory;
+    this.metadataFilePath = metadataFilePath;
     this.archiveDir = new File(workingDirectory + "/temp" + new Date().getTime());
   }
 
@@ -177,7 +179,7 @@ public class DwcArchiveBuilder {
 
   private void generateMetadata() throws IOException {
     LOG.debug("Creating metadata file eml.xml in {}", archiveDir);
-    File file = new File(workingDirectory, "eml.xml");
+    File file = new File(metadataFilePath);
 
     if (file.exists()) {
       LOG.debug("Metadata file is present, copying");

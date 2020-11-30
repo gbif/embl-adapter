@@ -25,14 +25,17 @@ public class ArchiveGeneratorTask implements Runnable {
   private final DataSource dataSource;
   private final CyclicBarrier barrier;
   private final String workingDirectory;
+  private final String metadataFilePath;
 
   public ArchiveGeneratorTask(
       DataSource dataSource,
       CyclicBarrier barrier,
-      String workingDirectory) {
+      String workingDirectory,
+      String metadataFilePath) {
     this.dataSource = dataSource;
     this.barrier = barrier;
     this.workingDirectory = workingDirectory;
+    this.metadataFilePath = metadataFilePath;
   }
 
   @Override
@@ -48,7 +51,7 @@ public class ArchiveGeneratorTask implements Runnable {
     try (Connection connection = dataSource.getConnection();
          Statement statement = connection.createStatement();
          ResultSet resultSet = statement.executeQuery(SELECT)) {
-      DwcArchiveBuilder dwcArchiveBuilder = new DwcArchiveBuilder(workingDirectory);
+      DwcArchiveBuilder dwcArchiveBuilder = new DwcArchiveBuilder(workingDirectory, metadataFilePath);
 
       String archiveName = String.format(ARCHIVE_NAME_TEMPLATE, new Date().getTime());
       dwcArchiveBuilder.buildArchive(
