@@ -14,22 +14,6 @@ public final class EmblAdapterConstants {
   public static final String CORE_FILENAME = "occurrence.txt";
   public static final String DESCRIPTOR_FILENAME = "meta.xml";
 
-  public static final String INSERT = "INSERT INTO embl_data VALUES " +
-      "('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') ON CONFLICT DO NOTHING";
-  public static final String SELECT = "SELECT accession,\n" +
-      "       location,\n" +
-      "       country,\n" +
-      "       identified_by,\n" +
-      "       collected_by,\n" +
-      "       collection_date,\n" +
-      "       specimen_voucher,\n" +
-      "       sequence_md5,\n" +
-      "       scientific_name,\n" +
-      "       tax_id,\n" +
-      "       altitude,\n" +
-      "       sex\n" +
-      "FROM embl_data";
-
   public static final Pattern LOCATION_PATTERN = Pattern.compile("([0-9.]+\\s+\\w)\\s+([0-9.]+\\s+\\w)");
 
   public static final String DEFAULT_DELIMITER = "\t";
@@ -48,15 +32,7 @@ public final class EmblAdapterConstants {
       DwcTerm.taxonID, DwcTerm.scientificName, DwcTerm.taxonConceptID, DwcTerm.minimumElevationInMeters,
       DwcTerm.maximumElevationInMeters, DwcTerm.sex);
 
-  public static final List<String> FIELDS = Arrays.asList("accession", "location", "country", "identified_by",
-      "collected_by", "collection_date", "specimen_voucher", "sequence_md5", "scientific_name", "tax_id", "altitude",
-      "sex");
-  public static final String RESULT_SEQUENCE = "sequence";
-  public static final String FORMAT_JSON = "json";
-  public static final String QUERY_GEO_BOX = "geo_box1(-90,-180,90,180)";
-  public static final String QUERY_SPECIMEN_VOUCHER = "specimen_voucher=\"*\"";
-  public static final String QUERY_IDENTIFIED_BY = "identified_by=\"*\"";
-  public static final String QUERY_COUNTRY = "country=\"*\"";
+  public static final String DATA_URL = "https://www.ebi.ac.uk/ena/portal/api/search?dataPortal=ena&fields=accession,location,country,identified_by,collected_by,collection_date,specimen_voucher,sequence_md5,scientific_name,tax_id,altitude,sex&offset=0&limit=0&&query=geo_box1(-90,-180,90,180)%20OR%20specimen_voucher=%22*%22%20OR%20identified_by=%22*%22%20OR%20country=%22*%22&result=sequence";
 
   private EmblAdapterConstants() {
   }

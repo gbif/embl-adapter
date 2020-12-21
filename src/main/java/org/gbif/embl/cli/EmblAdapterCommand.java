@@ -6,7 +6,7 @@ import org.gbif.cli.service.ServiceCommand;
 
 import org.kohsuke.MetaInfServices;
 
-@SuppressWarnings("UnstableApiUsage")
+@SuppressWarnings({"UnstableApiUsage", "unused"})
 @MetaInfServices(Command.class)
 public class EmblAdapterCommand extends ServiceCommand {
 

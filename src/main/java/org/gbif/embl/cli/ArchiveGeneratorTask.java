@@ -4,17 +4,13 @@ import org.gbif.embl.util.DwcArchiveBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sql.DataSource;
 import java.io.File;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
-
-import static org.gbif.embl.util.EmblAdapterConstants.SELECT;
 
 public class ArchiveGeneratorTask implements Runnable {
 
@@ -22,17 +18,17 @@ public class ArchiveGeneratorTask implements Runnable {
 
   private static final String ARCHIVE_NAME_TEMPLATE = "embl-archive_%s.zip";
 
-  private final DataSource dataSource;
+  private final String rawDataFile;
   private final CyclicBarrier barrier;
   private final String workingDirectory;
   private final String metadataFilePath;
 
   public ArchiveGeneratorTask(
-      DataSource dataSource,
+      String rawDataFile,
       CyclicBarrier barrier,
       String workingDirectory,
       String metadataFilePath) {
-    this.dataSource = dataSource;
+    this.rawDataFile = rawDataFile;
     this.barrier = barrier;
     this.workingDirectory = workingDirectory;
     this.metadataFilePath = metadataFilePath;
@@ -48,17 +44,17 @@ public class ArchiveGeneratorTask implements Runnable {
     }
 
     LOG.info("Start creating archive");
-    try (Connection connection = dataSource.getConnection();
-         Statement statement = connection.createStatement();
-         ResultSet resultSet = statement.executeQuery(SELECT)) {
-      DwcArchiveBuilder dwcArchiveBuilder = new DwcArchiveBuilder(workingDirectory, metadataFilePath);
+    DwcArchiveBuilder dwcArchiveBuilder = new DwcArchiveBuilder(workingDirectory, metadataFilePath);
+    String archiveName = String.format(ARCHIVE_NAME_TEMPLATE, new Date().getTime());
+    dwcArchiveBuilder.buildArchive(
+        new File(workingDirectory + "/output", archiveName), rawDataFile);
+    LOG.info("Archive {} was created", archiveName);
 
-      String archiveName = String.format(ARCHIVE_NAME_TEMPLATE, new Date().getTime());
-      dwcArchiveBuilder.buildArchive(
-          new File(workingDirectory + "/output", archiveName), resultSet);
-      LOG.info("Archive {} was created", archiveName);
-    } catch (SQLException e) {
-      LOG.error("SQL exception while running archive building task", e);
+    try {
+      Files.deleteIfExists(Paths.get(rawDataFile));
+      LOG.info("Raw data file {} deleted", rawDataFile);
+    } catch (IOException e) {
+      LOG.error("IOException while trying to delete raw data file");
     }
   }
 }

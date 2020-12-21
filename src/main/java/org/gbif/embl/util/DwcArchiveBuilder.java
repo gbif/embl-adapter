@@ -7,13 +7,15 @@ import org.gbif.utils.file.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
@@ -44,7 +46,7 @@ public class DwcArchiveBuilder {
     this.archiveDir = new File(workingDirectory + "/temp" + new Date().getTime());
   }
 
-  public void buildArchive(File zipFile, ResultSet rs) {
+  public void buildArchive(File zipFile, String rawDataFile) {
     LOG.info("Start building the archive {} ", zipFile.getPath());
 
     try {
@@ -68,56 +70,67 @@ public class DwcArchiveBuilder {
       // meta.xml
       DwcArchiveUtils.createArchiveDescriptor(archiveDir);
       // occurrence.txt
-      createCoreFile(rs);
+      createCoreFile(rawDataFile);
       // zip up
       LOG.info("Zipping archive {}", archiveDir);
       CompressionUtil.zipDir(archiveDir, zipFile, true);
     } catch (IOException e) {
       LOG.error("Error while building archive", e);
-    } finally {
+    }
+    finally {
       // always clean temp dir
       cleanTempDir();
     }
   }
 
-  private void createCoreFile(ResultSet resultSet) throws IOException {
+  private void createCoreFile(String rawDataFile) throws IOException {
     LOG.debug("Creating core file {} in {}", EmblAdapterConstants.CORE_FILENAME, archiveDir);
-    File csvOutputFile = new File(archiveDir, EmblAdapterConstants.CORE_FILENAME);
-    try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
+    File outputFile = new File(archiveDir, EmblAdapterConstants.CORE_FILENAME);
+    try (PrintWriter pw = new PrintWriter(outputFile)) {
       pw.println(
           EmblAdapterConstants.TERMS.stream()
               .map(Term::simpleName)
               .collect(Collectors.joining(DEFAULT_DELIMITER))
       );
 
-      while (resultSet.next()) {
-        pw.println(joinData(resultSet));
+      File inputFile = new File(rawDataFile);
+
+      try (
+           InputStream inputStream = new FileInputStream(inputFile);
+           BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))
+      ) {
+        br.lines()
+            .skip(1)
+            .map(line -> line.split("\\t", -1))
+            .map(this::joinData)
+            .forEach(pw::println);
+      } catch (IOException e) {
+        LOG.error("IOException while writing core file", e);
       }
-    } catch (SQLException e) {
-      LOG.error("SQL exception while creating core file", e);
     }
   }
 
-  private String joinData(ResultSet rs) throws SQLException {
+  private String joinData(String[] rs) {
+    // TODO: 21/12/2020 add comments
     return String.join(DEFAULT_DELIMITER,
-        trimToEmpty(rs.getString("accession")),
-        toAssociatedSequences(rs.getString("accession")),
-        toReferences(rs.getString("accession")),
-        toLatitude(rs.getString("location")),
-        toLongitude(rs.getString("location")),
-        toCountry(rs.getString("country")),
-        toLocality(rs.getString("country")),
-        trimToEmpty(rs.getString("identified_by")),
-        trimToEmpty(rs.getString("collected_by")),
-        trimToEmpty(rs.getString("collection_date")),
-        trimToEmpty(rs.getString("specimen_voucher")),
-        toBasisOfRecord(rs.getString("specimen_voucher")),
-        toTaxonId(rs.getString("sequence_md5")),
-        trimToEmpty(rs.getString("scientific_name")),
-        toTaxonConceptId(rs.getString("tax_id")),
-        trimToEmpty(rs.getString("altitude")),
-        trimToEmpty(rs.getString("altitude")),
-        trimToEmpty(rs.getString("sex"))
+        trimToEmpty(rs[0]),
+        toAssociatedSequences(rs[0]),
+        toReferences(rs[0]),
+        toLatitude(rs[1]),
+        toLongitude(rs[1]),
+        toCountry(rs[2]),
+        toLocality(rs[2]),
+        trimToEmpty(rs[3]),
+        trimToEmpty(rs[4]),
+        trimToEmpty(rs[5]),
+        trimToEmpty(rs[6]),
+        toBasisOfRecord(rs[6]),
+        toTaxonId(rs[7]),
+        trimToEmpty(rs[8]),
+        toTaxonConceptId(rs.length >= 10 ? rs[9] : ""),
+        trimToEmpty(rs.length >= 11 ? rs[10] : ""),
+        trimToEmpty(rs.length >= 11 ? rs[10] : ""),
+        trimToEmpty(rs.length >= 12 ? rs[11] : "")
     );
   }
 
@@ -150,8 +163,9 @@ public class DwcArchiveBuilder {
   }
 
   private CharSequence toLocality(String country) {
+    // TODO: 21/12/2020 make it safe
     if (StringUtils.isNotBlank(country) && country.contains(COUNTRY_DELIMITER)) {
-      return country.split(COUNTRY_DELIMITER)[1];
+      return country.split(COUNTRY_DELIMITER, -1)[1];
     }
 
     return StringUtils.EMPTY;
