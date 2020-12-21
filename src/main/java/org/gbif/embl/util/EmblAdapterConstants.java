@@ -31,6 +31,18 @@ public final class EmblAdapterConstants {
       DwcTerm.identifiedBy, DwcTerm.recordedBy, DwcTerm.eventDate, DwcTerm.catalogNumber, DwcTerm.basisOfRecord,
       DwcTerm.taxonID, DwcTerm.scientificName, DwcTerm.taxonConceptID, DwcTerm.minimumElevationInMeters,
       DwcTerm.maximumElevationInMeters, DwcTerm.sex);
+  public static final int ACCESSION_INDEX = 0;
+  public static final int LOCATION_INDEX = 1;
+  public static final int COUNTRY_INDEX = 2;
+  public static final int IDENTIFIED_BY_INDEX = 3;
+  public static final int COLLECTED_BY_INDEX = 4;
+  public static final int COLLECTION_DATE_INDEX = 5;
+  public static final int SPECIMEN_VOUCHER_INDEX = 6;
+  public static final int SEQUENCE_MD5_INDEX = 7;
+  public static final int SCIENTIFIC_NAME_INDEX = 8;
+  public static final int TAX_ID_INDEX = 9;
+  public static final int ALTITUDE_INDEX = 10;
+  public static final int SEX_INDEX = 11;
 
   public static final String DATA_URL = "https://www.ebi.ac.uk/ena/portal/api/search?dataPortal=ena&fields=accession,location,country,identified_by,collected_by,collection_date,specimen_voucher,sequence_md5,scientific_name,tax_id,altitude,sex&offset=0&limit=0&&query=geo_box1(-90,-180,90,180)%20OR%20specimen_voucher=%22*%22%20OR%20identified_by=%22*%22%20OR%20country=%22*%22&result=sequence";
 

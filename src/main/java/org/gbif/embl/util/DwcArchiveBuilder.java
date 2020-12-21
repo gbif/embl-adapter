@@ -21,15 +21,27 @@ import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
+import static org.gbif.embl.util.EmblAdapterConstants.ACCESSION_INDEX;
+import static org.gbif.embl.util.EmblAdapterConstants.ALTITUDE_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.ASSOCIATED_SEQUENCES_URL;
+import static org.gbif.embl.util.EmblAdapterConstants.COLLECTED_BY_INDEX;
+import static org.gbif.embl.util.EmblAdapterConstants.COLLECTION_DATE_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.COUNTRY_DELIMITER;
+import static org.gbif.embl.util.EmblAdapterConstants.COUNTRY_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.DEFAULT_DELIMITER;
+import static org.gbif.embl.util.EmblAdapterConstants.IDENTIFIED_BY_INDEX;
+import static org.gbif.embl.util.EmblAdapterConstants.LOCATION_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.LOCATION_PATTERN;
 import static org.gbif.embl.util.EmblAdapterConstants.MATERIAL_SAMPLE;
 import static org.gbif.embl.util.EmblAdapterConstants.PRESERVED_SPECIMEN;
 import static org.gbif.embl.util.EmblAdapterConstants.REFERENCES_URL;
+import static org.gbif.embl.util.EmblAdapterConstants.SCIENTIFIC_NAME_INDEX;
+import static org.gbif.embl.util.EmblAdapterConstants.SEQUENCE_MD5_INDEX;
+import static org.gbif.embl.util.EmblAdapterConstants.SEX_INDEX;
+import static org.gbif.embl.util.EmblAdapterConstants.SPECIMEN_VOUCHER_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.TAXON_CONCEPT_ID_URL;
 import static org.gbif.embl.util.EmblAdapterConstants.TAXON_ID_PREFIX;
+import static org.gbif.embl.util.EmblAdapterConstants.TAX_ID_INDEX;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
 public class DwcArchiveBuilder {
@@ -110,28 +122,31 @@ public class DwcArchiveBuilder {
     }
   }
 
-  private String joinData(String[] rs) {
-    // TODO: 21/12/2020 add comments
+  private String joinData(String[] arr) {
     return String.join(DEFAULT_DELIMITER,
-        trimToEmpty(rs[0]),
-        toAssociatedSequences(rs[0]),
-        toReferences(rs[0]),
-        toLatitude(rs[1]),
-        toLongitude(rs[1]),
-        toCountry(rs[2]),
-        toLocality(rs[2]),
-        trimToEmpty(rs[3]),
-        trimToEmpty(rs[4]),
-        trimToEmpty(rs[5]),
-        trimToEmpty(rs[6]),
-        toBasisOfRecord(rs[6]),
-        toTaxonId(rs[7]),
-        trimToEmpty(rs[8]),
-        toTaxonConceptId(rs.length >= 10 ? rs[9] : ""),
-        trimToEmpty(rs.length >= 11 ? rs[10] : ""),
-        trimToEmpty(rs.length >= 11 ? rs[10] : ""),
-        trimToEmpty(rs.length >= 12 ? rs[11] : "")
+        trimToEmpty(arr[ACCESSION_INDEX]), // occurrenceID term
+        toAssociatedSequences(arr[ACCESSION_INDEX]), // associatedSequences term
+        toReferences(arr[ACCESSION_INDEX]), // references term
+        toLatitude(arr[LOCATION_INDEX]), // decimalLatitude term
+        toLongitude(arr[LOCATION_INDEX]), // decimalLongitude term
+        toCountry(arr[COUNTRY_INDEX]), // country term
+        toLocality(arr[COUNTRY_INDEX]), // locality term
+        trimToEmpty(arr[IDENTIFIED_BY_INDEX]), // identifiedBy term
+        trimToEmpty(arr[COLLECTED_BY_INDEX]), // recordedBy term
+        trimToEmpty(arr[COLLECTION_DATE_INDEX]), // eventDate term
+        trimToEmpty(arr[SPECIMEN_VOUCHER_INDEX]), // catalogNumber term
+        toBasisOfRecord(arr[SPECIMEN_VOUCHER_INDEX]), // basisOfRecord term
+        toTaxonId(arr[SEQUENCE_MD5_INDEX]), // taxonID term
+        trimToEmpty(arr[SCIENTIFIC_NAME_INDEX]), // scientificName term
+        toTaxonConceptId(getOrEmpty(arr,TAX_ID_INDEX)), // taxonConceptID term
+        trimToEmpty(getOrEmpty(arr, ALTITUDE_INDEX)), // minimumElevationInMeters term
+        trimToEmpty(getOrEmpty(arr, ALTITUDE_INDEX)), // maximumElevationInMeters term
+        trimToEmpty(getOrEmpty(arr, SEX_INDEX)) // sex term
     );
+  }
+
+  private String getOrEmpty(String[] arr, int index) {
+    return arr.length > index ? arr[index] : StringUtils.EMPTY;
   }
 
   private CharSequence toTaxonConceptId(String data) {
@@ -163,9 +178,8 @@ public class DwcArchiveBuilder {
   }
 
   private CharSequence toLocality(String country) {
-    // TODO: 21/12/2020 make it safe
     if (StringUtils.isNotBlank(country) && country.contains(COUNTRY_DELIMITER)) {
-      return country.split(COUNTRY_DELIMITER, -1)[1];
+      return getOrEmpty(country.split(COUNTRY_DELIMITER, -1), 1);
     }
 
     return StringUtils.EMPTY;
