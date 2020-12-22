@@ -8,9 +8,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
+
+import static org.gbif.embl.util.EmblAdapterConstants.DATE_NO_SEPARATORS_FORMAT;
 
 public class ArchiveGeneratorTask implements Runnable {
 
@@ -45,7 +47,7 @@ public class ArchiveGeneratorTask implements Runnable {
 
     LOG.info("Start creating archive");
     DwcArchiveBuilder dwcArchiveBuilder = new DwcArchiveBuilder(workingDirectory, metadataFilePath);
-    String archiveName = String.format(ARCHIVE_NAME_TEMPLATE, new Date().getTime());
+    String archiveName = String.format(ARCHIVE_NAME_TEMPLATE, LocalDate.now().format(DATE_NO_SEPARATORS_FORMAT));
     dwcArchiveBuilder.buildArchive(
         new File(workingDirectory + "/output", archiveName), rawDataFile);
     LOG.info("Archive {} was created", archiveName);
