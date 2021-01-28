@@ -47,8 +47,6 @@ public final class EmblAdapterConstants {
   public static final int ALTITUDE_INDEX = 10;
   public static final int SEX_INDEX = 11;
 
-  public static final String DATA_URL = "https://www.ebi.ac.uk/ena/portal/api/search?dataPortal=ena&fields=accession,location,country,identified_by,collected_by,collection_date,specimen_voucher,sequence_md5,scientific_name,tax_id,altitude,sex&offset=0&limit=0&&query=geo_box1(-90,-180,90,180)%20OR%20specimen_voucher=%22*%22%20OR%20identified_by=%22*%22%20OR%20country=%22*%22&result=sequence";
-
   private EmblAdapterConstants() {
   }
 }

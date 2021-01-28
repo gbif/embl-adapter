@@ -28,8 +28,40 @@ public class EmblAdapterConfiguration {
   public String metadataFile;
 
   @NotNull
-  @Parameter(names = "--raw-embl-data-output-file")
-  public String rawEmblDataOutputFile;
+  @Parameter(names = "--dataset-for-edna-request-url")
+  public String datasetForEdnaRequestUrl;
+
+  @NotNull
+  @Parameter(names = "--dataset-for-edna-raw-data-file")
+  public String datasetForEdnaRawDataFile;
+
+  @NotNull
+  @Parameter(names = "--dataset-for-edna-archive-name")
+  public String datasetForEdnaArchiveName;
+
+  @NotNull
+  @Parameter(names = "--dataset-for-organism-sequenced-request-url")
+  public String datasetForOrganismSequencedRequestUrl;
+
+  @NotNull
+  @Parameter(names = "--dataset-for-organism-sequenced-raw-data-file")
+  public String datasetForOrganismSequencedRawDataFile;
+
+  @NotNull
+  @Parameter(names = "--dataset-for-organism-sequenced-archive-name")
+  public String datasetForOrganismSequencedArchiveName;
+
+  @NotNull
+  @Parameter(names = "--dataset-with-hosts-request-url")
+  public String datasetWithHostsRequestUrl;
+
+  @NotNull
+  @Parameter(names = "--dataset-with-hosts-raw-data-file")
+  public String datasetWithHostsRawDataFile;
+
+  @NotNull
+  @Parameter(names = "--dataset-with-hosts-archive-name")
+  public String datasetWithHostsArchiveName;
 
   @Override
   public String toString() {
@@ -39,7 +71,15 @@ public class EmblAdapterConfiguration {
         .add("frequencyInDays=" + frequencyInDays)
         .add("workingDirectory=" + workingDirectory)
         .add("metadataFile=" + metadataFile)
-        .add("rawEmblDataOutputFile=" + rawEmblDataOutputFile)
+        .add("datasetForEdnaRawDataFile=" + datasetForEdnaRawDataFile)
+        .add("datasetForOrganismSequencedRawDataFile=" + datasetForOrganismSequencedRawDataFile)
+        .add("datasetWithHostsRawDataFile=" + datasetWithHostsRawDataFile)
+        .add("datasetForEdnaArchiveName=" + datasetForEdnaArchiveName)
+        .add("datasetForOrganismSequencedArchiveName=" + datasetForOrganismSequencedArchiveName)
+        .add("datasetWithHostsArchiveName=" + datasetWithHostsArchiveName)
+        .add("datasetForEdnaRequestUrl=" + datasetForEdnaRequestUrl)
+        .add("datasetForOrganismSequencedRequestUrl=" + datasetForOrganismSequencedRequestUrl)
+        .add("datasetWithHostsRequestUrl=" + datasetWithHostsRequestUrl)
         .toString();
   }
 }

@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -27,15 +26,11 @@ public class EmblAdapterService extends AbstractIdleService {
 
   private final Integer frequencyInDays;
   private final Long initialDelay;
-  private final String workingDirectory;
-  private final String metadataFilePath;
-  private final String rawEmblDataOutputFilePath;
+  private final EmblAdapterConfiguration config;
 
   public EmblAdapterService(EmblAdapterConfiguration config) {
-    this.scheduler = Executors.newScheduledThreadPool(8);
-    this.workingDirectory = config.workingDirectory;
-    this.metadataFilePath = config.metadataFile;
-    this.rawEmblDataOutputFilePath = config.rawEmblDataOutputFile;
+    this.config = config;
+    this.scheduler = Executors.newScheduledThreadPool(3);
     this.frequencyInDays = ObjectUtils.defaultIfNull(config.frequencyInDays, DEFAULT_FREQUENCY);
 
     Integer startHour;
@@ -66,11 +61,27 @@ public class EmblAdapterService extends AbstractIdleService {
   @Override
   protected void startUp() {
     LOG.info("Service started");
-    CyclicBarrier barrier = new CyclicBarrier(2);
-    LOG.debug("Created barrier of {} tasks", barrier.getParties());
-
-    scheduleTask(new ArchiveGeneratorTask(rawEmblDataOutputFilePath, barrier, workingDirectory, metadataFilePath));
-    scheduleTask(new SequencesDownloadTask(rawEmblDataOutputFilePath, barrier));
+    scheduleTask(new ArchiveGeneratorTask(
+        "datasets_for_edna",
+        config.datasetForEdnaRequestUrl,
+        config.datasetForEdnaArchiveName,
+        config.datasetForEdnaRawDataFile,
+        config.workingDirectory,
+        config.metadataFile));
+    scheduleTask(new ArchiveGeneratorTask(
+        "datasets_for_organism_sequenced",
+        config.datasetForOrganismSequencedRequestUrl,
+        config.datasetForOrganismSequencedArchiveName,
+        config.datasetForOrganismSequencedRawDataFile,
+        config.workingDirectory,
+        config.metadataFile));
+    scheduleTask(new ArchiveGeneratorTask(
+        "datasets_with_hosts",
+        config.datasetWithHostsRequestUrl,
+        config.datasetWithHostsArchiveName,
+        config.datasetWithHostsRawDataFile,
+        config.workingDirectory,
+        config.metadataFile));
   }
 
   @Override
