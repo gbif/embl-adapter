@@ -16,7 +16,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.time.LocalDate;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
@@ -28,7 +28,6 @@ import static org.gbif.embl.util.EmblAdapterConstants.COLLECTED_BY_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.COLLECTION_DATE_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.COUNTRY_DELIMITER;
 import static org.gbif.embl.util.EmblAdapterConstants.COUNTRY_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.DATE_NO_SEPARATORS_FORMAT;
 import static org.gbif.embl.util.EmblAdapterConstants.DEFAULT_DELIMITER;
 import static org.gbif.embl.util.EmblAdapterConstants.IDENTIFIED_BY_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.LOCATION_INDEX;
@@ -56,7 +55,7 @@ public class DwcArchiveBuilder {
   public DwcArchiveBuilder(String workingDirectory, String metadataFilePath) {
     this.workingDirectory = workingDirectory;
     this.metadataFilePath = metadataFilePath;
-    this.archiveDir = new File(workingDirectory + "/temp" + LocalDate.now().format(DATE_NO_SEPARATORS_FORMAT));
+    this.archiveDir = new File(workingDirectory + "/temp_" + UUID.randomUUID());
   }
 
   public void buildArchive(File zipFile, String rawDataFile) {

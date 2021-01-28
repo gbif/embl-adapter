@@ -4,7 +4,6 @@ import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -14,8 +13,6 @@ public final class EmblAdapterConstants {
   public static final String METADATA_FILENAME = "metadata.xml";
   public static final String CORE_FILENAME = "occurrence.txt";
   public static final String DESCRIPTOR_FILENAME = "meta.xml";
-
-  public static final DateTimeFormatter DATE_NO_SEPARATORS_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
 
   public static final Pattern LOCATION_PATTERN = Pattern.compile("([0-9.]+\\s+\\w)\\s+([0-9.]+\\s+\\w)");
 
