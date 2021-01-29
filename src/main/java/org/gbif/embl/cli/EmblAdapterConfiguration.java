@@ -24,8 +24,8 @@ public class EmblAdapterConfiguration {
   public String workingDirectory;
 
   @NotNull
-  @Parameter(names = "--metadata-file")
-  public String metadataFile;
+  @Parameter(names = "--dataset-for-edna-metadata-file")
+  public String datasetForEdnaMetadataFile;
 
   @NotNull
   @Parameter(names = "--dataset-for-edna-request-url")
@@ -40,6 +40,10 @@ public class EmblAdapterConfiguration {
   public String datasetForEdnaArchiveName;
 
   @NotNull
+  @Parameter(names = "--dataset-for-organism-sequenced-metadata-file")
+  public String datasetForOrganismSequencedMetadataFile;
+
+  @NotNull
   @Parameter(names = "--dataset-for-organism-sequenced-request-url")
   public String datasetForOrganismSequencedRequestUrl;
 
@@ -50,6 +54,10 @@ public class EmblAdapterConfiguration {
   @NotNull
   @Parameter(names = "--dataset-for-organism-sequenced-archive-name")
   public String datasetForOrganismSequencedArchiveName;
+
+  @NotNull
+  @Parameter(names = "--dataset-with-hosts-metadata-file")
+  public String datasetWithHostsMetadataFile;
 
   @NotNull
   @Parameter(names = "--dataset-with-hosts-request-url")
@@ -70,7 +78,6 @@ public class EmblAdapterConfiguration {
         .add("startTime='" + startTime + "'")
         .add("frequencyInDays=" + frequencyInDays)
         .add("workingDirectory=" + workingDirectory)
-        .add("metadataFile=" + metadataFile)
         .add("datasetForEdnaRawDataFile=" + datasetForEdnaRawDataFile)
         .add("datasetForOrganismSequencedRawDataFile=" + datasetForOrganismSequencedRawDataFile)
         .add("datasetWithHostsRawDataFile=" + datasetWithHostsRawDataFile)
@@ -80,6 +87,9 @@ public class EmblAdapterConfiguration {
         .add("datasetForEdnaRequestUrl=" + datasetForEdnaRequestUrl)
         .add("datasetForOrganismSequencedRequestUrl=" + datasetForOrganismSequencedRequestUrl)
         .add("datasetWithHostsRequestUrl=" + datasetWithHostsRequestUrl)
+        .add("datasetForEdnaMetadataFile=" + datasetForEdnaMetadataFile)
+        .add("datasetForOrganismSequencedMetadataFile=" + datasetForOrganismSequencedMetadataFile)
+        .add("datasetWithHostsMetadataFile=" + datasetWithHostsMetadataFile)
         .toString();
   }
 }

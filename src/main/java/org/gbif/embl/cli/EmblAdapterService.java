@@ -67,21 +67,21 @@ public class EmblAdapterService extends AbstractIdleService {
         config.datasetForEdnaArchiveName,
         config.datasetForEdnaRawDataFile,
         config.workingDirectory,
-        config.metadataFile));
+        config.datasetForEdnaMetadataFile));
     scheduleTask(new ArchiveGeneratorTask(
         "datasets_for_organism_sequenced",
         config.datasetForOrganismSequencedRequestUrl,
         config.datasetForOrganismSequencedArchiveName,
         config.datasetForOrganismSequencedRawDataFile,
         config.workingDirectory,
-        config.metadataFile));
+        config.datasetForOrganismSequencedMetadataFile));
     scheduleTask(new ArchiveGeneratorTask(
         "datasets_with_hosts",
         config.datasetWithHostsRequestUrl,
         config.datasetWithHostsArchiveName,
         config.datasetWithHostsRawDataFile,
         config.workingDirectory,
-        config.metadataFile));
+        config.datasetWithHostsMetadataFile));
   }
 
   @Override
