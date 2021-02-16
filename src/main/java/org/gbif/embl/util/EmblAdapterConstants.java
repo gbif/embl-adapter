@@ -30,25 +30,43 @@ public final class EmblAdapterConstants {
   public static final String CORE_FILENAME = "occurrence.txt";
   public static final String DESCRIPTOR_FILENAME = "meta.xml";
 
-  public static final DateTimeFormatter DATE_NO_SEPARATORS_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
+  public static final DateTimeFormatter DATE_NO_SEPARATORS_FORMAT =
+      DateTimeFormatter.ofPattern("yyyyMMdd");
 
-  public static final Pattern LOCATION_PATTERN = Pattern.compile("([0-9.]+\\s+\\w)\\s+([0-9.]+\\s+\\w)");
+  public static final Pattern LOCATION_PATTERN =
+      Pattern.compile("([0-9.]+\\s+\\w)\\s+([0-9.]+\\s+\\w)");
 
   public static final String DEFAULT_DELIMITER = "\t";
   public static final String COUNTRY_DELIMITER = ":";
   public static final String TAXON_ID_PREFIX = "ASV:";
-  public static final String ASSOCIATED_SEQUENCES_URL = "https://www.ebi.ac.uk/ena/browser/api/embl/";
+  public static final String ASSOCIATED_SEQUENCES_URL =
+      "https://www.ebi.ac.uk/ena/browser/api/embl/";
   public static final String REFERENCES_URL = "https://www.ebi.ac.uk/ena/browser/view/";
   public static final String TAXON_CONCEPT_ID_URL = "https://www.ebi.ac.uk/ena/browser/view/Taxon:";
 
   public static final String PRESERVED_SPECIMEN = "PreservedSpecimen";
   public static final String MATERIAL_SAMPLE = "MaterialSample";
 
-  public static final List<Term> TERMS = Arrays.asList(DwcTerm.occurrenceID, DwcTerm.associatedSequences,
-      DcTerm.references, DwcTerm.decimalLatitude, DwcTerm.decimalLongitude, DwcTerm.country, DwcTerm.locality,
-      DwcTerm.identifiedBy, DwcTerm.recordedBy, DwcTerm.eventDate, DwcTerm.catalogNumber, DwcTerm.basisOfRecord,
-      DwcTerm.taxonID, DwcTerm.scientificName, DwcTerm.taxonConceptID, DwcTerm.minimumElevationInMeters,
-      DwcTerm.maximumElevationInMeters, DwcTerm.sex);
+  public static final List<Term> TERMS =
+      Arrays.asList(
+          DwcTerm.occurrenceID,
+          DwcTerm.associatedSequences,
+          DcTerm.references,
+          DwcTerm.decimalLatitude,
+          DwcTerm.decimalLongitude,
+          DwcTerm.country,
+          DwcTerm.locality,
+          DwcTerm.identifiedBy,
+          DwcTerm.recordedBy,
+          DwcTerm.eventDate,
+          DwcTerm.catalogNumber,
+          DwcTerm.basisOfRecord,
+          DwcTerm.taxonID,
+          DwcTerm.scientificName,
+          DwcTerm.taxonConceptID,
+          DwcTerm.minimumElevationInMeters,
+          DwcTerm.maximumElevationInMeters,
+          DwcTerm.sex);
   public static final int ACCESSION_INDEX = 0;
   public static final int LOCATION_INDEX = 1;
   public static final int COUNTRY_INDEX = 2;
@@ -62,6 +80,5 @@ public final class EmblAdapterConstants {
   public static final int ALTITUDE_INDEX = 10;
   public static final int SEX_INDEX = 11;
 
-  private EmblAdapterConstants() {
-  }
+  private EmblAdapterConstants() {}
 }

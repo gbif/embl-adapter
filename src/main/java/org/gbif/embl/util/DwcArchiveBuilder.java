@@ -104,8 +104,7 @@ public class DwcArchiveBuilder {
       CompressionUtil.zipDir(archiveDir, zipFile, true);
     } catch (IOException e) {
       LOG.error("Error while building archive", e);
-    }
-    finally {
+    } finally {
       // always clean temp dir
       cleanTempDir();
     }
@@ -118,15 +117,12 @@ public class DwcArchiveBuilder {
       pw.println(
           EmblAdapterConstants.TERMS.stream()
               .map(Term::simpleName)
-              .collect(Collectors.joining(DEFAULT_DELIMITER))
-      );
+              .collect(Collectors.joining(DEFAULT_DELIMITER)));
 
       File inputFile = new File(rawDataFile);
 
-      try (
-           InputStream inputStream = new FileInputStream(inputFile);
-           BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))
-      ) {
+      try (InputStream inputStream = new FileInputStream(inputFile);
+          BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
         br.lines()
             .skip(1)
             .map(line -> line.split("\\t", -1))
@@ -139,7 +135,8 @@ public class DwcArchiveBuilder {
   }
 
   private String joinData(String[] arr) {
-    return String.join(DEFAULT_DELIMITER,
+    return String.join(
+        DEFAULT_DELIMITER,
         trimToEmpty(arr[ACCESSION_INDEX]), // occurrenceID term
         toAssociatedSequences(arr[ACCESSION_INDEX]), // associatedSequences term
         toReferences(arr[ACCESSION_INDEX]), // references term
@@ -154,11 +151,11 @@ public class DwcArchiveBuilder {
         toBasisOfRecord(arr[SPECIMEN_VOUCHER_INDEX]), // basisOfRecord term
         toTaxonId(arr[SEQUENCE_MD5_INDEX]), // taxonID term
         trimToEmpty(arr[SCIENTIFIC_NAME_INDEX]), // scientificName term
-        toTaxonConceptId(getOrEmpty(arr,TAX_ID_INDEX)), // taxonConceptID term
+        toTaxonConceptId(getOrEmpty(arr, TAX_ID_INDEX)), // taxonConceptID term
         trimToEmpty(getOrEmpty(arr, ALTITUDE_INDEX)), // minimumElevationInMeters term
         trimToEmpty(getOrEmpty(arr, ALTITUDE_INDEX)), // maximumElevationInMeters term
         trimToEmpty(getOrEmpty(arr, SEX_INDEX)) // sex term
-    );
+        );
   }
 
   private String getOrEmpty(String[] arr, int index) {

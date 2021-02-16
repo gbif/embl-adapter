@@ -77,27 +77,30 @@ public class EmblAdapterService extends AbstractIdleService {
   @Override
   protected void startUp() {
     LOG.info("Service started");
-    scheduleTask(new ArchiveGeneratorTask(
-        "datasets_for_edna",
-        config.datasetForEdnaRequestUrl,
-        config.datasetForEdnaArchiveName,
-        config.datasetForEdnaRawDataFile,
-        config.workingDirectory,
-        config.datasetForEdnaMetadataFile));
-    scheduleTask(new ArchiveGeneratorTask(
-        "datasets_for_organism_sequenced",
-        config.datasetForOrganismSequencedRequestUrl,
-        config.datasetForOrganismSequencedArchiveName,
-        config.datasetForOrganismSequencedRawDataFile,
-        config.workingDirectory,
-        config.datasetForOrganismSequencedMetadataFile));
-    scheduleTask(new ArchiveGeneratorTask(
-        "datasets_with_hosts",
-        config.datasetWithHostsRequestUrl,
-        config.datasetWithHostsArchiveName,
-        config.datasetWithHostsRawDataFile,
-        config.workingDirectory,
-        config.datasetWithHostsMetadataFile));
+    scheduleTask(
+        new ArchiveGeneratorTask(
+            "datasets_for_edna",
+            config.datasetForEdnaRequestUrl,
+            config.datasetForEdnaArchiveName,
+            config.datasetForEdnaRawDataFile,
+            config.workingDirectory,
+            config.datasetForEdnaMetadataFile));
+    scheduleTask(
+        new ArchiveGeneratorTask(
+            "datasets_for_organism_sequenced",
+            config.datasetForOrganismSequencedRequestUrl,
+            config.datasetForOrganismSequencedArchiveName,
+            config.datasetForOrganismSequencedRawDataFile,
+            config.workingDirectory,
+            config.datasetForOrganismSequencedMetadataFile));
+    scheduleTask(
+        new ArchiveGeneratorTask(
+            "datasets_with_hosts",
+            config.datasetWithHostsRequestUrl,
+            config.datasetWithHostsArchiveName,
+            config.datasetWithHostsRawDataFile,
+            config.workingDirectory,
+            config.datasetWithHostsMetadataFile));
   }
 
   @Override

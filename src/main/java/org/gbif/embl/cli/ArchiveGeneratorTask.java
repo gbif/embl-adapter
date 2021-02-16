@@ -75,8 +75,10 @@ public class ArchiveGeneratorTask implements Runnable {
 
       // create archive
       LOG.info("[{}] Start creating archive", taskName);
-      DwcArchiveBuilder dwcArchiveBuilder = new DwcArchiveBuilder(workingDirectory, metadataFilePath);
-      String archiveName = String.format(archiveNameTemplate, LocalDate.now().format(DATE_NO_SEPARATORS_FORMAT));
+      DwcArchiveBuilder dwcArchiveBuilder =
+          new DwcArchiveBuilder(workingDirectory, metadataFilePath);
+      String archiveName =
+          String.format(archiveNameTemplate, LocalDate.now().format(DATE_NO_SEPARATORS_FORMAT));
       dwcArchiveBuilder.buildArchive(
           new File(workingDirectory + "/output", archiveName), rawDataFile);
       LOG.info("[{}] Archive {} was created", taskName, archiveName);

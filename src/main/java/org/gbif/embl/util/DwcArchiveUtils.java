@@ -55,7 +55,8 @@ public final class DwcArchiveUtils {
    * Creates a new archive file description for a DwC archive and sets the id field to the column of gbifID.
    * Used to generate the meta.xml with the help of the dwca-writer
    */
-  public static ArchiveFile createArchiveFile(String filename, Term rowType, Iterable<? extends Term> columns) {
+  public static ArchiveFile createArchiveFile(
+      String filename, Term rowType, Iterable<? extends Term> columns) {
     return createArchiveFile(filename, rowType, columns, Collections.emptyMap());
   }
 
@@ -63,8 +64,11 @@ public final class DwcArchiveUtils {
    * Creates a new archive file description for a DwC archive and sets the id field to the column of gbifID.
    * Used to generate the meta.xml with the help of the dwca-writer
    */
-  public static ArchiveFile createArchiveFile(String filename, Term rowType, Iterable<? extends Term> columns,
-                                              Map<? extends Term, String> defaultColumns) {
+  public static ArchiveFile createArchiveFile(
+      String filename,
+      Term rowType,
+      Iterable<? extends Term> columns,
+      Map<? extends Term, String> defaultColumns) {
     ArchiveFile af = buildBaseArchive(filename, rowType);
     int index = 0;
     for (Term term : columns) {
@@ -112,7 +116,8 @@ public final class DwcArchiveUtils {
     Archive downloadArchive = new Archive();
     downloadArchive.setMetadataLocation(METADATA_FILENAME);
 
-    ArchiveFile coreFile = createArchiveFile(CORE_FILENAME, DwcTerm.Occurrence, EmblAdapterConstants.TERMS);
+    ArchiveFile coreFile =
+        createArchiveFile(CORE_FILENAME, DwcTerm.Occurrence, EmblAdapterConstants.TERMS);
     downloadArchive.setCore(coreFile);
 
     try {
