@@ -36,11 +36,11 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
+import javax.sql.DataSource;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.sql.DataSource;
 
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.gbif.embl.util.EmblAdapterConstants.ACCESSION_INDEX;
@@ -145,7 +145,7 @@ public class DwcArchiveBuilder {
         File inputFile = new File(rawDataFileOrTable);
 
         try (InputStream inputStream = new FileInputStream(inputFile);
-             BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
+            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
           br.lines()
               .skip(1)
               .map(line -> line.split("\\t", -1))
@@ -157,9 +157,9 @@ public class DwcArchiveBuilder {
     // raw data is the database table
     else {
       try (Connection connection = dataSource.getConnection();
-           Statement statement = connection.createStatement();
-           ResultSet rs = statement.executeQuery(SQL_SELECT);
-           PrintWriter pw = new PrintWriter(outputFile)) {
+          Statement statement = connection.createStatement();
+          ResultSet rs = statement.executeQuery(SQL_SELECT);
+          PrintWriter pw = new PrintWriter(outputFile)) {
         LOG.debug("Creating core file by using database table {}", rawDataFileOrTable);
         pw.println(
             EmblAdapterConstants.TERMS.stream()
@@ -194,7 +194,7 @@ public class DwcArchiveBuilder {
         trimToEmpty(rs.getString(ALTITUDE_RS_INDEX)), // minimumElevationInMeters term
         trimToEmpty(rs.getString(ALTITUDE_RS_INDEX)), // maximumElevationInMeters term
         trimToEmpty(rs.getString(SEX_RS_INDEX)) // sex term
-    );
+        );
   }
 
   private String joinData(String[] arr) {

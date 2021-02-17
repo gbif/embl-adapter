@@ -25,10 +25,7 @@ import com.beust.jcommander.ParametersDelegate;
 
 public class EmblAdapterConfiguration {
 
-  @ParametersDelegate
-  @Valid
-  @NotNull
-  public DbConfiguration db = new DbConfiguration();
+  @ParametersDelegate @Valid @NotNull public DbConfiguration db = new DbConfiguration();
 
   @NotNull
   @Parameter(names = "--embl-ebi-api")
