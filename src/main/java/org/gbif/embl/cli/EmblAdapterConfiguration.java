@@ -17,11 +17,18 @@ package org.gbif.embl.cli;
 
 import java.util.StringJoiner;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParametersDelegate;
 
 public class EmblAdapterConfiguration {
+
+  @ParametersDelegate
+  @Valid
+  @NotNull
+  public DbConfiguration db = new DbConfiguration();
 
   @NotNull
   @Parameter(names = "--embl-ebi-api")
@@ -90,6 +97,7 @@ public class EmblAdapterConfiguration {
   @Override
   public String toString() {
     return new StringJoiner(", ", EmblAdapterConfiguration.class.getSimpleName() + "[", "]")
+        .add("db=" + db)
         .add("emblEbiApi='" + emblEbiApi + "'")
         .add("startTime='" + startTime + "'")
         .add("frequencyInDays=" + frequencyInDays)

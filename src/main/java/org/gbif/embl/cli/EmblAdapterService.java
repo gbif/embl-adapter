@@ -21,13 +21,18 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.gbif.embl.util.DwcArchiveBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.util.concurrent.AbstractIdleService;
+
+import javax.sql.DataSource;
 
 @SuppressWarnings("UnstableApiUsage")
 public class EmblAdapterService extends AbstractIdleService {
@@ -43,11 +48,23 @@ public class EmblAdapterService extends AbstractIdleService {
   private final Integer frequencyInDays;
   private final Long initialDelay;
   private final EmblAdapterConfiguration config;
+  private final DataSource dataSource;
+  private final DwcArchiveBuilder archiveBuilder;
 
   public EmblAdapterService(EmblAdapterConfiguration config) {
     this.config = config;
     this.scheduler = Executors.newScheduledThreadPool(3);
     this.frequencyInDays = ObjectUtils.defaultIfNull(config.frequencyInDays, DEFAULT_FREQUENCY);
+
+    HikariConfig hikariConfig = new HikariConfig();
+    hikariConfig.setJdbcUrl(config.db.url);
+    hikariConfig.setUsername(config.db.user);
+    hikariConfig.setPassword(config.db.password);
+    hikariConfig.setMaximumPoolSize(config.db.maximumPoolSize);
+    hikariConfig.setConnectionTimeout(config.db.connectionTimeout);
+
+    this.dataSource = new HikariDataSource(hikariConfig);
+    this.archiveBuilder = new DwcArchiveBuilder(dataSource, config.workingDirectory);
 
     Integer startHour;
     Integer startMinute;
@@ -78,29 +95,33 @@ public class EmblAdapterService extends AbstractIdleService {
   protected void startUp() {
     LOG.info("Service started");
     scheduleTask(
-        new ArchiveGeneratorTask(
+        new ArchiveGeneratorFileSourceTask(
             "datasets_for_edna",
             config.datasetForEdnaRequestUrl,
             config.datasetForEdnaArchiveName,
             config.datasetForEdnaRawDataFile,
             config.workingDirectory,
-            config.datasetForEdnaMetadataFile));
+            config.datasetForEdnaMetadataFile,
+            archiveBuilder));
     scheduleTask(
-        new ArchiveGeneratorTask(
+        new ArchiveGeneratorFileSourceTask(
             "datasets_for_organism_sequenced",
             config.datasetForOrganismSequencedRequestUrl,
             config.datasetForOrganismSequencedArchiveName,
             config.datasetForOrganismSequencedRawDataFile,
             config.workingDirectory,
-            config.datasetForOrganismSequencedMetadataFile));
+            config.datasetForOrganismSequencedMetadataFile,
+            archiveBuilder));
     scheduleTask(
-        new ArchiveGeneratorTask(
+        new ArchiveGeneratorDatabaseSourceTask(
             "datasets_with_hosts",
+            dataSource,
             config.datasetWithHostsRequestUrl,
             config.datasetWithHostsArchiveName,
             config.datasetWithHostsRawDataFile,
             config.workingDirectory,
-            config.datasetWithHostsMetadataFile));
+            config.datasetWithHostsMetadataFile,
+            archiveBuilder));
   }
 
   @Override

@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.SQLException;
 import java.time.LocalDate;
 
 import org.apache.commons.exec.CommandLine;
@@ -30,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import static org.gbif.embl.util.EmblAdapterConstants.DATE_NO_SEPARATORS_FORMAT;
 
-public class ArchiveGeneratorTask implements Runnable {
+public abstract class ArchiveGeneratorTask implements Runnable {
 
   private static final Logger LOG = LoggerFactory.getLogger(ArchiveGeneratorTask.class);
 
@@ -40,6 +41,7 @@ public class ArchiveGeneratorTask implements Runnable {
   private final String rawDataFile;
   private final String workingDirectory;
   private final String metadataFilePath;
+  private final DwcArchiveBuilder archiveBuilder;
 
   public ArchiveGeneratorTask(
       String taskName,
@@ -47,13 +49,15 @@ public class ArchiveGeneratorTask implements Runnable {
       String archiveNameTemplate,
       String rawDataFile,
       String workingDirectory,
-      String metadataFilePath) {
+      String metadataFilePath,
+      DwcArchiveBuilder archiveBuilder) {
     this.taskName = taskName;
     this.requestUrl = requestUrl;
     this.archiveNameTemplate = archiveNameTemplate;
     this.rawDataFile = rawDataFile;
     this.workingDirectory = workingDirectory;
     this.metadataFilePath = metadataFilePath;
+    this.archiveBuilder = archiveBuilder;
   }
 
   @Override
@@ -72,15 +76,16 @@ public class ArchiveGeneratorTask implements Runnable {
     try {
       // download data
       executor.execute(cmd);
+      String rawDataFileOrTable = prepareRawData();
 
       // create archive
       LOG.info("[{}] Start creating archive", taskName);
-      DwcArchiveBuilder dwcArchiveBuilder =
-          new DwcArchiveBuilder(workingDirectory, metadataFilePath);
       String archiveName =
           String.format(archiveNameTemplate, LocalDate.now().format(DATE_NO_SEPARATORS_FORMAT));
-      dwcArchiveBuilder.buildArchive(
-          new File(workingDirectory + "/output", archiveName), rawDataFile);
+      archiveBuilder.buildArchive(
+          new File(workingDirectory + "/output", archiveName),
+          rawDataFileOrTable,
+          metadataFilePath);
       LOG.info("[{}] Archive {} was created", taskName, archiveName);
 
       // delete temp files
@@ -88,6 +93,14 @@ public class ArchiveGeneratorTask implements Runnable {
       LOG.info("[{}] Raw data file {} deleted", taskName, rawDataFile);
     } catch (IOException e) {
       LOG.error("[{}] IOException while producing archive", taskName, e);
+    } catch (SQLException e) {
+      LOG.error("[{}] SQLException while producing archive", taskName, e);
     }
   }
+
+  public String getRawDataFileName() {
+    return rawDataFile;
+  }
+
+  protected abstract String prepareRawData() throws IOException, SQLException;
 }
