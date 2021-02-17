@@ -48,28 +48,30 @@ public final class EmblAdapterConstants {
   public static final String MATERIAL_SAMPLE = "MaterialSample";
 
   public static final String SQL_CLEAN = "TRUNCATE embl_data";
-  public static final String SQL_INSERT = "INSERT INTO embl_data(accession, location, country, " +
-      "identified_by, collected_by, collection_date, specimen_voucher, sequence_md5, scientific_name, " +
-      "tax_id, altitude, sex) " +
-      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING";
-  public static final String SQL_SELECT = "SELECT accession,\n" +
-      "       location,\n" +
-      "       country,\n" +
-      "       identified_by,\n" +
-      "       collected_by,\n" +
-      "       collection_date,\n" +
-      "       specimen_voucher,\n" +
-      "       sequence_md5,\n" +
-      "       scientific_name,\n" +
-      "       tax_id,\n" +
-      "       altitude,\n" +
-      "       sex\n" +
-      "FROM embl_data\n" +
-      "WHERE accession in (\n" +
-      "    SELECT min(accession) as a\n" +
-      "    FROM embl_data\n" +
-      "    GROUP BY scientific_name, collection_date, location, specimen_voucher\n" +
-      ")";
+  public static final String SQL_INSERT =
+      "INSERT INTO embl_data(accession, location, country, "
+          + "identified_by, collected_by, collection_date, specimen_voucher, sequence_md5, scientific_name, "
+          + "tax_id, altitude, sex) "
+          + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING";
+  public static final String SQL_SELECT =
+      "SELECT accession,\n"
+          + "       location,\n"
+          + "       country,\n"
+          + "       identified_by,\n"
+          + "       collected_by,\n"
+          + "       collection_date,\n"
+          + "       specimen_voucher,\n"
+          + "       sequence_md5,\n"
+          + "       scientific_name,\n"
+          + "       tax_id,\n"
+          + "       altitude,\n"
+          + "       sex\n"
+          + "FROM embl_data\n"
+          + "WHERE accession in (\n"
+          + "    SELECT min(accession) as a\n"
+          + "    FROM embl_data\n"
+          + "    GROUP BY scientific_name, collection_date, location, specimen_voucher\n"
+          + ")";
 
   public static final List<Term> TERMS =
       Arrays.asList(

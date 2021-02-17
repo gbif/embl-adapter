@@ -1,10 +1,22 @@
+/*
+ * Copyright 2020 Global Biodiversity Information Facility (GBIF)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.embl.cli;
 
 import org.gbif.embl.util.DwcArchiveBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.sql.DataSource;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -13,6 +25,11 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Iterator;
+
+import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.gbif.embl.util.EmblAdapterConstants.ACCESSION_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.ACCESSION_RS_INDEX;
@@ -44,7 +61,8 @@ import static org.gbif.embl.util.EmblAdapterConstants.TAX_ID_RS_INDEX;
 
 public class ArchiveGeneratorDatabaseSourceTask extends ArchiveGeneratorTask {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ArchiveGeneratorDatabaseSourceTask.class);
+  private static final Logger LOG =
+      LoggerFactory.getLogger(ArchiveGeneratorDatabaseSourceTask.class);
 
   private final DataSource dataSource;
 
@@ -72,9 +90,9 @@ public class ArchiveGeneratorDatabaseSourceTask extends ArchiveGeneratorTask {
     LOG.debug("Database raw data");
     // store data to DB
     try (Connection connection = dataSource.getConnection();
-         Statement st = connection.createStatement();
-         PreparedStatement ps = connection.prepareStatement(SQL_INSERT);
-         BufferedReader in = new BufferedReader(new FileReader(getRawDataFileName()))) {
+        Statement st = connection.createStatement();
+        PreparedStatement ps = connection.prepareStatement(SQL_INSERT);
+        BufferedReader in = new BufferedReader(new FileReader(getRawDataFileName()))) {
       LOG.debug("Start writing DB");
       connection.setAutoCommit(false);
 
