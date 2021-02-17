@@ -64,8 +64,6 @@ public abstract class ArchiveGeneratorTask implements Runnable {
   public void run() {
     LOG.info("[{}] Start downloading data", taskName);
     CommandLine cmd = new CommandLine("curl");
-    cmd.addArgument("-X");
-    cmd.addArgument("GET");
     cmd.addArgument(requestUrl);
     cmd.addArgument("-o");
     cmd.addArgument(rawDataFile);
