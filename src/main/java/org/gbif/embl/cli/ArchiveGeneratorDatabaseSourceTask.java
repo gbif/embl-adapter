@@ -64,6 +64,8 @@ public class ArchiveGeneratorDatabaseSourceTask extends ArchiveGeneratorTask {
   private static final Logger LOG =
       LoggerFactory.getLogger(ArchiveGeneratorDatabaseSourceTask.class);
 
+  public static final int BATCH_SIZE = 5000;
+
   private final DataSource dataSource;
 
   public ArchiveGeneratorDatabaseSourceTask(
@@ -94,13 +96,14 @@ public class ArchiveGeneratorDatabaseSourceTask extends ArchiveGeneratorTask {
         PreparedStatement ps = connection.prepareStatement(SQL_INSERT);
         BufferedReader in = new BufferedReader(new FileReader(getRawDataFileName()))) {
       LOG.debug("Start writing DB");
-      connection.setAutoCommit(false);
 
       // clean database table before
       st.executeUpdate(SQL_CLEAN);
 
+      int lineNumber = 0;
+
       // skip first header line
-      for (Iterator<String> it = in.lines().skip(1).iterator(); it.hasNext(); ) {
+      for (Iterator<String> it = in.lines().skip(1).iterator(); it.hasNext(); lineNumber++) {
         String line = it.next();
         String[] split = line.split(DEFAULT_DELIMITER, -1);
         ps.setString(ACCESSION_RS_INDEX, split[ACCESSION_INDEX]);
@@ -116,10 +119,13 @@ public class ArchiveGeneratorDatabaseSourceTask extends ArchiveGeneratorTask {
         ps.setString(ALTITUDE_RS_INDEX, split[ALTITUDE_INDEX]);
         ps.setString(SEX_RS_INDEX, split[SEX_INDEX]);
         ps.addBatch();
+
+        if (lineNumber % BATCH_SIZE == 0) {
+          ps.executeBatch();
+        }
       }
 
       ps.executeBatch();
-      connection.commit();
       LOG.debug("Finish writing DB");
       return "embl_data";
     }
