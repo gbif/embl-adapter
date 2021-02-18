@@ -105,8 +105,9 @@ public class EmblAdapterService extends AbstractIdleService {
             config.datasetForEdnaMetadataFile,
             archiveBuilder));
     scheduleTask(
-        new ArchiveGeneratorFileSourceTask(
+        new ArchiveGeneratorDatabaseSourceTask(
             "datasets_for_organism_sequenced",
+            dataSource,
             config.datasetForOrganismSequencedRequestUrl,
             config.datasetForOrganismSequencedArchiveName,
             config.datasetForOrganismSequencedRawDataFile,
@@ -114,9 +115,8 @@ public class EmblAdapterService extends AbstractIdleService {
             config.datasetForOrganismSequencedMetadataFile,
             archiveBuilder));
     scheduleTask(
-        new ArchiveGeneratorDatabaseSourceTask(
+        new ArchiveGeneratorFileSourceTask(
             "datasets_with_hosts",
-            dataSource,
             config.datasetWithHostsRequestUrl,
             config.datasetWithHostsArchiveName,
             config.datasetWithHostsRawDataFile,
