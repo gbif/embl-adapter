@@ -29,7 +29,9 @@ public class EmblAdapterConfiguration {
 
   @ParametersDelegate @Valid @NotNull public DbConfiguration db = new DbConfiguration();
 
-  List<TaskConfiguration> tasks = new ArrayList<>();
+  @Valid
+  @Parameter(names = "--tasks")
+  public List<Task> tasks = new ArrayList<>();
 
   @NotNull
   @Parameter(names = "--embl-ebi-api")
