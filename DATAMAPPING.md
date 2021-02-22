@@ -21,24 +21,24 @@ ENA field name | DwC | suggested formatting | Comments
 `tax_id` | `taxonConceptID` | https://www.ebi.ac.uk/ena/browser/view/Taxon:value | Initially we should see how far we get by just supplying scientificName. But we may need a subsequent call to their [taxonApi](https://www.ebi.ac.uk/ena/browser/api/xml/30069) to retreive higher taxonomic ranks 
 `altitude` | `minimumElevationInMeters`, `maximumElevationInMeters` | | Should we populate bot max and min?
 `sex` | `sex` | | 
-
+`description` | `occurrenceRemarks` | |	
 
 
 # Example queries:
 
 Get data for first 100 sequences that has coordinates:
 
-https://www.ebi.ac.uk/ena/portal/api/search?result=sequence&format=json&limit=100&query=geo_box1(-90%2C-180%2C90%2C180)&fields=accession,location,country,identified_by,collected_by,collection_date,specimen_voucher,sequence_md5,scientific_name,tax_id,altitude,sex
+https://www.ebi.ac.uk/ena/portal/api/search?result=sequence&format=json&limit=100&query=geo_box1(-90%2C-180%2C90%2C180)&fields=accession,location,country,identified_by,collected_by,collection_date,specimen_voucher,sequence_md5,scientific_name,tax_id,altitude,sex,description
 
 Get first 100 sequences that has information in the `country` field:
 
-https://www.ebi.ac.uk/ena/portal/api/search?result=sequence&format=json&limit=100&query=country="*"&fields=accession,location,country,identified_by,collected_by,collection_date,specimen_voucher,sequence_md5,scientific_name,tax_id,altitude,sex
+https://www.ebi.ac.uk/ena/portal/api/search?result=sequence&format=json&limit=100&query=country="*"&fields=accession,location,country,identified_by,collected_by,collection_date,specimen_voucher,sequence_md5,scientific_name,tax_id,altitude,sex,description
 
 Get first 100 sequences that has a catalogNumber:
 
-https://www.ebi.ac.uk/ena/portal/api/search?result=sequence&format=json&limit=100&query=%20specimen_voucher=%22*%22&fields=accession,location,country,identified_by,collected_by,collection_date,specimen_voucher,sequence_md5,scientific_name,tax_id,altitude,sex
+https://www.ebi.ac.uk/ena/portal/api/search?result=sequence&format=json&limit=100&query=%20specimen_voucher=%22*%22&fields=accession,location,country,identified_by,collected_by,collection_date,specimen_voucher,sequence_md5,scientific_name,tax_id,altitude,sex,description
 
 Get first 100 sequences that has information in the `identifiedby` field:
 
-https://www.ebi.ac.uk/ena/portal/api/search?result=sequence&format=json&limit=100&query=identified_by="*"&fields=accession,location,country,identified_by,collected_by,collection_date,specimen_voucher,sequence_md5,scientific_name,tax_id,altitude,sex
+https://www.ebi.ac.uk/ena/portal/api/search?result=sequence&format=json&limit=100&query=identified_by="*"&fields=accession,location,country,identified_by,collected_by,collection_date,specimen_voucher,sequence_md5,scientific_name,tax_id,altitude,sex,description
 
