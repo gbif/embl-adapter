@@ -15,6 +15,8 @@
  */
 package org.gbif.embl.cli;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringJoiner;
 
 import javax.validation.Valid;
@@ -26,6 +28,8 @@ import com.beust.jcommander.ParametersDelegate;
 public class EmblAdapterConfiguration {
 
   @ParametersDelegate @Valid @NotNull public DbConfiguration db = new DbConfiguration();
+
+  List<TaskConfiguration> tasks = new ArrayList<>();
 
   @NotNull
   @Parameter(names = "--embl-ebi-api")
@@ -43,54 +47,6 @@ public class EmblAdapterConfiguration {
   @Parameter(names = "--working-directory")
   public String workingDirectory;
 
-  @NotNull
-  @Parameter(names = "--dataset-for-edna-metadata-file")
-  public String datasetForEdnaMetadataFile;
-
-  @NotNull
-  @Parameter(names = "--dataset-for-edna-request-url")
-  public String datasetForEdnaRequestUrl;
-
-  @NotNull
-  @Parameter(names = "--dataset-for-edna-raw-data-file")
-  public String datasetForEdnaRawDataFile;
-
-  @NotNull
-  @Parameter(names = "--dataset-for-edna-archive-name")
-  public String datasetForEdnaArchiveName;
-
-  @NotNull
-  @Parameter(names = "--dataset-for-organism-sequenced-metadata-file")
-  public String datasetForOrganismSequencedMetadataFile;
-
-  @NotNull
-  @Parameter(names = "--dataset-for-organism-sequenced-request-url")
-  public String datasetForOrganismSequencedRequestUrl;
-
-  @NotNull
-  @Parameter(names = "--dataset-for-organism-sequenced-raw-data-file")
-  public String datasetForOrganismSequencedRawDataFile;
-
-  @NotNull
-  @Parameter(names = "--dataset-for-organism-sequenced-archive-name")
-  public String datasetForOrganismSequencedArchiveName;
-
-  @NotNull
-  @Parameter(names = "--dataset-with-hosts-metadata-file")
-  public String datasetWithHostsMetadataFile;
-
-  @NotNull
-  @Parameter(names = "--dataset-with-hosts-request-url")
-  public String datasetWithHostsRequestUrl;
-
-  @NotNull
-  @Parameter(names = "--dataset-with-hosts-raw-data-file")
-  public String datasetWithHostsRawDataFile;
-
-  @NotNull
-  @Parameter(names = "--dataset-with-hosts-archive-name")
-  public String datasetWithHostsArchiveName;
-
   @Override
   public String toString() {
     return new StringJoiner(", ", EmblAdapterConfiguration.class.getSimpleName() + "[", "]")
@@ -99,18 +55,7 @@ public class EmblAdapterConfiguration {
         .add("startTime='" + startTime + "'")
         .add("frequencyInDays=" + frequencyInDays)
         .add("workingDirectory=" + workingDirectory)
-        .add("datasetForEdnaRawDataFile=" + datasetForEdnaRawDataFile)
-        .add("datasetForOrganismSequencedRawDataFile=" + datasetForOrganismSequencedRawDataFile)
-        .add("datasetWithHostsRawDataFile=" + datasetWithHostsRawDataFile)
-        .add("datasetForEdnaArchiveName=" + datasetForEdnaArchiveName)
-        .add("datasetForOrganismSequencedArchiveName=" + datasetForOrganismSequencedArchiveName)
-        .add("datasetWithHostsArchiveName=" + datasetWithHostsArchiveName)
-        .add("datasetForEdnaRequestUrl=" + datasetForEdnaRequestUrl)
-        .add("datasetForOrganismSequencedRequestUrl=" + datasetForOrganismSequencedRequestUrl)
-        .add("datasetWithHostsRequestUrl=" + datasetWithHostsRequestUrl)
-        .add("datasetForEdnaMetadataFile=" + datasetForEdnaMetadataFile)
-        .add("datasetForOrganismSequencedMetadataFile=" + datasetForOrganismSequencedMetadataFile)
-        .add("datasetWithHostsMetadataFile=" + datasetWithHostsMetadataFile)
+        .add("tasks=" + tasks)
         .toString();
   }
 }

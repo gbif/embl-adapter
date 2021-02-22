@@ -95,34 +95,17 @@ public class EmblAdapterService extends AbstractIdleService {
   @Override
   protected void startUp() {
     LOG.info("Service started");
-    scheduleTask(
-        new ArchiveGeneratorFileSourceTask(
-            "datasets_for_edna",
-            config.datasetForEdnaRequestUrl,
-            config.datasetForEdnaArchiveName,
-            config.datasetForEdnaRawDataFile,
-            config.workingDirectory,
-            config.datasetForEdnaMetadataFile,
-            archiveBuilder));
-    scheduleTask(
-        new ArchiveGeneratorDatabaseSourceTask(
-            "datasets_for_organism_sequenced",
-            dataSource,
-            config.datasetForOrganismSequencedRequestUrl,
-            config.datasetForOrganismSequencedArchiveName,
-            config.datasetForOrganismSequencedRawDataFile,
-            config.workingDirectory,
-            config.datasetForOrganismSequencedMetadataFile,
-            archiveBuilder));
-    scheduleTask(
-        new ArchiveGeneratorFileSourceTask(
-            "datasets_with_hosts",
-            config.datasetWithHostsRequestUrl,
-            config.datasetWithHostsArchiveName,
-            config.datasetWithHostsRawDataFile,
-            config.workingDirectory,
-            config.datasetWithHostsMetadataFile,
-            archiveBuilder));
+    for (TaskConfiguration task : config.tasks) {
+      scheduleTask(
+          new ArchiveGeneratorFileSourceTask(
+              task.name,
+              task.requestUrl,
+              task.archiveName,
+              task.rawDataFile,
+              config.workingDirectory,
+              task.metadataFile,
+              archiveBuilder));
+    }
   }
 
   @Override
