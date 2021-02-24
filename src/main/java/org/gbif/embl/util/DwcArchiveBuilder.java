@@ -171,16 +171,17 @@ public class DwcArchiveBuilder {
   }
 
   private String readSqlFile(String filePath) {
-    LOG.debug("Reading SQL file");
+    LOG.debug("Start reading SQL file {}", filePath);
     StringBuilder sb = new StringBuilder();
 
     try (Stream<String> stream = Files.lines(Paths.get(filePath), StandardCharsets.UTF_8)) {
       stream.forEach(s -> sb.append(s).append("\n"));
     } catch (IOException e) {
-      LOG.error("Exception while reading SQL file");
+      LOG.error("Exception while reading SQL file {}", filePath);
       throw new RuntimeException(e);
     }
 
+    LOG.debug("Finished reading SQL file {}", filePath);
     return sb.toString();
   }
 
