@@ -11,5 +11,6 @@ CREATE TABLE embl_data
     scientific_name  text,
     tax_id           text,
     altitude         text,
-    sex              text
+    sex              text,
+    description      text
 );

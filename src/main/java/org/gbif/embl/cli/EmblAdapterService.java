@@ -95,15 +95,12 @@ public class EmblAdapterService extends AbstractIdleService {
   @Override
   protected void startUp() {
     LOG.info("Service started");
-    for (Task task : config.tasks) {
+    for (TaskConfiguration task : config.tasks) {
       scheduleTask(
-          new ArchiveGeneratorFileSourceTask(
-              task.name,
-              task.requestUrl,
-              task.archiveName,
-              task.rawDataFile,
+          new ArchiveGeneratorDatabaseSourceTask(
+              task,
+              dataSource,
               config.workingDirectory,
-              task.metadataFile,
               archiveBuilder));
     }
   }

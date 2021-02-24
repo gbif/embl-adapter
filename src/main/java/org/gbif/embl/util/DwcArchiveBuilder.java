@@ -19,14 +19,12 @@ import org.gbif.dwc.terms.Term;
 import org.gbif.utils.file.CompressionUtil;
 import org.gbif.utils.file.FileUtils;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -35,47 +33,36 @@ import java.sql.Statement;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
-
-import javax.sql.DataSource;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sql.DataSource;
+
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
-import static org.gbif.embl.util.EmblAdapterConstants.ACCESSION_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.ACCESSION_RS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.ALTITUDE_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.ALTITUDE_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.ASSOCIATED_SEQUENCES_URL;
-import static org.gbif.embl.util.EmblAdapterConstants.COLLECTED_BY_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.COLLECTED_BY_RS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.COLLECTION_DATE_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.COLLECTION_DATE_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.COUNTRY_DELIMITER;
-import static org.gbif.embl.util.EmblAdapterConstants.COUNTRY_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.COUNTRY_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.DEFAULT_DELIMITER;
-import static org.gbif.embl.util.EmblAdapterConstants.IDENTIFIED_BY_INDEX;
+import static org.gbif.embl.util.EmblAdapterConstants.DESCRIPTION_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.IDENTIFIED_BY_RS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.LOCATION_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.LOCATION_PATTERN;
 import static org.gbif.embl.util.EmblAdapterConstants.LOCATION_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.MATERIAL_SAMPLE;
 import static org.gbif.embl.util.EmblAdapterConstants.PRESERVED_SPECIMEN;
 import static org.gbif.embl.util.EmblAdapterConstants.REFERENCES_URL;
-import static org.gbif.embl.util.EmblAdapterConstants.SCIENTIFIC_NAME_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.SCIENTIFIC_NAME_RS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.SEQUENCE_MD5_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.SEQUENCE_MD5_RS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.SEX_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.SEX_RS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.SPECIMEN_VOUCHER_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.SPECIMEN_VOUCHER_RS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.SQL_SELECT;
 import static org.gbif.embl.util.EmblAdapterConstants.TAXON_CONCEPT_ID_URL;
 import static org.gbif.embl.util.EmblAdapterConstants.TAXON_ID_PREFIX;
-import static org.gbif.embl.util.EmblAdapterConstants.TAX_ID_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.TAX_ID_RS_INDEX;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -93,7 +80,7 @@ public class DwcArchiveBuilder {
     this.archiveDir = new File(workingDirectory + "/temp_" + UUID.randomUUID());
   }
 
-  public void buildArchive(File zipFile, String rawDataFileOrTable, String metadataFilePath) {
+  public void buildArchive(File zipFile, String tableName, String query, String metadataFilePath) {
     LOG.info("Start building the archive {} ", zipFile.getPath());
 
     try {
@@ -117,7 +104,7 @@ public class DwcArchiveBuilder {
       // meta.xml
       DwcArchiveUtils.createArchiveDescriptor(archiveDir);
       // occurrence.txt
-      createCoreFile(rawDataFileOrTable);
+      createCoreFile(tableName, query);
       // zip up
       LOG.info("Zipping archive {}", archiveDir);
       CompressionUtil.zipDir(archiveDir, zipFile, true);
@@ -129,46 +116,31 @@ public class DwcArchiveBuilder {
     }
   }
 
-  private void createCoreFile(String rawDataFileOrTable) throws IOException, SQLException {
+  private void createCoreFile(String tableName, String query) throws IOException, SQLException {
     LOG.debug("Creating core file {} in {}", EmblAdapterConstants.CORE_FILENAME, archiveDir);
     File outputFile = new File(archiveDir, EmblAdapterConstants.CORE_FILENAME);
 
-    // raw data is the file
-    if (rawDataFileOrTable.endsWith(".txt")) {
-      LOG.debug("Creating core file by using raw data file {}", rawDataFileOrTable);
-      try (PrintWriter pw = new PrintWriter(outputFile)) {
-        pw.println(
-            EmblAdapterConstants.TERMS.stream()
-                .map(Term::simpleName)
-                .collect(Collectors.joining(DEFAULT_DELIMITER)));
+    LOG.debug("Creating core file by using DB table {}", tableName);
 
-        File inputFile = new File(rawDataFileOrTable);
+    // SQL select for table
+    String sqlSelect = readSqlFile(query)
+        .replace("embl_data", tableName);
+    LOG.debug("SQL select: {}", sqlSelect);
 
-        try (InputStream inputStream = new FileInputStream(inputFile);
-            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
-          br.lines()
-              .skip(1)
-              .map(line -> line.split("\\t", -1))
-              .map(this::joinData)
-              .forEach(pw::println);
-        }
-      }
-    }
-    // raw data is the database table
-    else {
-      try (Connection connection = dataSource.getConnection();
-          Statement statement = connection.createStatement();
-          ResultSet rs = statement.executeQuery(SQL_SELECT);
-          PrintWriter pw = new PrintWriter(outputFile)) {
-        LOG.debug("Creating core file by using database table {}", rawDataFileOrTable);
-        pw.println(
-            EmblAdapterConstants.TERMS.stream()
-                .map(Term::simpleName)
-                .collect(Collectors.joining(DEFAULT_DELIMITER)));
+    // write core file
+    try (Connection connection = dataSource.getConnection();
+         Statement statement = connection.createStatement();
+         ResultSet rs = statement.executeQuery(sqlSelect);
+         PrintWriter pw = new PrintWriter(outputFile)) {
+      // file header
+      pw.println(
+          EmblAdapterConstants.TERMS.stream()
+              .map(Term::simpleName)
+              .collect(Collectors.joining(DEFAULT_DELIMITER)));
 
-        while (rs.next()) {
-          pw.println(joinData(rs));
-        }
+      // file data
+      while (rs.next()) {
+        pw.println(joinData(rs));
       }
     }
   }
@@ -193,32 +165,23 @@ public class DwcArchiveBuilder {
         toTaxonConceptId(rs.getString(TAX_ID_RS_INDEX)), // taxonConceptID term
         trimToEmpty(rs.getString(ALTITUDE_RS_INDEX)), // minimumElevationInMeters term
         trimToEmpty(rs.getString(ALTITUDE_RS_INDEX)), // maximumElevationInMeters term
-        trimToEmpty(rs.getString(SEX_RS_INDEX)) // sex term
+        trimToEmpty(rs.getString(SEX_RS_INDEX)), // sex term
+        trimToEmpty(rs.getString(DESCRIPTION_RS_INDEX)) // occurrenceRemarks term
         );
   }
 
-  private String joinData(String[] arr) {
-    return String.join(
-        DEFAULT_DELIMITER,
-        trimToEmpty(arr[ACCESSION_INDEX]), // occurrenceID term
-        toAssociatedSequences(arr[ACCESSION_INDEX]), // associatedSequences term
-        toReferences(arr[ACCESSION_INDEX]), // references term
-        toLatitude(arr[LOCATION_INDEX]), // decimalLatitude term
-        toLongitude(arr[LOCATION_INDEX]), // decimalLongitude term
-        toCountry(arr[COUNTRY_INDEX]), // country term
-        toLocality(arr[COUNTRY_INDEX]), // locality term
-        trimToEmpty(arr[IDENTIFIED_BY_INDEX]), // identifiedBy term
-        trimToEmpty(arr[COLLECTED_BY_INDEX]), // recordedBy term
-        trimToEmpty(arr[COLLECTION_DATE_INDEX]), // eventDate term
-        trimToEmpty(arr[SPECIMEN_VOUCHER_INDEX]), // catalogNumber term
-        toBasisOfRecord(arr[SPECIMEN_VOUCHER_INDEX]), // basisOfRecord term
-        toTaxonId(arr[SEQUENCE_MD5_INDEX]), // taxonID term
-        trimToEmpty(arr[SCIENTIFIC_NAME_INDEX]), // scientificName term
-        toTaxonConceptId(getOrEmpty(arr, TAX_ID_INDEX)), // taxonConceptID term
-        trimToEmpty(getOrEmpty(arr, ALTITUDE_INDEX)), // minimumElevationInMeters term
-        trimToEmpty(getOrEmpty(arr, ALTITUDE_INDEX)), // maximumElevationInMeters term
-        trimToEmpty(getOrEmpty(arr, SEX_INDEX)) // sex term
-        );
+  private String readSqlFile(String filePath) {
+    LOG.debug("Reading SQL file");
+    StringBuilder sb = new StringBuilder();
+
+    try (Stream<String> stream = Files.lines(Paths.get(filePath), StandardCharsets.UTF_8)) {
+      stream.forEach(s -> sb.append(s).append("\n"));
+    } catch (IOException e) {
+      LOG.error("Exception while reading SQL file");
+      throw new RuntimeException(e);
+    }
+
+    return sb.toString();
   }
 
   private String getOrEmpty(String[] arr, int index) {

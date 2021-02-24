@@ -35,38 +35,26 @@ public abstract class ArchiveGeneratorTask implements Runnable {
 
   private static final Logger LOG = LoggerFactory.getLogger(ArchiveGeneratorTask.class);
 
-  private final String taskName;
-  private final String requestUrl;
-  private final String archiveNameTemplate;
-  private final String rawDataFile;
-  private final String workingDirectory;
-  private final String metadataFilePath;
   private final DwcArchiveBuilder archiveBuilder;
+  private final TaskConfiguration taskConfiguration;
+  private final String workingDirectory;
 
   public ArchiveGeneratorTask(
-      String taskName,
-      String requestUrl,
-      String archiveNameTemplate,
-      String rawDataFile,
+      TaskConfiguration taskConfiguration,
       String workingDirectory,
-      String metadataFilePath,
       DwcArchiveBuilder archiveBuilder) {
-    this.taskName = taskName;
-    this.requestUrl = requestUrl;
-    this.archiveNameTemplate = archiveNameTemplate;
-    this.rawDataFile = rawDataFile;
+    this.taskConfiguration = taskConfiguration;
     this.workingDirectory = workingDirectory;
-    this.metadataFilePath = metadataFilePath;
     this.archiveBuilder = archiveBuilder;
   }
 
   @Override
   public void run() {
-    LOG.info("[{}] Start downloading data", taskName);
+    LOG.info("[{}] Start downloading data", taskConfiguration.name);
     CommandLine cmd = new CommandLine("curl");
-    cmd.addArgument(requestUrl);
+    cmd.addArgument(taskConfiguration.requestUrl);
     cmd.addArgument("-o");
-    cmd.addArgument(rawDataFile);
+    cmd.addArgument(taskConfiguration.rawDataFile);
 
     DefaultExecutor executor = new DefaultExecutor();
     executor.setExitValue(0);
@@ -74,30 +62,27 @@ public abstract class ArchiveGeneratorTask implements Runnable {
     try {
       // download data
       executor.execute(cmd);
-      String rawDataFileOrTable = prepareRawData();
+      String tableName = prepareRawData();
 
       // create archive
-      LOG.info("[{}] Start creating archive", taskName);
+      LOG.info("[{}] Start creating archive", taskConfiguration.name);
       String archiveName =
-          String.format(archiveNameTemplate, LocalDate.now().format(DATE_NO_SEPARATORS_FORMAT));
+          String.format(taskConfiguration.archiveName, LocalDate.now().format(DATE_NO_SEPARATORS_FORMAT));
       archiveBuilder.buildArchive(
           new File(workingDirectory + "/output", archiveName),
-          rawDataFileOrTable,
-          metadataFilePath);
-      LOG.info("[{}] Archive {} was created", taskName, archiveName);
+          tableName,
+          taskConfiguration.query,
+          taskConfiguration.metadataFile);
+      LOG.info("[{}] Archive {} was created", taskConfiguration.name, archiveName);
 
       // delete temp files
-      Files.deleteIfExists(Paths.get(rawDataFile));
-      LOG.info("[{}] Raw data file {} deleted", taskName, rawDataFile);
+      Files.deleteIfExists(Paths.get(taskConfiguration.rawDataFile));
+      LOG.info("[{}] Raw data file {} deleted", taskConfiguration.name, taskConfiguration.rawDataFile);
     } catch (IOException e) {
-      LOG.error("[{}] IOException while producing archive", taskName, e);
+      LOG.error("[{}] IOException while producing archive", taskConfiguration.name, e);
     } catch (SQLException e) {
-      LOG.error("[{}] SQLException while producing archive", taskName, e);
+      LOG.error("[{}] SQLException while producing archive", taskConfiguration.name, e);
     }
-  }
-
-  public String getRawDataFileName() {
-    return rawDataFile;
   }
 
   protected abstract String prepareRawData() throws IOException, SQLException;

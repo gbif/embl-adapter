@@ -42,6 +42,8 @@ import static org.gbif.embl.util.EmblAdapterConstants.COLLECTION_DATE_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.COUNTRY_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.COUNTRY_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.DEFAULT_DELIMITER;
+import static org.gbif.embl.util.EmblAdapterConstants.DESCRIPTION_INDEX;
+import static org.gbif.embl.util.EmblAdapterConstants.DESCRIPTION_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.IDENTIFIED_BY_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.IDENTIFIED_BY_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.LOCATION_INDEX;
@@ -67,38 +69,32 @@ public class ArchiveGeneratorDatabaseSourceTask extends ArchiveGeneratorTask {
   public static final int BATCH_SIZE = 5000;
 
   private final DataSource dataSource;
+  private final TaskConfiguration taskConfiguration;
 
   public ArchiveGeneratorDatabaseSourceTask(
-      String taskName,
+      TaskConfiguration taskConfiguration,
       DataSource dataSource,
-      String requestUrl,
-      String archiveNameTemplate,
-      String rawDataFile,
       String workingDirectory,
-      String metadataFilePath,
       DwcArchiveBuilder archiveBuilder) {
-    super(
-        taskName,
-        requestUrl,
-        archiveNameTemplate,
-        rawDataFile,
-        workingDirectory,
-        metadataFilePath,
-        archiveBuilder);
+    super(taskConfiguration, workingDirectory, archiveBuilder);
+    this.taskConfiguration = taskConfiguration;
     this.dataSource = dataSource;
   }
 
   protected String prepareRawData() throws IOException, SQLException {
     LOG.debug("Database raw data");
+    String sqlInsert = SQL_INSERT.replace("embl_data", taskConfiguration.tableName);
+    String sqlClean = SQL_CLEAN.replace("embl_data", taskConfiguration.tableName);
     // store data to DB
     try (Connection connection = dataSource.getConnection();
         Statement st = connection.createStatement();
-        PreparedStatement ps = connection.prepareStatement(SQL_INSERT);
-        BufferedReader in = new BufferedReader(new FileReader(getRawDataFileName()))) {
+        PreparedStatement ps = connection.prepareStatement(sqlInsert);
+        BufferedReader in = new BufferedReader(new FileReader(taskConfiguration.rawDataFile))) {
       LOG.debug("Start writing DB");
 
       // clean database table before
-      st.executeUpdate(SQL_CLEAN);
+      st.executeUpdate(sqlClean);
+      LOG.debug("DB cleaned");
 
       int lineNumber = 0;
 
@@ -118,6 +114,7 @@ public class ArchiveGeneratorDatabaseSourceTask extends ArchiveGeneratorTask {
         ps.setString(TAX_ID_RS_INDEX, split[TAX_ID_INDEX]);
         ps.setString(ALTITUDE_RS_INDEX, split[ALTITUDE_INDEX]);
         ps.setString(SEX_RS_INDEX, split[SEX_INDEX]);
+        ps.setString(DESCRIPTION_RS_INDEX, split[DESCRIPTION_INDEX]);
         ps.addBatch();
 
         if (lineNumber % BATCH_SIZE == 0) {
@@ -127,7 +124,8 @@ public class ArchiveGeneratorDatabaseSourceTask extends ArchiveGeneratorTask {
 
       ps.executeBatch();
       LOG.debug("Finish writing DB");
-      return "embl_data";
+
+      return taskConfiguration.tableName;
     }
   }
 }

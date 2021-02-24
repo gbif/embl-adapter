@@ -20,7 +20,7 @@ import java.util.StringJoiner;
 import javax.validation.constraints.NotNull;
 
 @SuppressWarnings("PublicField")
-public class Task {
+public class TaskConfiguration {
 
   @NotNull public String name;
 
@@ -32,14 +32,20 @@ public class Task {
 
   @NotNull public String archiveName;
 
+  public String tableName;
+
+  public String query;
+
   @Override
   public String toString() {
-    return new StringJoiner(", ", Task.class.getSimpleName() + "[", "]")
+    return new StringJoiner(", ", TaskConfiguration.class.getSimpleName() + "[", "]")
         .add("name='" + name + "'")
         .add("metadataFile='" + metadataFile + "'")
         .add("requestUrl='" + requestUrl + "'")
         .add("rawDataFile='" + rawDataFile + "'")
         .add("archiveName='" + archiveName + "'")
+        .add("tableName='" + tableName + "'")
+        .add("query='" + query + "'")
         .toString();
   }
 }

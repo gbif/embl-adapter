@@ -31,7 +31,7 @@ public class EmblAdapterConfiguration {
 
   @Valid
   @Parameter(names = "--tasks")
-  public List<Task> tasks = new ArrayList<>();
+  public List<TaskConfiguration> tasks = new ArrayList<>();
 
   @NotNull
   @Parameter(names = "--embl-ebi-api")

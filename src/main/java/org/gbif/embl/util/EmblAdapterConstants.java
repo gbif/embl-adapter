@@ -51,27 +51,8 @@ public final class EmblAdapterConstants {
   public static final String SQL_INSERT =
       "INSERT INTO embl_data(accession, location, country, "
           + "identified_by, collected_by, collection_date, specimen_voucher, sequence_md5, scientific_name, "
-          + "tax_id, altitude, sex) "
-          + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING";
-  public static final String SQL_SELECT =
-      "SELECT accession,\n"
-          + "       location,\n"
-          + "       country,\n"
-          + "       identified_by,\n"
-          + "       collected_by,\n"
-          + "       collection_date,\n"
-          + "       specimen_voucher,\n"
-          + "       sequence_md5,\n"
-          + "       scientific_name,\n"
-          + "       tax_id,\n"
-          + "       altitude,\n"
-          + "       sex\n"
-          + "FROM embl_data\n"
-          + "WHERE accession in (\n"
-          + "    SELECT min(accession) as a\n"
-          + "    FROM embl_data\n"
-          + "    GROUP BY scientific_name, collection_date, location, specimen_voucher\n"
-          + ")";
+          + "tax_id, altitude, sex, description) "
+          + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING";
 
   public static final List<Term> TERMS =
       Arrays.asList(
@@ -92,7 +73,8 @@ public final class EmblAdapterConstants {
           DwcTerm.taxonConceptID,
           DwcTerm.minimumElevationInMeters,
           DwcTerm.maximumElevationInMeters,
-          DwcTerm.sex);
+          DwcTerm.sex,
+          DwcTerm.occurrenceRemarks);
   public static final int ACCESSION_INDEX = 0;
   public static final int LOCATION_INDEX = 1;
   public static final int COUNTRY_INDEX = 2;
@@ -105,6 +87,7 @@ public final class EmblAdapterConstants {
   public static final int TAX_ID_INDEX = 9;
   public static final int ALTITUDE_INDEX = 10;
   public static final int SEX_INDEX = 11;
+  public static final int DESCRIPTION_INDEX = 12;
   public static final int ACCESSION_RS_INDEX = 1;
   public static final int LOCATION_RS_INDEX = 2;
   public static final int COUNTRY_RS_INDEX = 3;
@@ -117,6 +100,7 @@ public final class EmblAdapterConstants {
   public static final int TAX_ID_RS_INDEX = 10;
   public static final int ALTITUDE_RS_INDEX = 11;
   public static final int SEX_RS_INDEX = 12;
+  public static final int DESCRIPTION_RS_INDEX = 13;
 
   private EmblAdapterConstants() {}
 }
