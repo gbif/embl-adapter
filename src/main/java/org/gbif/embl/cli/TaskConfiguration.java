@@ -32,9 +32,9 @@ public class TaskConfiguration {
 
   @NotNull public String archiveName;
 
-  public String tableName;
+  @NotNull public String tableName;
 
-  public String query;
+  @NotNull public String query;
 
   @Override
   public String toString() {

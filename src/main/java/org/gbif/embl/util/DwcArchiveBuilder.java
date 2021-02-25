@@ -45,16 +45,22 @@ import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.gbif.embl.util.EmblAdapterConstants.ACCESSION_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.ALTITUDE_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.ASSOCIATED_SEQUENCES_URL;
+import static org.gbif.embl.util.EmblAdapterConstants.CLASS_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.COLLECTED_BY_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.COLLECTION_DATE_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.COUNTRY_DELIMITER;
 import static org.gbif.embl.util.EmblAdapterConstants.COUNTRY_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.DEFAULT_DELIMITER;
 import static org.gbif.embl.util.EmblAdapterConstants.DESCRIPTION_RS_INDEX;
+import static org.gbif.embl.util.EmblAdapterConstants.FAMILY_RS_INDEX;
+import static org.gbif.embl.util.EmblAdapterConstants.GENUS_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.IDENTIFIED_BY_RS_INDEX;
+import static org.gbif.embl.util.EmblAdapterConstants.KINGDOM_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.LOCATION_PATTERN;
 import static org.gbif.embl.util.EmblAdapterConstants.LOCATION_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.MATERIAL_SAMPLE;
+import static org.gbif.embl.util.EmblAdapterConstants.ORDER_RS_INDEX;
+import static org.gbif.embl.util.EmblAdapterConstants.PHYLUM_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.PRESERVED_SPECIMEN;
 import static org.gbif.embl.util.EmblAdapterConstants.REFERENCES_URL;
 import static org.gbif.embl.util.EmblAdapterConstants.SCIENTIFIC_NAME_RS_INDEX;
@@ -110,6 +116,7 @@ public class DwcArchiveBuilder {
       CompressionUtil.zipDir(archiveDir, zipFile, true);
     } catch (IOException | SQLException e) {
       LOG.error("Error while building archive", e);
+      throw new RuntimeException(e);
     } finally {
       // always clean temp dir
       cleanTempDir();
@@ -166,7 +173,13 @@ public class DwcArchiveBuilder {
         trimToEmpty(rs.getString(ALTITUDE_RS_INDEX)), // minimumElevationInMeters term
         trimToEmpty(rs.getString(ALTITUDE_RS_INDEX)), // maximumElevationInMeters term
         trimToEmpty(rs.getString(SEX_RS_INDEX)), // sex term
-        trimToEmpty(rs.getString(DESCRIPTION_RS_INDEX)) // occurrenceRemarks term
+        trimToEmpty(rs.getString(DESCRIPTION_RS_INDEX)), // occurrenceRemarks term
+        trimToEmpty(rs.getString(KINGDOM_RS_INDEX)), // kingdom term
+        trimToEmpty(rs.getString(PHYLUM_RS_INDEX)), // phylum term
+        trimToEmpty(rs.getString(CLASS_RS_INDEX)), // class term
+        trimToEmpty(rs.getString(ORDER_RS_INDEX)), // order term
+        trimToEmpty(rs.getString(FAMILY_RS_INDEX)), // family term
+        trimToEmpty(rs.getString(GENUS_RS_INDEX)) // genus term
         );
   }
 

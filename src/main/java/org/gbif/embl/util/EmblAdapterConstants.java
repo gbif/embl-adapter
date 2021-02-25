@@ -26,6 +26,8 @@ import java.util.regex.Pattern;
 
 public final class EmblAdapterConstants {
 
+  public static final int BATCH_SIZE = 5000;
+
   public static final String METADATA_FILENAME = "metadata.xml";
   public static final String CORE_FILENAME = "occurrence.txt";
   public static final String DESCRIPTOR_FILENAME = "meta.xml";
@@ -47,12 +49,18 @@ public final class EmblAdapterConstants {
   public static final String PRESERVED_SPECIMEN = "PreservedSpecimen";
   public static final String MATERIAL_SAMPLE = "MaterialSample";
 
+  public static final String TAXONOMY_TABLE = "ena_taxonomy";
   public static final String SQL_CLEAN = "TRUNCATE embl_data";
+  public static final String SQL_CLEAN_TAXONOMY = "TRUNCATE ena_taxonomy";
   public static final String SQL_INSERT =
       "INSERT INTO embl_data(accession, location, country, "
           + "identified_by, collected_by, collection_date, specimen_voucher, sequence_md5, scientific_name, "
           + "tax_id, altitude, sex, description) "
           + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING";
+  public static final String SQL_INSERT_TAXONOMY =
+      "INSERT INTO ena_taxonomy(taxon_id, kingdom, phylum, "
+          + "class, \"order\", family, genus) "
+          + "VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING";
 
   public static final List<Term> TERMS =
       Arrays.asList(
@@ -74,7 +82,13 @@ public final class EmblAdapterConstants {
           DwcTerm.minimumElevationInMeters,
           DwcTerm.maximumElevationInMeters,
           DwcTerm.sex,
-          DwcTerm.occurrenceRemarks);
+          DwcTerm.occurrenceRemarks,
+          DwcTerm.kingdom,
+          DwcTerm.phylum,
+          DwcTerm.class_,
+          DwcTerm.order,
+          DwcTerm.family,
+          DwcTerm.genus);
   public static final int ACCESSION_INDEX = 0;
   public static final int LOCATION_INDEX = 1;
   public static final int COUNTRY_INDEX = 2;
@@ -101,6 +115,19 @@ public final class EmblAdapterConstants {
   public static final int ALTITUDE_RS_INDEX = 11;
   public static final int SEX_RS_INDEX = 12;
   public static final int DESCRIPTION_RS_INDEX = 13;
+  public static final int KINGDOM_RS_INDEX = 14;
+  public static final int PHYLUM_RS_INDEX = 15;
+  public static final int CLASS_RS_INDEX = 16;
+  public static final int ORDER_RS_INDEX = 17;
+  public static final int FAMILY_RS_INDEX = 18;
+  public static final int GENUS_RS_INDEX = 19;
+  public static final int TAXON_ID_SELECT_INDEX = 1;
+  public static final int KINGDOM_SELECT_INDEX = 2;
+  public static final int PHYLUM_SELECT_INDEX = 3;
+  public static final int CLASS_SELECT_INDEX = 4;
+  public static final int ORDER_SELECT_INDEX = 5;
+  public static final int FAMILY_SELECT_INDEX = 6;
+  public static final int GENUS_SELECT_INDEX = 7;
 
   private EmblAdapterConstants() {}
 }

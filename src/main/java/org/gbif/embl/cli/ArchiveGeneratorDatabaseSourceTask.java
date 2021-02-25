@@ -25,6 +25,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Iterator;
+import java.util.concurrent.CyclicBarrier;
 
 import javax.sql.DataSource;
 
@@ -35,6 +36,7 @@ import static org.gbif.embl.util.EmblAdapterConstants.ACCESSION_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.ACCESSION_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.ALTITUDE_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.ALTITUDE_RS_INDEX;
+import static org.gbif.embl.util.EmblAdapterConstants.BATCH_SIZE;
 import static org.gbif.embl.util.EmblAdapterConstants.COLLECTED_BY_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.COLLECTED_BY_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.COLLECTION_DATE_INDEX;
@@ -66,17 +68,16 @@ public class ArchiveGeneratorDatabaseSourceTask extends ArchiveGeneratorTask {
   private static final Logger LOG =
       LoggerFactory.getLogger(ArchiveGeneratorDatabaseSourceTask.class);
 
-  public static final int BATCH_SIZE = 5000;
-
   private final DataSource dataSource;
   private final TaskConfiguration taskConfiguration;
 
   public ArchiveGeneratorDatabaseSourceTask(
+      CyclicBarrier barrier,
       TaskConfiguration taskConfiguration,
       DataSource dataSource,
       String workingDirectory,
       DwcArchiveBuilder archiveBuilder) {
-    super(taskConfiguration, workingDirectory, archiveBuilder);
+    super(barrier, taskConfiguration, workingDirectory, archiveBuilder);
     this.taskConfiguration = taskConfiguration;
     this.dataSource = dataSource;
   }

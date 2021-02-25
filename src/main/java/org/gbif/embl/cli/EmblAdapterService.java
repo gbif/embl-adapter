@@ -19,6 +19,7 @@ import org.gbif.embl.util.DwcArchiveBuilder;
 
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -95,9 +96,14 @@ public class EmblAdapterService extends AbstractIdleService {
   @Override
   protected void startUp() {
     LOG.info("Service started");
+    CyclicBarrier barrier = new CyclicBarrier(config.tasks.size() + 1);
+    LOG.debug("Created barrier of {} tasks", barrier.getParties());
+
+    scheduleTask(new EnaTaxonomyTask(barrier, config.taxonomy, dataSource));
     for (TaskConfiguration task : config.tasks) {
       scheduleTask(
           new ArchiveGeneratorDatabaseSourceTask(
+              barrier,
               task,
               dataSource,
               config.workingDirectory,
