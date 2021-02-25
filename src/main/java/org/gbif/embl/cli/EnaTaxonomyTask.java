@@ -1,15 +1,26 @@
+/*
+ * Copyright 2020 Global Biodiversity Information Facility (GBIF)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.embl.cli;
 
-import org.apache.commons.lang3.StringUtils;
 import org.gbif.dwc.Archive;
 import org.gbif.dwc.DwcFiles;
 import org.gbif.dwc.record.Record;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.utils.file.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,6 +35,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
+
+import javax.sql.DataSource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.gbif.embl.util.EmblAdapterConstants.BATCH_SIZE;
@@ -47,9 +64,7 @@ public class EnaTaxonomyTask implements Runnable {
   private final DataSource dataSource;
 
   public EnaTaxonomyTask(
-      CyclicBarrier barrier,
-      TaxonomyConfiguration taxonomyConfig,
-      DataSource dataSource) {
+      CyclicBarrier barrier, TaxonomyConfiguration taxonomyConfig, DataSource dataSource) {
     this.barrier = barrier;
     this.taxonomyConfig = taxonomyConfig;
     this.dataSource = dataSource;
@@ -58,8 +73,8 @@ public class EnaTaxonomyTask implements Runnable {
   @Override
   public void run() {
     try (Connection connection = dataSource.getConnection();
-         Statement st = connection.createStatement();
-         PreparedStatement ps = connection.prepareStatement(SQL_INSERT_TAXONOMY)) {
+        Statement st = connection.createStatement();
+        PreparedStatement ps = connection.prepareStatement(SQL_INSERT_TAXONOMY)) {
       LOG.debug("{}", taxonomyConfig);
 
       // create tempDir if not exists
@@ -131,9 +146,12 @@ public class EnaTaxonomyTask implements Runnable {
 
     URLConnection urlConnection = new URL(taxonomyConfig.archiveUrl).openConnection();
     try (InputStream inputStream = urlConnection.getInputStream()) {
-      Files.copy(inputStream, new File(taxonomyConfig.tempDir, taxonomyConfig.archiveName).toPath());
+      Files.copy(
+          inputStream, new File(taxonomyConfig.tempDir, taxonomyConfig.archiveName).toPath());
     }
 
-    LOG.debug("Taxonomy archive downloaded: {}", new File(taxonomyConfig.tempDir, taxonomyConfig.archiveName).exists());
+    LOG.debug(
+        "Taxonomy archive downloaded: {}",
+        new File(taxonomyConfig.tempDir, taxonomyConfig.archiveName).exists());
   }
 }

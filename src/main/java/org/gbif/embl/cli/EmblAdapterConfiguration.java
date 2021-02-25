@@ -33,9 +33,7 @@ public class EmblAdapterConfiguration {
   @Parameter(names = "--tasks")
   public List<TaskConfiguration> tasks = new ArrayList<>();
 
-  @ParametersDelegate
-  @Valid
-  @NotNull
+  @ParametersDelegate @Valid @NotNull
   public TaxonomyConfiguration taxonomy = new TaxonomyConfiguration();
 
   @NotNull

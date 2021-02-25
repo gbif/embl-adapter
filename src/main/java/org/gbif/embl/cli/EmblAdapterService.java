@@ -103,11 +103,7 @@ public class EmblAdapterService extends AbstractIdleService {
     for (TaskConfiguration task : config.tasks) {
       scheduleTask(
           new ArchiveGeneratorDatabaseSourceTask(
-              barrier,
-              task,
-              dataSource,
-              config.workingDirectory,
-              archiveBuilder));
+              barrier, task, dataSource, config.workingDirectory, archiveBuilder));
     }
   }
 

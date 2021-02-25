@@ -35,11 +35,11 @@ import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.sql.DataSource;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.sql.DataSource;
 
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.gbif.embl.util.EmblAdapterConstants.ACCESSION_RS_INDEX;
@@ -130,15 +130,14 @@ public class DwcArchiveBuilder {
     LOG.debug("Creating core file by using DB table {}", tableName);
 
     // SQL select for table
-    String sqlSelect = readSqlFile(query)
-        .replace("embl_data", tableName);
+    String sqlSelect = readSqlFile(query).replace("embl_data", tableName);
     LOG.debug("SQL select: {}", sqlSelect);
 
     // write core file
     try (Connection connection = dataSource.getConnection();
-         Statement statement = connection.createStatement();
-         ResultSet rs = statement.executeQuery(sqlSelect);
-         PrintWriter pw = new PrintWriter(outputFile)) {
+        Statement statement = connection.createStatement();
+        ResultSet rs = statement.executeQuery(sqlSelect);
+        PrintWriter pw = new PrintWriter(outputFile)) {
       // file header
       pw.println(
           EmblAdapterConstants.TERMS.stream()
