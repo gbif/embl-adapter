@@ -81,7 +81,8 @@ public abstract class ArchiveGeneratorTask implements Runnable {
       // create archive
       LOG.info("[{}] Start creating archive", taskConfiguration.name);
       String archiveName =
-          String.format(taskConfiguration.archiveName, LocalDate.now().format(DATE_NO_SEPARATORS_FORMAT));
+          String.format(
+              taskConfiguration.archiveName, LocalDate.now().format(DATE_NO_SEPARATORS_FORMAT));
       archiveBuilder.buildArchive(
           new File(workingDirectory + "/output", archiveName),
           tableName,
@@ -91,7 +92,8 @@ public abstract class ArchiveGeneratorTask implements Runnable {
 
       // delete temp files
       Files.deleteIfExists(Paths.get(taskConfiguration.rawDataFile));
-      LOG.info("[{}] Raw data file {} deleted", taskConfiguration.name, taskConfiguration.rawDataFile);
+      LOG.info(
+          "[{}] Raw data file {} deleted", taskConfiguration.name, taskConfiguration.rawDataFile);
     } catch (IOException e) {
       LOG.error("[{}] IOException while producing archive", taskConfiguration.name, e);
     } catch (SQLException e) {
