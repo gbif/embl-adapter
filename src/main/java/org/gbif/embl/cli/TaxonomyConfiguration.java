@@ -5,6 +5,8 @@ import java.util.StringJoiner;
 
 public class TaxonomyConfiguration {
 
+  public boolean skipUpdate = false;
+
   @NotNull
   public String archiveUrl;
 
@@ -20,6 +22,7 @@ public class TaxonomyConfiguration {
   @Override
   public String toString() {
     return new StringJoiner(", ", TaxonomyConfiguration.class.getSimpleName() + "[", "]")
+        .add("skipUpdate='" + skipUpdate + "'")
         .add("archiveUrl='" + archiveUrl + "'")
         .add("archiveName='" + archiveName + "'")
         .add("tempDir='" + tempDir + "'")

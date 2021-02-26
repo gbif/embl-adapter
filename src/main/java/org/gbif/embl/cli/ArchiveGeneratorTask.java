@@ -55,11 +55,13 @@ public abstract class ArchiveGeneratorTask implements Runnable {
 
   @Override
   public void run() {
-    LOG.info("Task {} started, waiting for the others to finish", taskConfiguration.name);
-    try {
-      barrier.await();
-    } catch (InterruptedException | BrokenBarrierException e) {
-      LOG.error("Exception while waiting other tasks", e);
+    if (barrier != null) {
+      LOG.info("Task {} started, waiting for the others to finish", taskConfiguration.name);
+      try {
+        barrier.await();
+      } catch (InterruptedException | BrokenBarrierException e) {
+        LOG.error("Exception while waiting other tasks", e);
+      }
     }
 
     LOG.info("[{}] Start downloading data", taskConfiguration.name);

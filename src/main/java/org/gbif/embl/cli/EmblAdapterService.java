@@ -96,10 +96,14 @@ public class EmblAdapterService extends AbstractIdleService {
   @Override
   protected void startUp() {
     LOG.info("Service started");
-    CyclicBarrier barrier = new CyclicBarrier(config.tasks.size() + 1);
-    LOG.debug("Created barrier of {} tasks", barrier.getParties());
+    CyclicBarrier barrier = null;
 
-    scheduleTask(new EnaTaxonomyTask(barrier, config.taxonomy, dataSource));
+    if (!config.taxonomy.skipUpdate) {
+      barrier = new CyclicBarrier(config.tasks.size() + 1);
+      LOG.debug("Created barrier of {} tasks", barrier.getParties());
+      scheduleTask(new EnaTaxonomyTask(barrier, config.taxonomy, dataSource));
+    }
+
     for (TaskConfiguration task : config.tasks) {
       scheduleTask(
           new ArchiveGeneratorDatabaseSourceTask(
