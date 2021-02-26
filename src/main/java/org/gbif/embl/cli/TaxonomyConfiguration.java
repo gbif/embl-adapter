@@ -15,13 +15,27 @@
  */
 package org.gbif.embl.cli;
 
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParametersDelegate;
+
 import java.util.StringJoiner;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 public class TaxonomyConfiguration {
 
-  public boolean skipUpdate = false;
+  @ParametersDelegate
+  @Valid
+  @NotNull public DbConfiguration db = new DbConfiguration();
+
+  @NotNull
+  @Parameter(names = "--start-time")
+  public String startTime;
+
+  @NotNull
+  @Parameter(names = "--frequency-in-days")
+  public Integer frequencyInDays = 7;
 
   @NotNull public String archiveUrl;
 
@@ -34,7 +48,9 @@ public class TaxonomyConfiguration {
   @Override
   public String toString() {
     return new StringJoiner(", ", TaxonomyConfiguration.class.getSimpleName() + "[", "]")
-        .add("skipUpdate='" + skipUpdate + "'")
+        .add("db='" + db + "'")
+        .add("startTime='" + startTime + "'")
+        .add("frequencyInDays='" + frequencyInDays + "'")
         .add("archiveUrl='" + archiveUrl + "'")
         .add("archiveName='" + archiveName + "'")
         .add("tempDir='" + tempDir + "'")

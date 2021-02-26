@@ -33,9 +33,6 @@ public class EmblAdapterConfiguration {
   @Parameter(names = "--tasks")
   public List<TaskConfiguration> tasks = new ArrayList<>();
 
-  @ParametersDelegate @Valid @NotNull
-  public TaxonomyConfiguration taxonomy = new TaxonomyConfiguration();
-
   @NotNull
   @Parameter(names = "--embl-ebi-api")
   public String emblEbiApi = "https://www.ebi.ac.uk/ena/portal/api/";
@@ -56,7 +53,6 @@ public class EmblAdapterConfiguration {
   public String toString() {
     return new StringJoiner(", ", EmblAdapterConfiguration.class.getSimpleName() + "[", "]")
         .add("db=" + db)
-        .add("taxonomy=" + taxonomy)
         .add("emblEbiApi='" + emblEbiApi + "'")
         .add("startTime='" + startTime + "'")
         .add("frequencyInDays=" + frequencyInDays)

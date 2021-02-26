@@ -22,6 +22,7 @@
   <logger name="com.zaxxer.hikari" level="ERROR" />
   <logger name="org.hibernate.validator" level="ERROR" />
   <logger name="org.gbif.embl" level="DEBUG" />
+  <logger name="org.apache.commons.exec" level="ERROR" />
 
   <root>
     <appender-ref ref="CONSOLE" />

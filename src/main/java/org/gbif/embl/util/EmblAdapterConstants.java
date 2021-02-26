@@ -26,6 +26,10 @@ import java.util.regex.Pattern;
 
 public final class EmblAdapterConstants {
 
+  public static final int DEFAULT_START_HOUR = 0;
+  public static final int DEFAULT_START_MINUTE = 0;
+  public static final int DEFAULT_FREQUENCY = 7;
+
   public static final int BATCH_SIZE = 5000;
 
   public static final String METADATA_FILENAME = "metadata.xml";

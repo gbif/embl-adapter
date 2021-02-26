@@ -23,11 +23,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
 
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.PumpStreamHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,17 +36,14 @@ public abstract class ArchiveGeneratorTask implements Runnable {
 
   private static final Logger LOG = LoggerFactory.getLogger(ArchiveGeneratorTask.class);
 
-  private final CyclicBarrier barrier;
   private final DwcArchiveBuilder archiveBuilder;
   private final TaskConfiguration taskConfiguration;
   private final String workingDirectory;
 
   public ArchiveGeneratorTask(
-      CyclicBarrier barrier,
       TaskConfiguration taskConfiguration,
       String workingDirectory,
       DwcArchiveBuilder archiveBuilder) {
-    this.barrier = barrier;
     this.taskConfiguration = taskConfiguration;
     this.workingDirectory = workingDirectory;
     this.archiveBuilder = archiveBuilder;
@@ -55,15 +51,6 @@ public abstract class ArchiveGeneratorTask implements Runnable {
 
   @Override
   public void run() {
-    if (barrier != null) {
-      LOG.info("Task {} started, waiting for the others to finish", taskConfiguration.name);
-      try {
-        barrier.await();
-      } catch (InterruptedException | BrokenBarrierException e) {
-        LOG.error("Exception while waiting other tasks", e);
-      }
-    }
-
     LOG.info("[{}] Start downloading data", taskConfiguration.name);
     CommandLine cmd = new CommandLine("curl");
     cmd.addArgument(taskConfiguration.requestUrl);
@@ -71,6 +58,7 @@ public abstract class ArchiveGeneratorTask implements Runnable {
     cmd.addArgument(taskConfiguration.rawDataFile);
 
     DefaultExecutor executor = new DefaultExecutor();
+    executor.setStreamHandler(new PumpStreamHandler(null, null, null));
     executor.setExitValue(0);
 
     try {

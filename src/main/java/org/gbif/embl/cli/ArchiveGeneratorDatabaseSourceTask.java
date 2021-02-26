@@ -25,7 +25,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Iterator;
-import java.util.concurrent.CyclicBarrier;
 
 import javax.sql.DataSource;
 
@@ -72,12 +71,11 @@ public class ArchiveGeneratorDatabaseSourceTask extends ArchiveGeneratorTask {
   private final TaskConfiguration taskConfiguration;
 
   public ArchiveGeneratorDatabaseSourceTask(
-      CyclicBarrier barrier,
       TaskConfiguration taskConfiguration,
       DataSource dataSource,
       String workingDirectory,
       DwcArchiveBuilder archiveBuilder) {
-    super(barrier, taskConfiguration, workingDirectory, archiveBuilder);
+    super(taskConfiguration, workingDirectory, archiveBuilder);
     this.taskConfiguration = taskConfiguration;
     this.dataSource = dataSource;
   }
@@ -91,12 +89,11 @@ public class ArchiveGeneratorDatabaseSourceTask extends ArchiveGeneratorTask {
         Statement st = connection.createStatement();
         PreparedStatement ps = connection.prepareStatement(sqlInsert);
         BufferedReader in = new BufferedReader(new FileReader(taskConfiguration.rawDataFile))) {
-      LOG.debug("Start writing DB");
-
       // clean database table before
       st.executeUpdate(sqlClean);
       LOG.debug("DB cleaned");
 
+      LOG.debug("Start writing DB");
       int lineNumber = 0;
 
       // skip first header line

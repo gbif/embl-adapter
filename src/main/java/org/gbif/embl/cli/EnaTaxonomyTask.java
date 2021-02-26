@@ -33,8 +33,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
 
 import javax.sql.DataSource;
 
@@ -59,13 +57,10 @@ public class EnaTaxonomyTask implements Runnable {
 
   private static final Logger LOG = LoggerFactory.getLogger(EnaTaxonomyTask.class);
 
-  private final CyclicBarrier barrier;
   private final TaxonomyConfiguration taxonomyConfig;
   private final DataSource dataSource;
 
-  public EnaTaxonomyTask(
-      CyclicBarrier barrier, TaxonomyConfiguration taxonomyConfig, DataSource dataSource) {
-    this.barrier = barrier;
+  public EnaTaxonomyTask(TaxonomyConfiguration taxonomyConfig, DataSource dataSource) {
     this.taxonomyConfig = taxonomyConfig;
     this.dataSource = dataSource;
   }
@@ -92,12 +87,12 @@ public class EnaTaxonomyTask implements Runnable {
       Path extractToFolder = Paths.get(taxonomyConfig.extractedDir);
       Archive dwcArchive = DwcFiles.fromCompressed(archiveFile, extractToFolder);
 
-      // store data to DB
-      LOG.debug("Start writing taxonomy to DB table {}", TAXONOMY_TABLE);
-
       // clean database table before
       st.executeUpdate(SQL_CLEAN_TAXONOMY);
       LOG.debug("Taxonomy DB cleaned");
+
+      // store data to DB
+      LOG.debug("Start writing taxonomy to DB table {}", TAXONOMY_TABLE);
 
       int lineNumber = 0;
 
@@ -131,12 +126,6 @@ public class EnaTaxonomyTask implements Runnable {
       File file = new File(taxonomyConfig.tempDir);
       if (file.exists()) {
         FileUtils.deleteDirectoryRecursively(file);
-      }
-
-      try {
-        barrier.await();
-      } catch (InterruptedException | BrokenBarrierException e) {
-        LOG.error("Exception while waiting other tasks", e);
       }
     }
   }
