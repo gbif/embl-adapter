@@ -45,6 +45,7 @@ import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.gbif.embl.util.EmblAdapterConstants.ACCESSION_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.ALTITUDE_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.ASSOCIATED_SEQUENCES_URL;
+import static org.gbif.embl.util.EmblAdapterConstants.BATCH_SIZE;
 import static org.gbif.embl.util.EmblAdapterConstants.CLASS_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.COLLECTED_BY_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.COLLECTION_DATE_RS_INDEX;
@@ -127,27 +128,35 @@ public class DwcArchiveBuilder {
     LOG.debug("Creating core file {} in {}", EmblAdapterConstants.CORE_FILENAME, archiveDir);
     File outputFile = new File(archiveDir, EmblAdapterConstants.CORE_FILENAME);
 
-    LOG.debug("Creating core file by using DB table {}", tableName);
-
     // SQL select for table
-    String sqlSelect = readSqlFile(query).replace("embl_data", tableName);
+    String sqlSelect = readSqlFile(query).replace("embl_data", tableName).trim();
     LOG.debug("SQL select: {}", sqlSelect);
 
     // write core file
     try (Connection connection = dataSource.getConnection();
-        Statement statement = connection.createStatement();
-        ResultSet rs = statement.executeQuery(sqlSelect);
-        PrintWriter pw = new PrintWriter(outputFile)) {
+         PrintWriter pw = new PrintWriter(outputFile)) {
+      LOG.debug("DB connection established to retrieve core file data");
+      connection.setAutoCommit(false);
+
       // file header
       pw.println(
           EmblAdapterConstants.TERMS.stream()
               .map(Term::simpleName)
               .collect(Collectors.joining(DEFAULT_DELIMITER)));
+      LOG.debug("Core file header");
 
-      // file data
-      while (rs.next()) {
-        pw.println(joinData(rs));
+      try (Statement statement = connection.createStatement()) {
+        statement.setFetchSize(BATCH_SIZE);
+
+        try (ResultSet rs = statement.executeQuery(sqlSelect)) {
+          LOG.debug("Start writing core file data");
+          // file data
+          while (rs.next()) {
+            pw.println(joinData(rs));
+          }
+        }
       }
+      LOG.debug("Finished writing core file");
     }
   }
 

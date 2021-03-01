@@ -26,7 +26,6 @@ import java.time.LocalDate;
 
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
-import org.apache.commons.exec.PumpStreamHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,18 +50,18 @@ public abstract class ArchiveGeneratorTask implements Runnable {
 
   @Override
   public void run() {
-    LOG.info("[{}] Start downloading data", taskConfiguration.name);
+    LOG.info("[{}] Start running task", taskConfiguration.name);
     CommandLine cmd = new CommandLine("curl");
     cmd.addArgument(taskConfiguration.requestUrl);
     cmd.addArgument("-o");
     cmd.addArgument(taskConfiguration.rawDataFile);
 
     DefaultExecutor executor = new DefaultExecutor();
-    executor.setStreamHandler(new PumpStreamHandler(null, null, null));
     executor.setExitValue(0);
 
     try {
       // download data
+      LOG.info("[{}] Start downloading data", taskConfiguration.name);
       executor.execute(cmd);
       String tableName = prepareRawData();
 
@@ -84,7 +83,8 @@ public abstract class ArchiveGeneratorTask implements Runnable {
           "[{}] Raw data file {} deleted", taskConfiguration.name, taskConfiguration.rawDataFile);
     } catch (IOException e) {
       LOG.error("[{}] IOException while producing archive", taskConfiguration.name, e);
-    } catch (SQLException e) {
+    }
+    catch (SQLException e) {
       LOG.error("[{}] SQLException while producing archive", taskConfiguration.name, e);
     }
   }
