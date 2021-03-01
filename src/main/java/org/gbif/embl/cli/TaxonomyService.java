@@ -15,21 +15,23 @@
  */
 package org.gbif.embl.cli;
 
-import com.google.common.util.concurrent.AbstractIdleService;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import javax.sql.DataSource;
+
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sql.DataSource;
-import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import com.google.common.util.concurrent.AbstractIdleService;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
 import static org.gbif.embl.util.EmblAdapterConstants.DEFAULT_FREQUENCY;
 import static org.gbif.embl.util.EmblAdapterConstants.DEFAULT_START_HOUR;

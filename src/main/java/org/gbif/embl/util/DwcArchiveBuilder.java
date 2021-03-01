@@ -134,7 +134,7 @@ public class DwcArchiveBuilder {
 
     // write core file
     try (Connection connection = dataSource.getConnection();
-         PrintWriter pw = new PrintWriter(outputFile)) {
+        PrintWriter pw = new PrintWriter(outputFile)) {
       LOG.debug("DB connection established to retrieve core file data");
       connection.setAutoCommit(false);
 

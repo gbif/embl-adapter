@@ -15,19 +15,17 @@
  */
 package org.gbif.embl.cli;
 
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.ParametersDelegate;
-
 import java.util.StringJoiner;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParametersDelegate;
+
 public class TaxonomyConfiguration {
 
-  @ParametersDelegate
-  @Valid
-  @NotNull public DbConfiguration db = new DbConfiguration();
+  @ParametersDelegate @Valid @NotNull public DbConfiguration db = new DbConfiguration();
 
   @NotNull
   @Parameter(names = "--start-time")
