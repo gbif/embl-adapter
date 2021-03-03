@@ -79,16 +79,15 @@ public class DwcArchiveBuilder {
 
   private final DataSource dataSource;
   private final String workingDirectory;
-  private final File archiveDir;
 
   public DwcArchiveBuilder(DataSource dataSource, String workingDirectory) {
     this.dataSource = dataSource;
     this.workingDirectory = workingDirectory;
-    this.archiveDir = new File(workingDirectory + "/temp_" + UUID.randomUUID());
   }
 
   public void buildArchive(File zipFile, String tableName, String query, String metadataFilePath) {
     LOG.info("Start building the archive {} ", zipFile.getPath());
+    File archiveDir = new File(workingDirectory + "/temp_" + UUID.randomUUID());
 
     try {
       if (!zipFile.getParentFile().exists()) {
@@ -107,11 +106,11 @@ public class DwcArchiveBuilder {
       }
 
       // metadata about the entire archive data
-      generateMetadata(metadataFilePath);
+      generateMetadata(archiveDir, metadataFilePath);
       // meta.xml
       DwcArchiveUtils.createArchiveDescriptor(archiveDir);
       // occurrence.txt
-      createCoreFile(tableName, query);
+      createCoreFile(archiveDir, tableName, query);
       // zip up
       LOG.info("Zipping archive {}", archiveDir);
       CompressionUtil.zipDir(archiveDir, zipFile, true);
@@ -120,11 +119,11 @@ public class DwcArchiveBuilder {
       throw new RuntimeException(e);
     } finally {
       // always clean temp dir
-      cleanTempDir();
+      cleanTempDir(archiveDir);
     }
   }
 
-  private void createCoreFile(String tableName, String query) throws IOException, SQLException {
+  private void createCoreFile(File archiveDir, String tableName, String query) throws IOException, SQLException {
     LOG.debug("Creating core file {} in {}", EmblAdapterConstants.CORE_FILENAME, archiveDir);
     File outputFile = new File(archiveDir, EmblAdapterConstants.CORE_FILENAME);
 
@@ -266,7 +265,7 @@ public class DwcArchiveBuilder {
     return StringUtils.EMPTY;
   }
 
-  private void generateMetadata(String metadataFilePath) throws IOException {
+  private void generateMetadata(File archiveDir, String metadataFilePath) throws IOException {
     LOG.debug("Creating metadata file eml.xml in {}", archiveDir);
     File file = new File(metadataFilePath);
 
@@ -279,7 +278,7 @@ public class DwcArchiveBuilder {
     }
   }
 
-  private void cleanTempDir() {
+  private void cleanTempDir(File archiveDir) {
     LOG.debug("Cleaning up archive directory {}", archiveDir.getPath());
     if (archiveDir.exists()) {
       FileUtils.deleteDirectoryRecursively(archiveDir);
