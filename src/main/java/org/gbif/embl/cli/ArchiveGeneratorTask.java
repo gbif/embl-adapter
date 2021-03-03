@@ -83,8 +83,7 @@ public abstract class ArchiveGeneratorTask implements Runnable {
           "[{}] Raw data file {} deleted", taskConfiguration.name, taskConfiguration.rawDataFile);
     } catch (IOException e) {
       LOG.error("[{}] IOException while producing archive", taskConfiguration.name, e);
-    }
-    catch (SQLException e) {
+    } catch (SQLException e) {
       LOG.error("[{}] SQLException while producing archive", taskConfiguration.name, e);
     }
   }
