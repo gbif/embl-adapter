@@ -123,7 +123,8 @@ public class DwcArchiveBuilder {
     }
   }
 
-  private void createCoreFile(File archiveDir, String tableName, String query) throws IOException, SQLException {
+  private void createCoreFile(File archiveDir, String tableName, String query)
+      throws IOException, SQLException {
     LOG.debug("Creating core file {} in {}", EmblAdapterConstants.CORE_FILENAME, archiveDir);
     File outputFile = new File(archiveDir, EmblAdapterConstants.CORE_FILENAME);
 
