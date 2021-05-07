@@ -57,10 +57,10 @@ public final class EmblAdapterConstants {
   public static final String SQL_CLEAN = "TRUNCATE embl_data";
   public static final String SQL_CLEAN_TAXONOMY = "TRUNCATE ena_taxonomy";
   public static final String SQL_INSERT =
-      "INSERT INTO embl_data(accession, location, country, "
+      "INSERT INTO embl_data(accession, sample_accession, location, country, "
           + "identified_by, collected_by, collection_date, specimen_voucher, sequence_md5, scientific_name, "
           + "tax_id, altitude, sex, description) "
-          + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING";
+          + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING";
   public static final String SQL_INSERT_TAXONOMY =
       "INSERT INTO ena_taxonomy(taxon_id, kingdom, phylum, "
           + "class, \"order\", family, genus) "
@@ -94,37 +94,39 @@ public final class EmblAdapterConstants {
           DwcTerm.family,
           DwcTerm.genus);
   public static final int ACCESSION_INDEX = 0;
-  public static final int LOCATION_INDEX = 1;
-  public static final int COUNTRY_INDEX = 2;
-  public static final int IDENTIFIED_BY_INDEX = 3;
-  public static final int COLLECTED_BY_INDEX = 4;
-  public static final int COLLECTION_DATE_INDEX = 5;
-  public static final int SPECIMEN_VOUCHER_INDEX = 6;
-  public static final int SEQUENCE_MD5_INDEX = 7;
-  public static final int SCIENTIFIC_NAME_INDEX = 8;
-  public static final int TAX_ID_INDEX = 9;
-  public static final int ALTITUDE_INDEX = 10;
-  public static final int SEX_INDEX = 11;
-  public static final int DESCRIPTION_INDEX = 12;
+  public static final int SAMPLE_ACCESSION_INDEX = 1;
+  public static final int LOCATION_INDEX = 2;
+  public static final int COUNTRY_INDEX = 3;
+  public static final int IDENTIFIED_BY_INDEX = 4;
+  public static final int COLLECTED_BY_INDEX = 5;
+  public static final int COLLECTION_DATE_INDEX = 6;
+  public static final int SPECIMEN_VOUCHER_INDEX = 7;
+  public static final int SEQUENCE_MD5_INDEX = 8;
+  public static final int SCIENTIFIC_NAME_INDEX = 9;
+  public static final int TAX_ID_INDEX = 10;
+  public static final int ALTITUDE_INDEX = 11;
+  public static final int SEX_INDEX = 12;
+  public static final int DESCRIPTION_INDEX = 13;
   public static final int ACCESSION_RS_INDEX = 1;
-  public static final int LOCATION_RS_INDEX = 2;
-  public static final int COUNTRY_RS_INDEX = 3;
-  public static final int IDENTIFIED_BY_RS_INDEX = 4;
-  public static final int COLLECTED_BY_RS_INDEX = 5;
-  public static final int COLLECTION_DATE_RS_INDEX = 6;
-  public static final int SPECIMEN_VOUCHER_RS_INDEX = 7;
-  public static final int SEQUENCE_MD5_RS_INDEX = 8;
-  public static final int SCIENTIFIC_NAME_RS_INDEX = 9;
-  public static final int TAX_ID_RS_INDEX = 10;
-  public static final int ALTITUDE_RS_INDEX = 11;
-  public static final int SEX_RS_INDEX = 12;
-  public static final int DESCRIPTION_RS_INDEX = 13;
-  public static final int KINGDOM_RS_INDEX = 14;
-  public static final int PHYLUM_RS_INDEX = 15;
-  public static final int CLASS_RS_INDEX = 16;
-  public static final int ORDER_RS_INDEX = 17;
-  public static final int FAMILY_RS_INDEX = 18;
-  public static final int GENUS_RS_INDEX = 19;
+  public static final int SAMPLE_ACCESSION_RS_INDEX = 2;
+  public static final int LOCATION_RS_INDEX = 3;
+  public static final int COUNTRY_RS_INDEX = 4;
+  public static final int IDENTIFIED_BY_RS_INDEX = 5;
+  public static final int COLLECTED_BY_RS_INDEX = 6;
+  public static final int COLLECTION_DATE_RS_INDEX = 7;
+  public static final int SPECIMEN_VOUCHER_RS_INDEX = 8;
+  public static final int SEQUENCE_MD5_RS_INDEX = 9;
+  public static final int SCIENTIFIC_NAME_RS_INDEX = 10;
+  public static final int TAX_ID_RS_INDEX = 11;
+  public static final int ALTITUDE_RS_INDEX = 12;
+  public static final int SEX_RS_INDEX = 13;
+  public static final int DESCRIPTION_RS_INDEX = 14;
+  public static final int KINGDOM_RS_INDEX = 15;
+  public static final int PHYLUM_RS_INDEX = 16;
+  public static final int CLASS_RS_INDEX = 17;
+  public static final int ORDER_RS_INDEX = 18;
+  public static final int FAMILY_RS_INDEX = 19;
+  public static final int GENUS_RS_INDEX = 20;
   public static final int TAXON_ID_SELECT_INDEX = 1;
   public static final int KINGDOM_SELECT_INDEX = 2;
   public static final int PHYLUM_SELECT_INDEX = 3;

@@ -49,6 +49,8 @@ import static org.gbif.embl.util.EmblAdapterConstants.IDENTIFIED_BY_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.IDENTIFIED_BY_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.LOCATION_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.LOCATION_RS_INDEX;
+import static org.gbif.embl.util.EmblAdapterConstants.SAMPLE_ACCESSION_INDEX;
+import static org.gbif.embl.util.EmblAdapterConstants.SAMPLE_ACCESSION_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.SCIENTIFIC_NAME_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.SCIENTIFIC_NAME_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.SEQUENCE_MD5_INDEX;
@@ -101,6 +103,7 @@ public class ArchiveGeneratorDatabaseSourceTask extends ArchiveGeneratorTask {
         String line = it.next();
         String[] split = line.split(DEFAULT_DELIMITER, -1);
         ps.setString(ACCESSION_RS_INDEX, split[ACCESSION_INDEX]);
+        ps.setString(SAMPLE_ACCESSION_RS_INDEX, split[SAMPLE_ACCESSION_INDEX]);
         ps.setString(LOCATION_RS_INDEX, split[LOCATION_INDEX]);
         ps.setString(COUNTRY_RS_INDEX, split[COUNTRY_INDEX]);
         ps.setString(IDENTIFIED_BY_RS_INDEX, split[IDENTIFIED_BY_INDEX]);

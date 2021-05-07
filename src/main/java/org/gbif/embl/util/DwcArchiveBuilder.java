@@ -30,6 +30,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
@@ -64,6 +66,7 @@ import static org.gbif.embl.util.EmblAdapterConstants.ORDER_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.PHYLUM_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.PRESERVED_SPECIMEN;
 import static org.gbif.embl.util.EmblAdapterConstants.REFERENCES_URL;
+import static org.gbif.embl.util.EmblAdapterConstants.SAMPLE_ACCESSION_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.SCIENTIFIC_NAME_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.SEQUENCE_MD5_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.SEX_RS_INDEX;
@@ -128,6 +131,8 @@ public class DwcArchiveBuilder {
     LOG.debug("Creating core file {} in {}", EmblAdapterConstants.CORE_FILENAME, archiveDir);
     File outputFile = new File(archiveDir, EmblAdapterConstants.CORE_FILENAME);
 
+    Set<String> recordsSeenBefore = new HashSet<>();
+
     // SQL select for table
     String sqlSelect = readSqlFile(query).replace("embl_data", tableName).trim();
     LOG.debug("SQL select: {}", sqlSelect);
@@ -152,6 +157,21 @@ public class DwcArchiveBuilder {
           LOG.debug("Start writing core file data");
           // file data
           while (rs.next()) {
+            // check if the record was seen before
+            if (StringUtils.isNotEmpty(rs.getString(SAMPLE_ACCESSION_RS_INDEX))
+              && StringUtils.isNotEmpty(rs.getString(SCIENTIFIC_NAME_RS_INDEX))) {
+              String sampleAccessionPlusScientificName =
+                  rs.getString(SAMPLE_ACCESSION_RS_INDEX) + rs.getString(SCIENTIFIC_NAME_RS_INDEX);
+
+              // skip duplicate records (seen before) based on sampe_accession and scientific_name
+              // otherwise remember and write it
+              if (recordsSeenBefore.contains(sampleAccessionPlusScientificName)) {
+                continue;
+              } else {
+                recordsSeenBefore.add(sampleAccessionPlusScientificName);
+              }
+            }
+
             pw.println(joinData(rs));
           }
         }

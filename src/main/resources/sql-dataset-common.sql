@@ -1,4 +1,5 @@
 SELECT ed.accession,
+       ed.sample_accession,
        ed.location,
        ed.country,
        ed.identified_by,

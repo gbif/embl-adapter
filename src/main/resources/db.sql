@@ -1,6 +1,7 @@
 CREATE TABLE embl_data
 (
     accession        text PRIMARY KEY,
+    sample_accession text,
     location         text,
     country          text,
     identified_by    text,
