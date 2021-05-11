@@ -26,9 +26,13 @@ public class TaskConfiguration {
 
   @NotNull public String metadataFile;
 
-  @NotNull public String requestUrl;
+  @NotNull public String requestUrl1;
 
-  @NotNull public String rawDataFile;
+  @NotNull public String requestUrl2;
+
+  @NotNull public String rawDataFile1;
+
+  @NotNull public String rawDataFile2;
 
   @NotNull public String archiveName;
 
@@ -41,8 +45,10 @@ public class TaskConfiguration {
     return new StringJoiner(", ", TaskConfiguration.class.getSimpleName() + "[", "]")
         .add("name='" + name + "'")
         .add("metadataFile='" + metadataFile + "'")
-        .add("requestUrl='" + requestUrl + "'")
-        .add("rawDataFile='" + rawDataFile + "'")
+        .add("requestUrl1='" + requestUrl1 + "'")
+        .add("requestUrl2='" + requestUrl2 + "'")
+        .add("rawDataFile1='" + rawDataFile1 + "'")
+        .add("rawDataFile2='" + rawDataFile2 + "'")
         .add("archiveName='" + archiveName + "'")
         .add("tableName='" + tableName + "'")
         .add("query='" + query + "'")

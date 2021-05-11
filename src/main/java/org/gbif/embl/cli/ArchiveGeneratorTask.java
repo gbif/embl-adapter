@@ -51,10 +51,18 @@ public abstract class ArchiveGeneratorTask implements Runnable {
   @Override
   public void run() {
     LOG.info("[{}] Start running task", taskConfiguration.name);
-    CommandLine cmd = new CommandLine("curl");
-    cmd.addArgument(taskConfiguration.requestUrl);
-    cmd.addArgument("-o");
-    cmd.addArgument(taskConfiguration.rawDataFile);
+
+    // download non-CON sequences
+    CommandLine downloadSequencesCommand = new CommandLine("curl");
+    downloadSequencesCommand.addArgument(taskConfiguration.requestUrl1);
+    downloadSequencesCommand.addArgument("-o");
+    downloadSequencesCommand.addArgument(taskConfiguration.rawDataFile1);
+
+    // download wgs_set
+    CommandLine downloadWgsSetCommand = new CommandLine("curl");
+    downloadWgsSetCommand.addArgument(taskConfiguration.requestUrl2);
+    downloadWgsSetCommand.addArgument("-o");
+    downloadWgsSetCommand.addArgument(taskConfiguration.rawDataFile2);
 
     DefaultExecutor executor = new DefaultExecutor();
     executor.setExitValue(0);
@@ -62,7 +70,8 @@ public abstract class ArchiveGeneratorTask implements Runnable {
     try {
       // download data
       LOG.info("[{}] Start downloading data", taskConfiguration.name);
-      executor.execute(cmd);
+      executor.execute(downloadSequencesCommand);
+      executor.execute(downloadWgsSetCommand);
       String tableName = prepareRawData();
 
       // create archive
@@ -78,9 +87,12 @@ public abstract class ArchiveGeneratorTask implements Runnable {
       LOG.info("[{}] Archive {} was created", taskConfiguration.name, archiveName);
 
       // delete temp files
-      Files.deleteIfExists(Paths.get(taskConfiguration.rawDataFile));
+      Files.deleteIfExists(Paths.get(taskConfiguration.rawDataFile1));
+      Files.deleteIfExists(Paths.get(taskConfiguration.rawDataFile2));
       LOG.info(
-          "[{}] Raw data file {} deleted", taskConfiguration.name, taskConfiguration.rawDataFile);
+          "[{}] Raw data file {} deleted", taskConfiguration.name, taskConfiguration.rawDataFile1);
+      LOG.info(
+          "[{}] Raw data file {} deleted", taskConfiguration.name, taskConfiguration.rawDataFile2);
     } catch (IOException e) {
       LOG.error("[{}] IOException while producing archive", taskConfiguration.name, e);
     } catch (SQLException e) {

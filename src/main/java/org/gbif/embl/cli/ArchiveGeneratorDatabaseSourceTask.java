@@ -90,43 +90,51 @@ public class ArchiveGeneratorDatabaseSourceTask extends ArchiveGeneratorTask {
     try (Connection connection = dataSource.getConnection();
         Statement st = connection.createStatement();
         PreparedStatement ps = connection.prepareStatement(sqlInsert);
-        BufferedReader in = new BufferedReader(new FileReader(taskConfiguration.rawDataFile))) {
+        BufferedReader fileReader1 = new BufferedReader(new FileReader(taskConfiguration.rawDataFile1));
+        BufferedReader fileReader2 = new BufferedReader(new FileReader(taskConfiguration.rawDataFile2));) {
       // clean database table before
       st.executeUpdate(sqlClean);
       LOG.debug("DB cleaned");
 
       LOG.debug("Start writing DB");
-      int lineNumber = 0;
 
-      // skip first header line
-      for (Iterator<String> it = in.lines().skip(1).iterator(); it.hasNext(); lineNumber++) {
-        String line = it.next();
-        String[] split = line.split(DEFAULT_DELIMITER, -1);
-        ps.setString(ACCESSION_RS_INDEX, split[ACCESSION_INDEX]);
-        ps.setString(SAMPLE_ACCESSION_RS_INDEX, split[SAMPLE_ACCESSION_INDEX]);
-        ps.setString(LOCATION_RS_INDEX, split[LOCATION_INDEX]);
-        ps.setString(COUNTRY_RS_INDEX, split[COUNTRY_INDEX]);
-        ps.setString(IDENTIFIED_BY_RS_INDEX, split[IDENTIFIED_BY_INDEX]);
-        ps.setString(COLLECTED_BY_RS_INDEX, split[COLLECTED_BY_INDEX]);
-        ps.setString(COLLECTION_DATE_RS_INDEX, split[COLLECTION_DATE_INDEX]);
-        ps.setString(SPECIMEN_VOUCHER_RS_INDEX, split[SPECIMEN_VOUCHER_INDEX]);
-        ps.setString(SEQUENCE_MD5_RS_INDEX, split[SEQUENCE_MD5_INDEX]);
-        ps.setString(SCIENTIFIC_NAME_RS_INDEX, split[SCIENTIFIC_NAME_INDEX]);
-        ps.setString(TAX_ID_RS_INDEX, split[TAX_ID_INDEX]);
-        ps.setString(ALTITUDE_RS_INDEX, split[ALTITUDE_INDEX]);
-        ps.setString(SEX_RS_INDEX, split[SEX_INDEX]);
-        ps.setString(DESCRIPTION_RS_INDEX, split[DESCRIPTION_INDEX]);
-        ps.addBatch();
+      executeBatch(ps, fileReader1, false);
+      executeBatch(ps, fileReader2, true);
 
-        if (lineNumber % BATCH_SIZE == 0) {
-          ps.executeBatch();
-        }
-      }
-
-      ps.executeBatch();
       LOG.debug("Finish writing DB");
 
       return taskConfiguration.tableName;
     }
+  }
+
+  private void executeBatch(PreparedStatement ps, BufferedReader fileReader, boolean skipSequenceMd5) throws SQLException {
+    int lineNumber = 0;
+
+    // skip first header line
+    for (Iterator<String> it = fileReader.lines().skip(1).iterator(); it.hasNext(); lineNumber++) {
+      String line = it.next();
+      String[] split = line.split(DEFAULT_DELIMITER, -1);
+      ps.setString(ACCESSION_RS_INDEX, split[ACCESSION_INDEX]);
+      ps.setString(SAMPLE_ACCESSION_RS_INDEX, split[SAMPLE_ACCESSION_INDEX]);
+      ps.setString(LOCATION_RS_INDEX, split[LOCATION_INDEX]);
+      ps.setString(COUNTRY_RS_INDEX, split[COUNTRY_INDEX]);
+      ps.setString(IDENTIFIED_BY_RS_INDEX, split[IDENTIFIED_BY_INDEX]);
+      ps.setString(COLLECTED_BY_RS_INDEX, split[COLLECTED_BY_INDEX]);
+      ps.setString(COLLECTION_DATE_RS_INDEX, split[COLLECTION_DATE_INDEX]);
+      ps.setString(SPECIMEN_VOUCHER_RS_INDEX, split[SPECIMEN_VOUCHER_INDEX]);
+      ps.setString(SEQUENCE_MD5_RS_INDEX, skipSequenceMd5 ? "" : split[SEQUENCE_MD5_INDEX]);
+      ps.setString(SCIENTIFIC_NAME_RS_INDEX, split[SCIENTIFIC_NAME_INDEX]);
+      ps.setString(TAX_ID_RS_INDEX, split[TAX_ID_INDEX]);
+      ps.setString(ALTITUDE_RS_INDEX, split[ALTITUDE_INDEX]);
+      ps.setString(SEX_RS_INDEX, split[SEX_INDEX]);
+      ps.setString(DESCRIPTION_RS_INDEX, split[DESCRIPTION_INDEX]);
+      ps.addBatch();
+
+      if (lineNumber % BATCH_SIZE == 0) {
+        ps.executeBatch();
+      }
+    }
+
+    ps.executeBatch();
   }
 }
