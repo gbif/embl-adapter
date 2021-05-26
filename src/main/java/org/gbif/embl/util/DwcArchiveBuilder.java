@@ -157,13 +157,19 @@ public class DwcArchiveBuilder {
           LOG.debug("Start writing core file data");
           // file data
           while (rs.next()) {
+            // skip records with missing specimen_voucher and collection_date
+            if (StringUtils.isEmpty(rs.getString(SPECIMEN_VOUCHER_RS_INDEX)) &&
+                StringUtils.isEmpty(rs.getString(COLLECTION_DATE_RS_INDEX))) {
+              continue;
+            }
+
             // check if the record was seen before
             if (StringUtils.isNotEmpty(rs.getString(SAMPLE_ACCESSION_RS_INDEX))
               && StringUtils.isNotEmpty(rs.getString(SCIENTIFIC_NAME_RS_INDEX))) {
               String sampleAccessionPlusScientificName =
                   rs.getString(SAMPLE_ACCESSION_RS_INDEX) + rs.getString(SCIENTIFIC_NAME_RS_INDEX);
 
-              // skip duplicate records (seen before) based on sampe_accession and scientific_name
+              // skip duplicate records (seen before) based on sample_accession and scientific_name
               // otherwise remember and write it
               if (recordsSeenBefore.contains(sampleAccessionPlusScientificName)) {
                 continue;
