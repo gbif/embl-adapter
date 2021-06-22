@@ -257,8 +257,8 @@ public class DwcArchiveBuilder {
   }
 
   private CharSequence toCountry(String country) {
-    if (StringUtils.isNotBlank(country) && country.contains(COUNTRY_DELIMITER)) {
-      return country.split(COUNTRY_DELIMITER)[0];
+    if (StringUtils.isNotBlank(country)) {
+      return country.contains(COUNTRY_DELIMITER) ? country.split(COUNTRY_DELIMITER)[0] : country;
     }
 
     return StringUtils.EMPTY;
