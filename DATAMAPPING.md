@@ -22,6 +22,7 @@ ENA field name | DwC | suggested formatting | Comments
 `altitude` | `minimumElevationInMeters`, `maximumElevationInMeters` | | Should we populate bot max and min?
 `sex` | `sex` | | 
 `description` | `occurrenceRemarks` | |	
+`host` | `associatedTaxa` | something like `"host":"Lutra lutra"` (Lutra Lutra is the name of the host in this example) | 
 
 
 # Example queries:
