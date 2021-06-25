@@ -1,3 +1,4 @@
+-- IMPORTANT: table name will be replaced with the property tasks[].tableName
 SELECT ed.accession,
        ed.sample_accession,
        ed.location,
@@ -12,6 +13,7 @@ SELECT ed.accession,
        ed.altitude,
        ed.sex,
        ed.description,
+       ed.host,
        et.kingdom,
        et.phylum,
        et.class,
@@ -20,7 +22,9 @@ SELECT ed.accession,
        et.genus
 FROM (
          SELECT row_number()
-                over (PARTITION BY tax_id, scientific_name, collection_date, location, country, collected_by, identified_by, sample_accession ORDER BY tax_id) as row_num,
+                over (PARTITION BY tax_id, scientific_name, collection_date, location, country, collected_by, identified_by, sample_accession ORDER BY tax_id) as row_num_1,
+                row_number()
+                over (PARTITION BY scientific_name, specimen_voucher) as row_num_2,
                 accession,
                 sample_accession,
                 location,
@@ -34,8 +38,9 @@ FROM (
                 tax_id,
                 altitude,
                 sex,
-                description
-         FROM embl_data1
+                description,
+                host
+         FROM embl_data
          WHERE scientific_name != 'Homo sapiens') as ed
          LEFT JOIN ena_taxonomy et ON ed.tax_id = et.taxon_id
-WHERE ed.row_num < 50
+WHERE ed.row_num_1 < 50 AND (ed.row_num_2 = 1 OR ed.specimen_voucher = '')

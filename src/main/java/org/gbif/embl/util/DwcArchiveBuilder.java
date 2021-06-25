@@ -15,6 +15,7 @@
  */
 package org.gbif.embl.util;
 
+import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 import org.gbif.utils.file.CompressionUtil;
 import org.gbif.utils.file.FileUtils;
@@ -30,9 +31,13 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -43,7 +48,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.gbif.embl.util.EmblAdapterConstants.ACCESSION_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.ALTITUDE_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.ASSOCIATED_SEQUENCES_URL;
@@ -57,6 +61,7 @@ import static org.gbif.embl.util.EmblAdapterConstants.DEFAULT_DELIMITER;
 import static org.gbif.embl.util.EmblAdapterConstants.DESCRIPTION_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.FAMILY_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.GENUS_RS_INDEX;
+import static org.gbif.embl.util.EmblAdapterConstants.HOST_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.IDENTIFIED_BY_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.KINGDOM_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.LOCATION_PATTERN;
@@ -88,7 +93,7 @@ public class DwcArchiveBuilder {
     this.workingDirectory = workingDirectory;
   }
 
-  public void buildArchive(File zipFile, String tableName, String query, String metadataFilePath) {
+  public void buildArchive(File zipFile, String tableName, String query, String metadataFilePath, List<Term> terms) {
     LOG.info("Start building the archive {} ", zipFile.getPath());
     File archiveDir = new File(workingDirectory + "/temp_" + UUID.randomUUID());
 
@@ -111,9 +116,9 @@ public class DwcArchiveBuilder {
       // metadata about the entire archive data
       generateMetadata(archiveDir, metadataFilePath);
       // meta.xml
-      DwcArchiveUtils.createArchiveDescriptor(archiveDir);
+      DwcArchiveUtils.createArchiveDescriptor(archiveDir, terms);
       // occurrence.txt
-      createCoreFile(archiveDir, tableName, query);
+      createCoreFile(archiveDir, tableName, query, terms);
       // zip up
       LOG.info("Zipping archive {}", archiveDir);
       CompressionUtil.zipDir(archiveDir, zipFile, true);
@@ -126,7 +131,7 @@ public class DwcArchiveBuilder {
     }
   }
 
-  private void createCoreFile(File archiveDir, String tableName, String query)
+  private void createCoreFile(File archiveDir, String tableName, String query, List<Term> terms)
       throws IOException, SQLException {
     LOG.debug("Creating core file {} in {}", EmblAdapterConstants.CORE_FILENAME, archiveDir);
     File outputFile = new File(archiveDir, EmblAdapterConstants.CORE_FILENAME);
@@ -145,7 +150,7 @@ public class DwcArchiveBuilder {
 
       // file header
       pw.println(
-          EmblAdapterConstants.TERMS.stream()
+          terms.stream()
               .map(Term::simpleName)
               .collect(Collectors.joining(DEFAULT_DELIMITER)));
       LOG.debug("Core file header");
@@ -178,7 +183,7 @@ public class DwcArchiveBuilder {
               }
             }
 
-            pw.println(joinData(rs));
+            pw.println(joinData(rs, terms.contains(DwcTerm.associatedTaxa) ? Collections.emptyList() : Collections.singletonList(HOST_RS_INDEX)));
           }
         }
       }
@@ -186,35 +191,44 @@ public class DwcArchiveBuilder {
     }
   }
 
-  private String joinData(ResultSet rs) throws SQLException {
-    return String.join(
-        DEFAULT_DELIMITER,
-        trimToEmpty(rs.getString(ACCESSION_RS_INDEX)), // occurrenceID term
-        toAssociatedSequences(rs.getString(ACCESSION_RS_INDEX)), // associatedSequences term
-        toReferences(rs.getString(ACCESSION_RS_INDEX)), // references term
-        toLatitude(rs.getString(LOCATION_RS_INDEX)), // decimalLatitude term
-        toLongitude(rs.getString(LOCATION_RS_INDEX)), // decimalLongitude term
-        toCountry(rs.getString(COUNTRY_RS_INDEX)), // country term
-        toLocality(rs.getString(COUNTRY_RS_INDEX)), // locality term
-        trimToEmpty(rs.getString(IDENTIFIED_BY_RS_INDEX)), // identifiedBy term
-        trimToEmpty(rs.getString(COLLECTED_BY_RS_INDEX)), // recordedBy term
-        trimToEmpty(rs.getString(COLLECTION_DATE_RS_INDEX)), // eventDate term
-        trimToEmpty(rs.getString(SPECIMEN_VOUCHER_RS_INDEX)), // catalogNumber term
-        toBasisOfRecord(rs.getString(SPECIMEN_VOUCHER_RS_INDEX)), // basisOfRecord term
-        toTaxonId(rs.getString(SEQUENCE_MD5_RS_INDEX)), // taxonID term
-        trimToEmpty(rs.getString(SCIENTIFIC_NAME_RS_INDEX)), // scientificName term
-        toTaxonConceptId(rs.getString(TAX_ID_RS_INDEX)), // taxonConceptID term
-        trimToEmpty(rs.getString(ALTITUDE_RS_INDEX)), // minimumElevationInMeters term
-        trimToEmpty(rs.getString(ALTITUDE_RS_INDEX)), // maximumElevationInMeters term
-        trimToEmpty(rs.getString(SEX_RS_INDEX)), // sex term
-        trimToEmpty(rs.getString(DESCRIPTION_RS_INDEX)), // occurrenceRemarks term
-        trimToEmpty(rs.getString(KINGDOM_RS_INDEX)), // kingdom term
-        trimToEmpty(rs.getString(PHYLUM_RS_INDEX)), // phylum term
-        trimToEmpty(rs.getString(CLASS_RS_INDEX)), // class term
-        trimToEmpty(rs.getString(ORDER_RS_INDEX)), // order term
-        trimToEmpty(rs.getString(FAMILY_RS_INDEX)), // family term
-        trimToEmpty(rs.getString(GENUS_RS_INDEX)) // genus term
-        );
+  private String joinData(ResultSet rs, List<Integer> skipPositions) throws SQLException {
+    StringJoiner joiner = new StringJoiner(DEFAULT_DELIMITER);
+
+    joinItem(joiner, rs, ACCESSION_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // occurrenceID term
+    joinItem(joiner, rs, ACCESSION_RS_INDEX, this::toAssociatedSequences, skipPositions); // associatedSequences term
+    joinItem(joiner, rs, ACCESSION_RS_INDEX, this::toReferences, skipPositions); // references term
+    joinItem(joiner, rs, LOCATION_RS_INDEX, this::toLatitude, skipPositions); // decimalLatitude term
+    joinItem(joiner, rs, LOCATION_RS_INDEX, this::toLongitude, skipPositions); // decimalLongitude term
+    joinItem(joiner, rs, COUNTRY_RS_INDEX, this::toCountry, skipPositions); // country term
+    joinItem(joiner, rs, COUNTRY_RS_INDEX, this::toLocality, skipPositions); // locality term
+    joinItem(joiner, rs, IDENTIFIED_BY_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // identifiedBy term
+    joinItem(joiner, rs, COLLECTED_BY_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // recordedBy term
+    joinItem(joiner, rs, COLLECTION_DATE_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // eventDate term
+    joinItem(joiner, rs, SPECIMEN_VOUCHER_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // catalogNumber term
+    joinItem(joiner, rs, SPECIMEN_VOUCHER_RS_INDEX, this::toBasisOfRecord, skipPositions); // basisOfRecord term
+    joinItem(joiner, rs, SEQUENCE_MD5_RS_INDEX, this::toTaxonId, skipPositions); // taxonID term
+    joinItem(joiner, rs, SCIENTIFIC_NAME_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // scientificName term
+    joinItem(joiner, rs, TAX_ID_RS_INDEX, this::toTaxonConceptId, skipPositions); // taxonConceptID term
+    joinItem(joiner, rs, ALTITUDE_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // minimumElevationInMeters term
+    joinItem(joiner, rs, ALTITUDE_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // maximumElevationInMeters term
+    joinItem(joiner, rs, SEX_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // sex term
+    joinItem(joiner, rs, DESCRIPTION_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // occurrenceRemarks term
+    joinItem(joiner, rs, HOST_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // associatedTaxa term
+    joinItem(joiner, rs, KINGDOM_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // kingdom term
+    joinItem(joiner, rs, PHYLUM_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // phylum term
+    joinItem(joiner, rs, CLASS_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // class term
+    joinItem(joiner, rs, ORDER_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // order term
+    joinItem(joiner, rs, FAMILY_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // family term
+    joinItem(joiner, rs, GENUS_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // genus term
+
+    return joiner.toString();
+  }
+
+  private void joinItem(StringJoiner sj, ResultSet rs, Integer position, Function<String, String> processor,
+                        List<Integer> skipPositions) throws SQLException {
+    if (!skipPositions.contains(position)) {
+      sj.add(processor.apply(rs.getString(position)));
+    }
   }
 
   private String readSqlFile(String filePath) {
@@ -232,31 +246,32 @@ public class DwcArchiveBuilder {
     return sb.toString();
   }
 
+  @SuppressWarnings("SameParameterValue")
   private String getOrEmpty(String[] arr, int index) {
     return arr.length > index ? arr[index] : StringUtils.EMPTY;
   }
 
-  private CharSequence toTaxonConceptId(String data) {
+  private String toTaxonConceptId(String data) {
     return StringUtils.isNotBlank(data) ? TAXON_CONCEPT_ID_URL + data : StringUtils.EMPTY;
   }
 
-  private CharSequence toReferences(String data) {
+  private String toReferences(String data) {
     return StringUtils.isNotBlank(data) ? REFERENCES_URL + data : StringUtils.EMPTY;
   }
 
-  private CharSequence toAssociatedSequences(String data) {
+  private String toAssociatedSequences(String data) {
     return StringUtils.isNotBlank(data) ? ASSOCIATED_SEQUENCES_URL + data : StringUtils.EMPTY;
   }
 
-  private CharSequence toTaxonId(String data) {
+  private String toTaxonId(String data) {
     return StringUtils.isNotBlank(data) ? TAXON_ID_PREFIX + data : StringUtils.EMPTY;
   }
 
-  private CharSequence toBasisOfRecord(String data) {
+  private String toBasisOfRecord(String data) {
     return StringUtils.isNotBlank(data) ? PRESERVED_SPECIMEN : MATERIAL_SAMPLE;
   }
 
-  private CharSequence toCountry(String country) {
+  private String toCountry(String country) {
     if (StringUtils.isNotBlank(country)) {
       return country.contains(COUNTRY_DELIMITER) ? country.split(COUNTRY_DELIMITER)[0] : country;
     }
@@ -264,7 +279,7 @@ public class DwcArchiveBuilder {
     return StringUtils.EMPTY;
   }
 
-  private CharSequence toLocality(String country) {
+  private String toLocality(String country) {
     if (StringUtils.isNotBlank(country) && country.contains(COUNTRY_DELIMITER)) {
       return getOrEmpty(country.split(COUNTRY_DELIMITER, -1), 1);
     }
@@ -272,7 +287,7 @@ public class DwcArchiveBuilder {
     return StringUtils.EMPTY;
   }
 
-  private CharSequence toLatitude(String location) {
+  private String toLatitude(String location) {
     if (StringUtils.isNotBlank(location)) {
       Matcher matcher = LOCATION_PATTERN.matcher(location);
       if (matcher.find()) {
@@ -282,7 +297,7 @@ public class DwcArchiveBuilder {
     return StringUtils.EMPTY;
   }
 
-  private CharSequence toLongitude(String location) {
+  private String toLongitude(String location) {
     if (StringUtils.isNotBlank(location)) {
       Matcher matcher = LOCATION_PATTERN.matcher(location);
       if (matcher.find()) {

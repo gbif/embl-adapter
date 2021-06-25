@@ -26,6 +26,7 @@ import java.time.LocalDate;
 
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
+import org.gbif.embl.util.EmblAdapterConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,7 +84,8 @@ public abstract class ArchiveGeneratorTask implements Runnable {
           new File(workingDirectory + "/output", archiveName),
           tableName,
           taskConfiguration.query,
-          taskConfiguration.metadataFile);
+          taskConfiguration.metadataFile,
+          "datasetWithHosts".equals(taskConfiguration.name) ? EmblAdapterConstants.TERMS_WITH_ASSOCIATED_TAXA : EmblAdapterConstants.TERMS);
       LOG.info("[{}] Archive {} was created", taskConfiguration.name, archiveName);
 
       // delete temp files

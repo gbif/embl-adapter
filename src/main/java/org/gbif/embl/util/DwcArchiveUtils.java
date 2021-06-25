@@ -25,6 +25,7 @@ import org.gbif.dwc.terms.Term;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -111,13 +112,13 @@ public final class DwcArchiveUtils {
   /**
    * Creates an meta.xml descriptor file in the directory parameter.
    */
-  public static void createArchiveDescriptor(File directory) {
+  public static void createArchiveDescriptor(File directory, List<Term> terms) {
     LOG.info("Creating archive descriptor file meta.xml in {}", directory);
     Archive downloadArchive = new Archive();
     downloadArchive.setMetadataLocation(METADATA_FILENAME);
 
     ArchiveFile coreFile =
-        createArchiveFile(CORE_FILENAME, DwcTerm.Occurrence, EmblAdapterConstants.TERMS);
+        createArchiveFile(CORE_FILENAME, DwcTerm.Occurrence, terms);
     downloadArchive.setCore(coreFile);
 
     try {

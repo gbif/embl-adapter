@@ -45,6 +45,8 @@ import static org.gbif.embl.util.EmblAdapterConstants.COUNTRY_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.DEFAULT_DELIMITER;
 import static org.gbif.embl.util.EmblAdapterConstants.DESCRIPTION_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.DESCRIPTION_RS_INDEX;
+import static org.gbif.embl.util.EmblAdapterConstants.HOST_INDEX;
+import static org.gbif.embl.util.EmblAdapterConstants.HOST_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.IDENTIFIED_BY_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.IDENTIFIED_BY_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.LOCATION_INDEX;
@@ -128,6 +130,7 @@ public class ArchiveGeneratorDatabaseSourceTask extends ArchiveGeneratorTask {
       ps.setString(ALTITUDE_RS_INDEX, split[ALTITUDE_INDEX]);
       ps.setString(SEX_RS_INDEX, split[SEX_INDEX]);
       ps.setString(DESCRIPTION_RS_INDEX, split[DESCRIPTION_INDEX]);
+      ps.setString(HOST_RS_INDEX, split[HOST_INDEX]);
       ps.addBatch();
 
       if (lineNumber % BATCH_SIZE == 0) {
