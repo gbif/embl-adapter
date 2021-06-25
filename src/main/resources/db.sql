@@ -13,5 +13,6 @@ CREATE TABLE embl_data
     tax_id           text,
     altitude         text,
     sex              text,
-    description      text
+    description      text,
+    host             text
 );

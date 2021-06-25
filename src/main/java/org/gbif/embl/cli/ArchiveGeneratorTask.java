@@ -73,6 +73,8 @@ public abstract class ArchiveGeneratorTask implements Runnable {
       LOG.info("[{}] Start downloading data", taskConfiguration.name);
       executor.execute(downloadSequencesCommand);
       executor.execute(downloadWgsSetCommand);
+
+      // store raw data into database
       String tableName = prepareRawData();
 
       // create archive
@@ -85,6 +87,7 @@ public abstract class ArchiveGeneratorTask implements Runnable {
           tableName,
           taskConfiguration.query,
           taskConfiguration.metadataFile,
+          // 'dataset with hosts' has an additional term 'associatedTaxa'
           "datasetWithHosts".equals(taskConfiguration.name) ? EmblAdapterConstants.TERMS_WITH_ASSOCIATED_TAXA : EmblAdapterConstants.TERMS);
       LOG.info("[{}] Archive {} was created", taskConfiguration.name, archiveName);
 
