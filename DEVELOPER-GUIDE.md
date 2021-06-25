@@ -56,8 +56,8 @@ These requests are pretty much the same with some differences:
 
 
 ### Taxonomy
-Adapter can also request taxonomy.
-we request taxonomy separately (from what place? url?) and also store into database (where?)
+Adapter requests taxonomy separately: download a zipped archive, unzip it and store it into database.
+Configuration is [here](https://github.com/gbif/gbif-configuration/blob/master/cli/dev/config/ena-taxonomy.yaml).
 
 
 ## Database
