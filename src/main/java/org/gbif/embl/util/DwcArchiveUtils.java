@@ -117,8 +117,7 @@ public final class DwcArchiveUtils {
     Archive downloadArchive = new Archive();
     downloadArchive.setMetadataLocation(METADATA_FILENAME);
 
-    ArchiveFile coreFile =
-        createArchiveFile(CORE_FILENAME, DwcTerm.Occurrence, terms);
+    ArchiveFile coreFile = createArchiveFile(CORE_FILENAME, DwcTerm.Occurrence, terms);
     downloadArchive.setCore(coreFile);
 
     try {
