@@ -101,9 +101,9 @@ All archives are located in this directory https://hosted-datasets.gbif.org/embl
 
 They added as endpoints to the following datasets (UAT):
 
-- https://registry.gbif-uat.org/dataset/ee8da4a4-268b-4e91-ab5a-69a04ff58e7a
-- https://registry.gbif-uat.org/dataset/768eeb1f-a208-4170-9335-2968d17c7bdc
-- https://registry.gbif-uat.org/dataset/10628730-87d4-42f5-b593-bd438185517f
+- https://www.gbif-uat.org/dataset/ee8da4a4-268b-4e91-ab5a-69a04ff58e7a
+- https://www.gbif-uat.org/dataset/768eeb1f-a208-4170-9335-2968d17c7bdc
+- https://www.gbif-uat.org/dataset/10628730-87d4-42f5-b593-bd438185517f
 
 and these (prod):
 
