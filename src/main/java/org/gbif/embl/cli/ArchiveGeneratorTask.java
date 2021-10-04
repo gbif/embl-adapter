@@ -16,6 +16,7 @@
 package org.gbif.embl.cli;
 
 import org.gbif.embl.util.DwcArchiveBuilder;
+import org.gbif.embl.util.EmblAdapterConstants;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +27,6 @@ import java.time.LocalDate;
 
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
-import org.gbif.embl.util.EmblAdapterConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,7 +88,9 @@ public abstract class ArchiveGeneratorTask implements Runnable {
           taskConfiguration.query,
           taskConfiguration.metadataFile,
           // 'dataset with hosts' has an additional term 'associatedTaxa'
-          "datasetWithHosts".equals(taskConfiguration.name) ? EmblAdapterConstants.TERMS_WITH_ASSOCIATED_TAXA : EmblAdapterConstants.TERMS);
+          "datasetWithHosts".equals(taskConfiguration.name)
+              ? EmblAdapterConstants.TERMS_WITH_ASSOCIATED_TAXA
+              : EmblAdapterConstants.TERMS);
       LOG.info("[{}] Archive {} was created", taskConfiguration.name, archiveName);
 
       // delete temp files

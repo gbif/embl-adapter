@@ -93,7 +93,8 @@ public class DwcArchiveBuilder {
     this.workingDirectory = workingDirectory;
   }
 
-  public void buildArchive(File zipFile, String tableName, String query, String metadataFilePath, List<Term> terms) {
+  public void buildArchive(
+      File zipFile, String tableName, String query, String metadataFilePath, List<Term> terms) {
     LOG.info("Start building the archive {} ", zipFile.getPath());
     File archiveDir = new File(workingDirectory + "/temp_" + UUID.randomUUID());
 
@@ -150,9 +151,7 @@ public class DwcArchiveBuilder {
 
       // file header
       pw.println(
-          terms.stream()
-              .map(Term::simpleName)
-              .collect(Collectors.joining(DEFAULT_DELIMITER)));
+          terms.stream().map(Term::simpleName).collect(Collectors.joining(DEFAULT_DELIMITER)));
       LOG.debug("Core file header");
 
       try (Statement statement = connection.createStatement()) {
@@ -163,14 +162,14 @@ public class DwcArchiveBuilder {
           // file data
           while (rs.next()) {
             // skip records with missing specimen_voucher and collection_date
-            if (StringUtils.isEmpty(rs.getString(SPECIMEN_VOUCHER_RS_INDEX)) &&
-                StringUtils.isEmpty(rs.getString(COLLECTION_DATE_RS_INDEX))) {
+            if (StringUtils.isEmpty(rs.getString(SPECIMEN_VOUCHER_RS_INDEX))
+                && StringUtils.isEmpty(rs.getString(COLLECTION_DATE_RS_INDEX))) {
               continue;
             }
 
             // check if the record was seen before
             if (StringUtils.isNotEmpty(rs.getString(SAMPLE_ACCESSION_RS_INDEX))
-              && StringUtils.isNotEmpty(rs.getString(SCIENTIFIC_NAME_RS_INDEX))) {
+                && StringUtils.isNotEmpty(rs.getString(SCIENTIFIC_NAME_RS_INDEX))) {
               String sampleAccessionPlusScientificName =
                   rs.getString(SAMPLE_ACCESSION_RS_INDEX) + rs.getString(SCIENTIFIC_NAME_RS_INDEX);
 
@@ -183,7 +182,12 @@ public class DwcArchiveBuilder {
               }
             }
 
-            pw.println(joinData(rs, terms.contains(DwcTerm.associatedTaxa) ? Collections.emptyList() : Collections.singletonList(HOST_RS_INDEX)));
+            pw.println(
+                joinData(
+                    rs,
+                    terms.contains(DwcTerm.associatedTaxa)
+                        ? Collections.emptyList()
+                        : Collections.singletonList(HOST_RS_INDEX)));
           }
         }
       }
@@ -194,26 +198,85 @@ public class DwcArchiveBuilder {
   private String joinData(ResultSet rs, List<Integer> skipPositions) throws SQLException {
     StringJoiner joiner = new StringJoiner(DEFAULT_DELIMITER);
 
-    joinItem(joiner, rs, ACCESSION_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // occurrenceID term
-    joinItem(joiner, rs, ACCESSION_RS_INDEX, this::toAssociatedSequences, skipPositions); // associatedSequences term
+    joinItem(
+        joiner,
+        rs,
+        ACCESSION_RS_INDEX,
+        StringUtils::trimToEmpty,
+        skipPositions); // occurrenceID term
+    joinItem(
+        joiner,
+        rs,
+        ACCESSION_RS_INDEX,
+        this::toAssociatedSequences,
+        skipPositions); // associatedSequences term
     joinItem(joiner, rs, ACCESSION_RS_INDEX, this::toReferences, skipPositions); // references term
-    joinItem(joiner, rs, LOCATION_RS_INDEX, this::toLatitude, skipPositions); // decimalLatitude term
-    joinItem(joiner, rs, LOCATION_RS_INDEX, this::toLongitude, skipPositions); // decimalLongitude term
+    joinItem(
+        joiner, rs, LOCATION_RS_INDEX, this::toLatitude, skipPositions); // decimalLatitude term
+    joinItem(
+        joiner, rs, LOCATION_RS_INDEX, this::toLongitude, skipPositions); // decimalLongitude term
     joinItem(joiner, rs, COUNTRY_RS_INDEX, this::toCountry, skipPositions); // country term
     joinItem(joiner, rs, COUNTRY_RS_INDEX, this::toLocality, skipPositions); // locality term
-    joinItem(joiner, rs, IDENTIFIED_BY_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // identifiedBy term
-    joinItem(joiner, rs, COLLECTED_BY_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // recordedBy term
-    joinItem(joiner, rs, COLLECTION_DATE_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // eventDate term
-    joinItem(joiner, rs, SPECIMEN_VOUCHER_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // catalogNumber term
-    joinItem(joiner, rs, SPECIMEN_VOUCHER_RS_INDEX, this::toBasisOfRecord, skipPositions); // basisOfRecord term
+    joinItem(
+        joiner,
+        rs,
+        IDENTIFIED_BY_RS_INDEX,
+        StringUtils::trimToEmpty,
+        skipPositions); // identifiedBy term
+    joinItem(
+        joiner,
+        rs,
+        COLLECTED_BY_RS_INDEX,
+        StringUtils::trimToEmpty,
+        skipPositions); // recordedBy term
+    joinItem(
+        joiner,
+        rs,
+        COLLECTION_DATE_RS_INDEX,
+        StringUtils::trimToEmpty,
+        skipPositions); // eventDate term
+    joinItem(
+        joiner,
+        rs,
+        SPECIMEN_VOUCHER_RS_INDEX,
+        StringUtils::trimToEmpty,
+        skipPositions); // catalogNumber term
+    joinItem(
+        joiner,
+        rs,
+        SPECIMEN_VOUCHER_RS_INDEX,
+        this::toBasisOfRecord,
+        skipPositions); // basisOfRecord term
     joinItem(joiner, rs, SEQUENCE_MD5_RS_INDEX, this::toTaxonId, skipPositions); // taxonID term
-    joinItem(joiner, rs, SCIENTIFIC_NAME_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // scientificName term
-    joinItem(joiner, rs, TAX_ID_RS_INDEX, this::toTaxonConceptId, skipPositions); // taxonConceptID term
-    joinItem(joiner, rs, ALTITUDE_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // minimumElevationInMeters term
-    joinItem(joiner, rs, ALTITUDE_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // maximumElevationInMeters term
+    joinItem(
+        joiner,
+        rs,
+        SCIENTIFIC_NAME_RS_INDEX,
+        StringUtils::trimToEmpty,
+        skipPositions); // scientificName term
+    joinItem(
+        joiner, rs, TAX_ID_RS_INDEX, this::toTaxonConceptId, skipPositions); // taxonConceptID term
+    joinItem(
+        joiner,
+        rs,
+        ALTITUDE_RS_INDEX,
+        StringUtils::trimToEmpty,
+        skipPositions); // minimumElevationInMeters term
+    joinItem(
+        joiner,
+        rs,
+        ALTITUDE_RS_INDEX,
+        StringUtils::trimToEmpty,
+        skipPositions); // maximumElevationInMeters term
     joinItem(joiner, rs, SEX_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // sex term
-    joinItem(joiner, rs, DESCRIPTION_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // occurrenceRemarks term
-    joinItem(joiner, rs, HOST_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // associatedTaxa term
+    joinItem(
+        joiner,
+        rs,
+        DESCRIPTION_RS_INDEX,
+        StringUtils::trimToEmpty,
+        skipPositions); // occurrenceRemarks term
+    joinItem(
+        joiner, rs, HOST_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // associatedTaxa term
     joinItem(joiner, rs, KINGDOM_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // kingdom term
     joinItem(joiner, rs, PHYLUM_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // phylum term
     joinItem(joiner, rs, CLASS_RS_INDEX, StringUtils::trimToEmpty, skipPositions); // class term
@@ -224,8 +287,13 @@ public class DwcArchiveBuilder {
     return joiner.toString();
   }
 
-  private void joinItem(StringJoiner sj, ResultSet rs, Integer position, Function<String, String> processor,
-                        List<Integer> skipPositions) throws SQLException {
+  private void joinItem(
+      StringJoiner sj,
+      ResultSet rs,
+      Integer position,
+      Function<String, String> processor,
+      List<Integer> skipPositions)
+      throws SQLException {
     if (!skipPositions.contains(position)) {
       sj.add(processor.apply(rs.getString(position)));
     }

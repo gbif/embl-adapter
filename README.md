@@ -97,11 +97,19 @@ Keep only one record with same `sample_accession` and `scientific_name` and get 
 ## DWC archives
 Adapter generates three DWC archives as output at directory `workingDirectory` named `output`.
 
-For dev version all three archives added manually to http://download.gbif.org/mpodolskiy and added as endpoints to the following datasets:
+All archives are located in this directory https://hosted-datasets.gbif.org/embl/
 
-- https://registry.gbif-uat.org/dataset/ee8da4a4-268b-4e91-ab5a-69a04ff58e7a
-- https://registry.gbif-uat.org/dataset/768eeb1f-a208-4170-9335-2968d17c7bdc
-- https://registry.gbif-uat.org/dataset/10628730-87d4-42f5-b593-bd438185517f
+They added as endpoints to the following datasets (UAT):
+
+- https://www.gbif-uat.org/dataset/ee8da4a4-268b-4e91-ab5a-69a04ff58e7a
+- https://www.gbif-uat.org/dataset/768eeb1f-a208-4170-9335-2968d17c7bdc
+- https://www.gbif-uat.org/dataset/10628730-87d4-42f5-b593-bd438185517f
+
+and these (prod):
+
+- https://www.gbif.org/dataset/583d91fe-bbc0-4b4a-afe1-801f88263016
+- https://www.gbif.org/dataset/393b8c26-e4e0-4dd0-a218-93fc074ebf4e
+- https://www.gbif.org/dataset/d8cd16ba-bb74-4420-821e-083f2bac17c2
 
 [Data mapping](DATAMAPPING.md)
 

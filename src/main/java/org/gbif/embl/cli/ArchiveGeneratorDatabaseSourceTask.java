@@ -92,8 +92,10 @@ public class ArchiveGeneratorDatabaseSourceTask extends ArchiveGeneratorTask {
     try (Connection connection = dataSource.getConnection();
         Statement st = connection.createStatement();
         PreparedStatement ps = connection.prepareStatement(sqlInsert);
-        BufferedReader fileReader1 = new BufferedReader(new FileReader(taskConfiguration.rawDataFile1));
-        BufferedReader fileReader2 = new BufferedReader(new FileReader(taskConfiguration.rawDataFile2));) {
+        BufferedReader fileReader1 =
+            new BufferedReader(new FileReader(taskConfiguration.rawDataFile1));
+        BufferedReader fileReader2 =
+            new BufferedReader(new FileReader(taskConfiguration.rawDataFile2)); ) {
       // clean database table before
       st.executeUpdate(sqlClean);
       LOG.debug("DB cleaned");
@@ -109,7 +111,9 @@ public class ArchiveGeneratorDatabaseSourceTask extends ArchiveGeneratorTask {
     }
   }
 
-  private void executeBatch(PreparedStatement ps, BufferedReader fileReader, boolean skipSequenceMd5) throws SQLException {
+  private void executeBatch(
+      PreparedStatement ps, BufferedReader fileReader, boolean skipSequenceMd5)
+      throws SQLException {
     int lineNumber = 0;
 
     // skip first header line
