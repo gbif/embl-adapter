@@ -1,52 +1,82 @@
-<?xml version="1.0" encoding="utf-8"?>
-<eml:eml xmlns:eml="eml://ecoinformatics.org/eml-2.1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="eml://ecoinformatics.org/eml-2.1.1 http://rs.gbif.org/schema/eml-gbif-profile/1.1/eml.xsd" packageId="ee8da4a4-268b-4e91-ab5a-69a04ff58e7a" system="http://gbif.org" scope="system" xml:lang="en">
+<eml:eml xmlns:eml="eml://ecoinformatics.org/eml-2.1.1"
+         xmlns:dc="http://purl.org/dc/terms/"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="eml://ecoinformatics.org/eml-2.1.1 http://rs.gbif.org/schema/eml-gbif-profile/1.1/eml.xsd"
+         packageId="fe39cd36-6580-4205-bfe2-ca19990521fd/v1.8" system="http://gbif.org" scope="system"
+         xml:lang="eng">
+
   <dataset>
-    <alternateIdentifier>10.15468/cndomv</alternateIdentifier>
-    <title>INSDC sequences from environmental samples</title>
+    <title xml:lang="eng">INSDC Environment Sample Sequences</title>
     <creator>
-      <organizationName>European Bioinformatics Institute (EMBL-EBI)</organizationName>
+      <individualName>
+        <surName>European Bioinformatics Institute (EMBL-EBI)</surName>
+      </individualName>
       <electronicMailAddress>datasubs@ebi.ac.uk</electronicMailAddress>
       <onlineUrl>http://www.ebi.ac.uk</onlineUrl>
     </creator>
     <metadataProvider>
-      <organizationName>European Bioinformatics Institute (EMBL-EBI)</organizationName>
-      <electronicMailAddress>datasubs@ebi.ac.uk</electronicMailAddress>
-      <onlineUrl>http://www.ebi.ac.uk</onlineUrl>
+      <individualName>
+        <surName>GBIF Helpdesk</surName>
+      </individualName>
+      <electronicMailAddress>helpdesk@gbif.org</electronicMailAddress>
     </metadataProvider>
-    <pubDate> 2019-08-05 </pubDate>
-    <language>ENGLISH</language>
+    <pubDate>
+      ${pubDate}
+    </pubDate>
+    <language>eng</language>
     <abstract>
-      <para>Metadata for INSDC sequences from environmental samples.</para>
-    </abstract>
-    <intellectualRights>
       <para>
-        This work is licensed under a
-        <ulink url="http://creativecommons.org/licenses/by/4.0/legalcode">
-          <citetitle>Creative Commons Attribution (CC-BY) 4.0 License</citetitle>
-        </ulink>
-        .
+        This dataset contains INSDC sequences associated with environmental sample identifiers. The dataset is prepared periodically using the public ENA API (https://www.ebi.ac.uk/ena/portal/api/) by querying data with the search parameters: `environmental_sample=True &amp; host=&quot;&quot;`
       </para>
+
+      <para>
+        EMBL-EBI also publishes other records in separate datasets (https://www.gbif.org/publisher/ada9d123-ddb4-467d-8891-806ea8d94230).
+      </para>
+
+      <para>The data was then processed as follows:</para>
+
+
+      <para>1. Human sequences were excluded.</para>
+      <para>2. For non-CONTIG records, the sample accession number (when available) along with the scientific name were used to identify sequence records corresponding to the same individuals (or group of organism of the same species in the same sample). Only one record was kept for each scientific name/sample accession number.</para>
+      <para>3. Contigs and whole genome shotgun (WGS) records were added individually.</para>
+      <para>4. The records that were missing some information were excluded. Only records associated with a specimen voucher or records containing both a location AND a date were kept.</para>
+      <para>5. The records associated with the same vouchers are aggregated together.</para>
+      <para>6. A lot of records left corresponded to individual sequences or reads corresponding to the same organisms. In practise, these were &quot;duplicate&quot; occurrence records that weren&apos;t filtered out in STEP 2 because the sample accession sample was missing. To identify those potential duplicates, we grouped all the remaining records by `scientific_name`, `collection_date`, `location`, `country`, `identified_by`, `collected_by` and `sample_accession` (when available). Then we excluded the groups that contained more than 50 records. The rationale behind the choice of threshold is explained here: https://github.com/gbif/embl-adapter/issues/10#issuecomment-855757978</para>
+      <para>7. To improve the matching of the EBI scientific name to the GBIF backbone taxonomy, we incorporated the ENA taxonomic information. The kingdom, Phylum, Class, Order, Family, and genus were obtained from the ENA taxonomy checklist available here: http://ftp.ebi.ac.uk/pub/databases/ena/taxonomy/sdwca.zip</para>
+      <para>More information available here: https://github.com/gbif/embl-adapter#readme</para>
+      <para>You can find the mapping used to format the EMBL data to Darwin Core Archive here: https://github.com/gbif/embl-adapter/blob/master/DATAMAPPING.md</para>
+    </abstract>
+    <keywordSet>
+      <keyword>Metadata</keyword>
+      <keywordThesaurus>GBIF Dataset Type Vocabulary: http://rs.gbif.org/vocabulary/gbif/dataset_type_2015-07-10.xml</keywordThesaurus>
+    </keywordSet>
+    <intellectualRights>
+      <para>This work is licensed under a <ulink url="http://creativecommons.org/licenses/by/4.0/legalcode"><citetitle>Creative Commons Attribution (CC-BY) 4.0 License</citetitle></ulink>.</para>
     </intellectualRights>
+    <coverage>
+      <geographicCoverage>
+        <geographicDescription>Worldwide</geographicDescription>
+        <boundingCoordinates>
+          <westBoundingCoordinate>-180</westBoundingCoordinate>
+          <eastBoundingCoordinate>180</eastBoundingCoordinate>
+          <northBoundingCoordinate>90</northBoundingCoordinate>
+          <southBoundingCoordinate>-90</southBoundingCoordinate>
+        </boundingCoordinates>
+      </geographicCoverage>
+    </coverage>
+    <maintenance>
+      <description>
+        <para></para>
+      </description>
+      <maintenanceUpdateFrequency>unkown</maintenanceUpdateFrequency>
+    </maintenance>
+
     <contact>
-      <organizationName>National Center for Biotechnology Information (NCBI)</organizationName>
-      <onlineUrl>http://http://www.ncbi.nlm.nih.gov</onlineUrl>
-    </contact>
-    <contact>
-      <organizationName>DNA Data Bank of Japan (DDBJ)</organizationName>
-      <onlineUrl>http://www.ddbj.nig.ac.jp</onlineUrl>
-    </contact>
-    <contact>
-      <organizationName>European Bioinformatics Institute (EMBL-EBI)</organizationName>
+      <individualName>
+        <surName>European Bioinformatics Institute (EMBL-EBI)</surName>
+      </individualName>
       <electronicMailAddress>datasubs@ebi.ac.uk</electronicMailAddress>
       <onlineUrl>http://www.ebi.ac.uk</onlineUrl>
     </contact>
   </dataset>
-  <additionalMetadata>
-    <metadata>
-      <gbif>
-        <dateStamp>2020-11-12T10:19:15Z</dateStamp>
-        <citation>European Nucleotide Archive (EMBL-EBI) (2019). INSDC sequences from environmental samples. Occurrence dataset https://doi.org/10.15468/cndomv accessed via GBIF.org on 2020-11-12.</citation>
-      </gbif>
-    </metadata>
-  </additionalMetadata>
 </eml:eml>

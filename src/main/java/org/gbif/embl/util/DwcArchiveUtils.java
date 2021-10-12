@@ -24,14 +24,14 @@ import org.gbif.dwc.terms.Term;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Charsets;
 
 import static org.gbif.embl.util.EmblAdapterConstants.CORE_FILENAME;
 import static org.gbif.embl.util.EmblAdapterConstants.DEFAULT_DELIMITER;
@@ -44,6 +44,8 @@ import static org.gbif.embl.util.EmblAdapterConstants.METADATA_FILENAME;
 public final class DwcArchiveUtils {
 
   private static final Logger LOG = LoggerFactory.getLogger(DwcArchiveUtils.class);
+
+  public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
   /**
    * Hidden constructor.
@@ -101,7 +103,7 @@ public final class DwcArchiveUtils {
     ArchiveFile af = new ArchiveFile();
     af.addLocation(filename);
     af.setRowType(rowType);
-    af.setEncoding(Charsets.UTF_8.displayName());
+    af.setEncoding(StandardCharsets.UTF_8.displayName());
     af.setIgnoreHeaderLines(1);
     af.setFieldsEnclosedBy(null);
     af.setFieldsTerminatedBy("\t");

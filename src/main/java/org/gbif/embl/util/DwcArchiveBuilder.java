@@ -26,11 +26,11 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -48,6 +48,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.gbif.embl.util.DwcArchiveUtils.DATE_FORMATTER;
 import static org.gbif.embl.util.EmblAdapterConstants.ACCESSION_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.ALTITUDE_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.ASSOCIATED_SEQUENCES_URL;
@@ -380,9 +381,15 @@ public class DwcArchiveBuilder {
     File file = new File(metadataFilePath);
 
     if (file.exists()) {
-      LOG.debug("Metadata file is present, copying");
+      LOG.debug("Metadata file is present, inserting actual pubDate");
+
+      // replacing pubDate with actual date
+      String fileContent = org.apache.commons.io.FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+      fileContent = fileContent.replace("${pubDate}", LocalDate.now().format(DATE_FORMATTER));
+
+      // write data to eml.xml
       File target = new File(archiveDir, "eml.xml");
-      Files.copy(file.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING);
+      org.apache.commons.io.FileUtils.writeStringToFile(target, fileContent, StandardCharsets.UTF_8);
     } else {
       LOG.error("Metadata file eml.xml is not present in {}", workingDirectory);
     }

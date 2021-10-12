@@ -47,7 +47,6 @@ public class DbConfiguration {
     return new StringJoiner(", ", DbConfiguration.class.getSimpleName() + "[", "]")
         .add("url='" + url + "'")
         .add("user='" + user + "'")
-        .add("password='" + password + "'")
         .add("maximumPoolSize=" + maximumPoolSize)
         .add("connectionTimeout=" + connectionTimeout)
         .toString();
