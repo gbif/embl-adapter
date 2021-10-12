@@ -48,7 +48,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.gbif.embl.util.DwcArchiveUtils.DATE_FORMATTER;
 import static org.gbif.embl.util.EmblAdapterConstants.ACCESSION_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.ALTITUDE_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.ASSOCIATED_SEQUENCES_URL;
@@ -58,6 +57,7 @@ import static org.gbif.embl.util.EmblAdapterConstants.COLLECTED_BY_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.COLLECTION_DATE_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.COUNTRY_DELIMITER;
 import static org.gbif.embl.util.EmblAdapterConstants.COUNTRY_RS_INDEX;
+import static org.gbif.embl.util.EmblAdapterConstants.DATE_FORMAT;
 import static org.gbif.embl.util.EmblAdapterConstants.DEFAULT_DELIMITER;
 import static org.gbif.embl.util.EmblAdapterConstants.DESCRIPTION_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.FAMILY_RS_INDEX;
@@ -385,7 +385,7 @@ public class DwcArchiveBuilder {
 
       // replacing pubDate with actual date
       String fileContent = org.apache.commons.io.FileUtils.readFileToString(file, StandardCharsets.UTF_8);
-      fileContent = fileContent.replace("${pubDate}", LocalDate.now().format(DATE_FORMATTER));
+      fileContent = fileContent.replace("${pubDate}", LocalDate.now().format(DATE_FORMAT));
 
       // write data to eml.xml
       File target = new File(archiveDir, "eml.xml");

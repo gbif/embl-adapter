@@ -38,6 +38,8 @@ public final class EmblAdapterConstants {
 
   public static final DateTimeFormatter DATE_NO_SEPARATORS_FORMAT =
       DateTimeFormatter.ofPattern("yyyyMMdd");
+  public static final DateTimeFormatter DATE_FORMAT =
+      DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
   public static final Pattern LOCATION_PATTERN =
       Pattern.compile("([0-9.]+\\s+\\w)\\s+([0-9.]+\\s+\\w)");

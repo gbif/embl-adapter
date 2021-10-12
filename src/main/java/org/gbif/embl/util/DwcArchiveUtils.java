@@ -25,7 +25,6 @@ import org.gbif.dwc.terms.Term;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -44,8 +43,6 @@ import static org.gbif.embl.util.EmblAdapterConstants.METADATA_FILENAME;
 public final class DwcArchiveUtils {
 
   private static final Logger LOG = LoggerFactory.getLogger(DwcArchiveUtils.class);
-
-  public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
   /**
    * Hidden constructor.

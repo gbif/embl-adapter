@@ -55,6 +55,9 @@ public abstract class ArchiveGeneratorTask implements Runnable {
 
     // download non-CON sequences
     CommandLine downloadSequencesCommand = new CommandLine("curl");
+
+
+
     downloadSequencesCommand.addArgument(taskConfiguration.requestUrl1);
     downloadSequencesCommand.addArgument("-o");
     downloadSequencesCommand.addArgument(taskConfiguration.rawDataFile1);
