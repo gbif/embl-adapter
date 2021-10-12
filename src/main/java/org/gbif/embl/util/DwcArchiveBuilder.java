@@ -1,6 +1,4 @@
 /*
- * Copyright 2021 Global Biodiversity Information Facility (GBIF)
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -384,12 +382,14 @@ public class DwcArchiveBuilder {
       LOG.debug("Metadata file is present, inserting actual pubDate");
 
       // replacing pubDate with actual date
-      String fileContent = org.apache.commons.io.FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+      String fileContent =
+          org.apache.commons.io.FileUtils.readFileToString(file, StandardCharsets.UTF_8);
       fileContent = fileContent.replace("${pubDate}", LocalDate.now().format(DATE_FORMAT));
 
       // write data to eml.xml
       File target = new File(archiveDir, "eml.xml");
-      org.apache.commons.io.FileUtils.writeStringToFile(target, fileContent, StandardCharsets.UTF_8);
+      org.apache.commons.io.FileUtils.writeStringToFile(
+          target, fileContent, StandardCharsets.UTF_8);
     } else {
       LOG.error("Metadata file eml.xml is not present in {}", workingDirectory);
     }

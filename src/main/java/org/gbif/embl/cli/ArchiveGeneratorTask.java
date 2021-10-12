@@ -1,6 +1,4 @@
 /*
- * Copyright 2021 Global Biodiversity Information Facility (GBIF)
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -57,13 +55,20 @@ public abstract class ArchiveGeneratorTask implements Runnable {
     // download non-CON sequences
     CommandLine downloadSequencesCommand = new CommandLine("curl");
 
-    String requestUrl1 = taskConfiguration.request1.url
-        + "?dataPortal=" + taskConfiguration.request1.dataPortal
-        + "&result=" + taskConfiguration.request1.result
-        + "&offset=" + taskConfiguration.request1.offset
-        + "&limit=" + taskConfiguration.request1.limit
-        + "&fields=" + taskConfiguration.request1.fields
-        + "&query=" + taskConfiguration.request1.query;
+    String requestUrl1 =
+        taskConfiguration.request1.url
+            + "?dataPortal="
+            + taskConfiguration.request1.dataPortal
+            + "&result="
+            + taskConfiguration.request1.result
+            + "&offset="
+            + taskConfiguration.request1.offset
+            + "&limit="
+            + taskConfiguration.request1.limit
+            + "&fields="
+            + taskConfiguration.request1.fields
+            + "&query="
+            + taskConfiguration.request1.query;
 
     downloadSequencesCommand.addArgument(requestUrl1);
     downloadSequencesCommand.addArgument("-o");
@@ -72,13 +77,20 @@ public abstract class ArchiveGeneratorTask implements Runnable {
     // download wgs_set
     CommandLine downloadWgsSetCommand = new CommandLine("curl");
 
-    String requestUrl2 = taskConfiguration.request2.url
-        + "?dataPortal=" + taskConfiguration.request2.dataPortal
-        + "&result=" + taskConfiguration.request2.result
-        + "&offset=" + taskConfiguration.request2.offset
-        + "&limit=" + taskConfiguration.request2.limit
-        + "&fields=" + taskConfiguration.request2.fields
-        + "&query=" + taskConfiguration.request2.query;
+    String requestUrl2 =
+        taskConfiguration.request2.url
+            + "?dataPortal="
+            + taskConfiguration.request2.dataPortal
+            + "&result="
+            + taskConfiguration.request2.result
+            + "&offset="
+            + taskConfiguration.request2.offset
+            + "&limit="
+            + taskConfiguration.request2.limit
+            + "&fields="
+            + taskConfiguration.request2.fields
+            + "&query="
+            + taskConfiguration.request2.query;
 
     downloadWgsSetCommand.addArgument(requestUrl2);
     downloadWgsSetCommand.addArgument("-o");

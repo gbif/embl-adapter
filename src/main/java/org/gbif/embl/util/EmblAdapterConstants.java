@@ -1,6 +1,4 @@
 /*
- * Copyright 2021 Global Biodiversity Information Facility (GBIF)
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -38,8 +36,7 @@ public final class EmblAdapterConstants {
 
   public static final DateTimeFormatter DATE_NO_SEPARATORS_FORMAT =
       DateTimeFormatter.ofPattern("yyyyMMdd");
-  public static final DateTimeFormatter DATE_FORMAT =
-      DateTimeFormatter.ofPattern("yyyy-MM-dd");
+  public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
   public static final Pattern LOCATION_PATTERN =
       Pattern.compile("([0-9.]+\\s+\\w)\\s+([0-9.]+\\s+\\w)");
@@ -58,12 +55,15 @@ public final class EmblAdapterConstants {
   public static final String TAXONOMY_TABLE = "ena_taxonomy";
   public static final String SQL_CLEAN = "TRUNCATE embl_data";
   public static final String SQL_CLEAN_TAXONOMY = "TRUNCATE ena_taxonomy";
-  public static final String SQL_COLUMNS = "accession, sample_accession, location, country, "
-      + "identified_by, collected_by, collection_date, specimen_voucher, sequence_md5, scientific_name, "
-      + "tax_id, altitude, sex, description, host";
+  public static final String SQL_COLUMNS =
+      "accession, sample_accession, location, country, "
+          + "identified_by, collected_by, collection_date, specimen_voucher, sequence_md5, scientific_name, "
+          + "tax_id, altitude, sex, description, host";
   public static final String SQL_TEST_SELECT = "SELECT " + SQL_COLUMNS + " FROM embl_data LIMIT 10";
   public static final String SQL_INSERT =
-      "INSERT INTO embl_data(" + SQL_COLUMNS + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
+      "INSERT INTO embl_data("
+          + SQL_COLUMNS
+          + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
           + "ON CONFLICT DO NOTHING";
   public static final String SQL_INSERT_TAXONOMY =
       "INSERT INTO ena_taxonomy(taxon_id, kingdom, phylum, "

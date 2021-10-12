@@ -1,6 +1,4 @@
 /*
- * Copyright 2021 Global Biodiversity Information Facility (GBIF)
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -129,8 +127,10 @@ public class ArchiveGeneratorDatabaseSourceTask extends ArchiveGeneratorTask {
     int expectedAmountOfParameters = StringUtils.countMatches(SQL_INSERT, '?');
     int expectedAmountOfColumns = StringUtils.split(SQL_COLUMNS, ",").length;
 
-    if (expectedAmountOfParameters != RS_MAX_INDEX || expectedAmountOfParameters != expectedAmountOfColumns) {
-      throw new IllegalStateException("Numbers of parameters do not match! Check query and configuration");
+    if (expectedAmountOfParameters != RS_MAX_INDEX
+        || expectedAmountOfParameters != expectedAmountOfColumns) {
+      throw new IllegalStateException(
+          "Numbers of parameters do not match! Check query and configuration");
     }
 
     // skip first header line
