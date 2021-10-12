@@ -56,15 +56,30 @@ public abstract class ArchiveGeneratorTask implements Runnable {
     // download non-CON sequences
     CommandLine downloadSequencesCommand = new CommandLine("curl");
 
+    String requestUrl1 = taskConfiguration.request1.url + "?"
+        + "dataPortal=" + taskConfiguration.request1.dataPortal
+        + "&result=" + taskConfiguration.request1.result
+        + "&offset=" + taskConfiguration.request1.offset
+        + "&limit=" + taskConfiguration.request1.limit
+        + "&fields=" + taskConfiguration.request1.fields
+        + "&query=" + taskConfiguration.request1.query;
 
-
-    downloadSequencesCommand.addArgument(taskConfiguration.requestUrl1);
+    downloadSequencesCommand.addArgument(requestUrl1);
     downloadSequencesCommand.addArgument("-o");
     downloadSequencesCommand.addArgument(taskConfiguration.rawDataFile1);
 
     // download wgs_set
     CommandLine downloadWgsSetCommand = new CommandLine("curl");
-    downloadWgsSetCommand.addArgument(taskConfiguration.requestUrl2);
+
+    String requestUrl2 = taskConfiguration.request2.url + "?"
+        + "dataPortal=" + taskConfiguration.request2.dataPortal
+        + "&result=" + taskConfiguration.request2.result
+        + "&offset=" + taskConfiguration.request2.offset
+        + "&limit=" + taskConfiguration.request2.limit
+        + "&fields=" + taskConfiguration.request2.fields
+        + "&query=" + taskConfiguration.request2.query;
+
+    downloadWgsSetCommand.addArgument(requestUrl2);
     downloadWgsSetCommand.addArgument("-o");
     downloadWgsSetCommand.addArgument(taskConfiguration.rawDataFile2);
 
