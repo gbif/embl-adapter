@@ -28,6 +28,7 @@ import java.util.Iterator;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +52,7 @@ import static org.gbif.embl.util.EmblAdapterConstants.IDENTIFIED_BY_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.IDENTIFIED_BY_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.LOCATION_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.LOCATION_RS_INDEX;
+import static org.gbif.embl.util.EmblAdapterConstants.RS_MAX_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.SAMPLE_ACCESSION_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.SAMPLE_ACCESSION_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.SCIENTIFIC_NAME_INDEX;
@@ -62,7 +64,9 @@ import static org.gbif.embl.util.EmblAdapterConstants.SEX_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.SPECIMEN_VOUCHER_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.SPECIMEN_VOUCHER_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.SQL_CLEAN;
+import static org.gbif.embl.util.EmblAdapterConstants.SQL_COLUMNS;
 import static org.gbif.embl.util.EmblAdapterConstants.SQL_INSERT;
+import static org.gbif.embl.util.EmblAdapterConstants.SQL_TEST_SELECT;
 import static org.gbif.embl.util.EmblAdapterConstants.TAX_ID_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.TAX_ID_RS_INDEX;
 
@@ -88,14 +92,20 @@ public class ArchiveGeneratorDatabaseSourceTask extends ArchiveGeneratorTask {
     LOG.debug("Database raw data");
     String sqlInsert = SQL_INSERT.replace("embl_data", taskConfiguration.tableName);
     String sqlClean = SQL_CLEAN.replace("embl_data", taskConfiguration.tableName);
+    String sqlTestSelect = SQL_TEST_SELECT.replace("embl_data", taskConfiguration.tableName);
+
     // store data to DB
     try (Connection connection = dataSource.getConnection();
         Statement st = connection.createStatement();
         PreparedStatement ps = connection.prepareStatement(sqlInsert);
+        Statement test = connection.createStatement();
         BufferedReader fileReader1 =
             new BufferedReader(new FileReader(taskConfiguration.rawDataFile1));
         BufferedReader fileReader2 =
-            new BufferedReader(new FileReader(taskConfiguration.rawDataFile2)); ) {
+            new BufferedReader(new FileReader(taskConfiguration.rawDataFile2))) {
+      // test table is fine and all columns are present
+      test.execute(sqlTestSelect);
+
       // clean database table before
       st.executeUpdate(sqlClean);
       LOG.debug("DB cleaned");
@@ -115,6 +125,13 @@ public class ArchiveGeneratorDatabaseSourceTask extends ArchiveGeneratorTask {
       PreparedStatement ps, BufferedReader fileReader, boolean skipSequenceMd5)
       throws SQLException {
     int lineNumber = 0;
+
+    int expectedAmountOfParameters = StringUtils.countMatches(SQL_INSERT, '?');
+    int expectedAmountOfColumns = StringUtils.split(SQL_COLUMNS, ",").length;
+
+    if (expectedAmountOfParameters != RS_MAX_INDEX || expectedAmountOfParameters != expectedAmountOfColumns) {
+      throw new IllegalStateException("Numbers of parameters do not match! Check query and configuration");
+    }
 
     // skip first header line
     for (Iterator<String> it = fileReader.lines().skip(1).iterator(); it.hasNext(); lineNumber++) {

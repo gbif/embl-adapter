@@ -51,13 +51,14 @@ public abstract class ArchiveGeneratorTask implements Runnable {
 
   @Override
   public void run() {
-    LOG.info("[{}] Start running task", taskConfiguration.name);
+    Thread.currentThread().setName(taskConfiguration.name);
+    LOG.info("Start running task");
 
     // download non-CON sequences
     CommandLine downloadSequencesCommand = new CommandLine("curl");
 
-    String requestUrl1 = taskConfiguration.request1.url + "?"
-        + "dataPortal=" + taskConfiguration.request1.dataPortal
+    String requestUrl1 = taskConfiguration.request1.url
+        + "?dataPortal=" + taskConfiguration.request1.dataPortal
         + "&result=" + taskConfiguration.request1.result
         + "&offset=" + taskConfiguration.request1.offset
         + "&limit=" + taskConfiguration.request1.limit
@@ -71,8 +72,8 @@ public abstract class ArchiveGeneratorTask implements Runnable {
     // download wgs_set
     CommandLine downloadWgsSetCommand = new CommandLine("curl");
 
-    String requestUrl2 = taskConfiguration.request2.url + "?"
-        + "dataPortal=" + taskConfiguration.request2.dataPortal
+    String requestUrl2 = taskConfiguration.request2.url
+        + "?dataPortal=" + taskConfiguration.request2.dataPortal
         + "&result=" + taskConfiguration.request2.result
         + "&offset=" + taskConfiguration.request2.offset
         + "&limit=" + taskConfiguration.request2.limit
@@ -88,7 +89,7 @@ public abstract class ArchiveGeneratorTask implements Runnable {
 
     try {
       // download data
-      LOG.info("[{}] Start downloading data", taskConfiguration.name);
+      LOG.info("Start downloading data");
       executor.execute(downloadSequencesCommand);
       executor.execute(downloadWgsSetCommand);
 
@@ -96,7 +97,7 @@ public abstract class ArchiveGeneratorTask implements Runnable {
       String tableName = prepareRawData();
 
       // create archive
-      LOG.info("[{}] Start creating archive", taskConfiguration.name);
+      LOG.info("Start creating archive");
       String archiveName =
           String.format(
               taskConfiguration.archiveName, LocalDate.now().format(DATE_NO_SEPARATORS_FORMAT));
@@ -109,19 +110,19 @@ public abstract class ArchiveGeneratorTask implements Runnable {
           "datasetWithHosts".equals(taskConfiguration.name)
               ? EmblAdapterConstants.TERMS_WITH_ASSOCIATED_TAXA
               : EmblAdapterConstants.TERMS);
-      LOG.info("[{}] Archive {} was created", taskConfiguration.name, archiveName);
+      LOG.info("Archive {} was created", archiveName);
 
       // delete temp files
       Files.deleteIfExists(Paths.get(taskConfiguration.rawDataFile1));
       Files.deleteIfExists(Paths.get(taskConfiguration.rawDataFile2));
-      LOG.info(
-          "[{}] Raw data file {} deleted", taskConfiguration.name, taskConfiguration.rawDataFile1);
-      LOG.info(
-          "[{}] Raw data file {} deleted", taskConfiguration.name, taskConfiguration.rawDataFile2);
+      LOG.info("Raw data file {} deleted", taskConfiguration.rawDataFile1);
+      LOG.info("Raw data file {} deleted", taskConfiguration.rawDataFile2);
     } catch (IOException e) {
-      LOG.error("[{}] IOException while producing archive", taskConfiguration.name, e);
+      LOG.error("IOException while producing archive", e);
     } catch (SQLException e) {
-      LOG.error("[{}] SQLException while producing archive", taskConfiguration.name, e);
+      LOG.error("SQLException while producing archive", e);
+    } catch (Exception e) {
+      LOG.error("Exception while producing archive", e);
     }
   }
 

@@ -32,7 +32,7 @@ public class DbConfiguration {
   @Parameter(names = "--db-user")
   public String user;
 
-//  @NotNull
+  @NotNull
   @Parameter(names = "--db-password", password = true)
   public String password;
 
