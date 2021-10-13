@@ -63,7 +63,7 @@ public final class EmblAdapterConstants {
   public static final String SQL_INSERT =
       "INSERT INTO embl_data("
           + SQL_COLUMNS
-          + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
+          + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
           + "ON CONFLICT DO NOTHING";
   public static final String SQL_INSERT_TAXONOMY =
       "INSERT INTO ena_taxonomy(taxon_id, kingdom, phylum, "
