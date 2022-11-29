@@ -222,13 +222,13 @@ public class DataGeneratorTask implements Runnable {
 
     // store data to DB
     try (Connection connection = dataSource.getConnection();
-         Statement st = connection.createStatement();
-         PreparedStatement ps = connection.prepareStatement(sqlInsert);
-         Statement test = connection.createStatement();
-         BufferedReader fileReader1 =
-             new BufferedReader(new FileReader(taskConfiguration.rawDataFile1));
-         BufferedReader fileReader2 =
-             new BufferedReader(new FileReader(taskConfiguration.rawDataFile2))) {
+        Statement st = connection.createStatement();
+        PreparedStatement ps = connection.prepareStatement(sqlInsert);
+        Statement test = connection.createStatement();
+        BufferedReader fileReader1 =
+            new BufferedReader(new FileReader(taskConfiguration.rawDataFile1));
+        BufferedReader fileReader2 =
+            new BufferedReader(new FileReader(taskConfiguration.rawDataFile2))) {
       // test table is fine and all columns are present
       test.execute(sqlTestSelect);
 
@@ -316,7 +316,8 @@ public class DataGeneratorTask implements Runnable {
     String sqlSelectRawData = readSqlFile(query).replace("embl_data", tableName).trim();
     LOG.debug("SQL select (raw data): {}", sqlSelectRawData);
 
-    String sqlInsertProcessedData = SQL_INSERT_PROCESSED_DATA.replace("embl_data", tableName + "_processed");
+    String sqlInsertProcessedData =
+        SQL_INSERT_PROCESSED_DATA.replace("embl_data", tableName + "_processed");
     String sqlCleanProcessedData = SQL_CLEAN.replace("embl_data", tableName + "_processed");
     LOG.debug("SQL insert (processed data): {}", sqlInsertProcessedData);
 
@@ -325,7 +326,7 @@ public class DataGeneratorTask implements Runnable {
       connection.setAutoCommit(true);
 
       try (Statement s = connection.createStatement();
-           PreparedStatement ps = connection.prepareStatement(sqlInsertProcessedData)) {
+          PreparedStatement ps = connection.prepareStatement(sqlInsertProcessedData)) {
         // set batch size
         s.setFetchSize(BATCH_SIZE);
 
@@ -338,14 +339,17 @@ public class DataGeneratorTask implements Runnable {
           // processed data
           while (rs.next()) {
             // skip records with missing specimen_voucher and collection_date
-            if (StringUtils.isEmpty(getSpecimenVoucher(rs)) && StringUtils.isEmpty(getCollectionDate(rs))) {
+            if (StringUtils.isEmpty(getSpecimenVoucher(rs))
+                && StringUtils.isEmpty(getCollectionDate(rs))) {
               linesSkipped++;
               continue;
             }
 
             // check if the record was seen before
-            if (StringUtils.isNotEmpty(getSampleAccession(rs)) && StringUtils.isNotEmpty(getScientificName(rs))) {
-              String sampleAccessionPlusScientificName = getSampleAccession(rs) + getScientificName(rs);
+            if (StringUtils.isNotEmpty(getSampleAccession(rs))
+                && StringUtils.isNotEmpty(getScientificName(rs))) {
+              String sampleAccessionPlusScientificName =
+                  getSampleAccession(rs) + getScientificName(rs);
 
               // skip duplicate records (seen before) based on sample_accession and scientific_name
               // otherwise remember and write it
