@@ -109,8 +109,8 @@ import static org.gbif.embl.util.EmblAdapterConstants.SOUTH;
 import static org.gbif.embl.util.EmblAdapterConstants.SPECIMEN_VOUCHER_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.SPECIMEN_VOUCHER_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.SQL_CLEAN;
-import static org.gbif.embl.util.EmblAdapterConstants.SQL_COLUMNS;
-import static org.gbif.embl.util.EmblAdapterConstants.SQL_INSERT;
+import static org.gbif.embl.util.EmblAdapterConstants.SQL_COLUMNS_RAW_DATA;
+import static org.gbif.embl.util.EmblAdapterConstants.SQL_INSERT_RAW_DATA;
 import static org.gbif.embl.util.EmblAdapterConstants.SQL_INSERT_PROCESSED_DATA;
 import static org.gbif.embl.util.EmblAdapterConstants.SQL_TEST_SELECT;
 import static org.gbif.embl.util.EmblAdapterConstants.TAXON_CONCEPT_ID_URL;
@@ -215,7 +215,7 @@ public class DataGeneratorTask implements Runnable {
 
   protected String prepareRawData() throws IOException, SQLException {
     LOG.debug("Database raw data");
-    String sqlInsert = SQL_INSERT.replace("embl_data", taskConfiguration.tableName);
+    String sqlInsert = SQL_INSERT_RAW_DATA.replace("embl_data", taskConfiguration.tableName);
     String sqlClean = SQL_CLEAN.replace("embl_data", taskConfiguration.tableName);
     String sqlTestSelect = SQL_TEST_SELECT.replace("embl_data", taskConfiguration.tableName);
 
@@ -251,8 +251,8 @@ public class DataGeneratorTask implements Runnable {
       throws SQLException {
     int lineNumber = 0;
 
-    int expectedAmountOfParameters = StringUtils.countMatches(SQL_INSERT, '?');
-    int expectedAmountOfColumns = StringUtils.split(SQL_COLUMNS, ",").length;
+    int expectedAmountOfParameters = StringUtils.countMatches(SQL_INSERT_RAW_DATA, '?');
+    int expectedAmountOfColumns = StringUtils.split(SQL_COLUMNS_RAW_DATA, ",").length;
 
     if (expectedAmountOfParameters != RS_MAX_INDEX
         || expectedAmountOfParameters != expectedAmountOfColumns) {

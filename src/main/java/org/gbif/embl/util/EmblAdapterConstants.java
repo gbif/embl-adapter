@@ -51,7 +51,7 @@ public final class EmblAdapterConstants {
   public static final String TAXONOMY_TABLE = "ena_taxonomy";
   public static final String SQL_CLEAN = "TRUNCATE embl_data";
   public static final String SQL_CLEAN_TAXONOMY = "TRUNCATE ena_taxonomy";
-  public static final String SQL_COLUMNS =
+  public static final String SQL_COLUMNS_RAW_DATA =
       "accession, sample_accession, location, country, "
           + "identified_by, collected_by, collection_date, specimen_voucher, sequence_md5, scientific_name, "
           + "tax_id, altitude, sex, description, host";
@@ -60,10 +60,10 @@ public final class EmblAdapterConstants {
           "identified_by, recorded_by, event_date, catalog_number, basis_of_record, taxon_id, scientific_name, " +
           "taxon_concept_id, minimum_elevation_in_meters, maximum_elevation_in_meters, sex, " +
           "occurrence_remarks, associated_taxa, kingdom, phylum, class, \"order\", family, genus";
-  public static final String SQL_TEST_SELECT = "SELECT " + SQL_COLUMNS + " FROM embl_data LIMIT 10";
-  public static final String SQL_INSERT =
+  public static final String SQL_TEST_SELECT = "SELECT " + SQL_COLUMNS_RAW_DATA + " FROM embl_data LIMIT 10";
+  public static final String SQL_INSERT_RAW_DATA =
       "INSERT INTO embl_data("
-          + SQL_COLUMNS
+          + SQL_COLUMNS_RAW_DATA
           + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
           + "ON CONFLICT DO NOTHING";
   public static final String SQL_INSERT_PROCESSED_DATA =
