@@ -17,7 +17,6 @@ import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -29,14 +28,6 @@ public final class EmblAdapterConstants {
   public static final int DEFAULT_FREQUENCY = 7;
 
   public static final int BATCH_SIZE = 5000;
-
-  public static final String METADATA_FILENAME = "metadata.xml";
-  public static final String CORE_FILENAME = "occurrence.txt";
-  public static final String DESCRIPTOR_FILENAME = "meta.xml";
-
-  public static final DateTimeFormatter DATE_NO_SEPARATORS_FORMAT =
-      DateTimeFormatter.ofPattern("yyyyMMdd");
-  public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
   public static final Pattern LOCATION_PATTERN =
       Pattern.compile("([0-9.]+\\s+\\w)\\s+([0-9.]+\\s+\\w)");
@@ -59,18 +50,28 @@ public final class EmblAdapterConstants {
       "accession, sample_accession, location, country, "
           + "identified_by, collected_by, collection_date, specimen_voucher, sequence_md5, scientific_name, "
           + "tax_id, altitude, sex, description, host";
+  public static final String SQL_COLUMNS_PROCESSED_DATA =
+      "occurrence_id, associated_sequences, \"references\", decimal_latitude, decimal_longitude, country, locality," +
+          "identified_by, recorded_by, event_date, catalog_number, basis_of_record, taxon_id, scientific_name, " +
+          "taxon_concept_id, minimum_elevation_in_meters, maximum_elevation_in_meters, sex, " +
+          "occurrence_remarks, associated_taxa, kingdom, phylum, class, \"order\", family, genus";
   public static final String SQL_TEST_SELECT = "SELECT " + SQL_COLUMNS + " FROM embl_data LIMIT 10";
   public static final String SQL_INSERT =
       "INSERT INTO embl_data("
           + SQL_COLUMNS
           + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
           + "ON CONFLICT DO NOTHING";
+  public static final String SQL_INSERT_PROCESSED_DATA =
+      "INSERT INTO embl_data("
+          + SQL_COLUMNS_PROCESSED_DATA
+          + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
+          + "ON CONFLICT DO NOTHING";
   public static final String SQL_INSERT_TAXONOMY =
       "INSERT INTO ena_taxonomy(taxon_id, kingdom, phylum, "
           + "class, \"order\", family, genus) "
           + "VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING";
 
-  public static final List<Term> TERMS_WITH_ASSOCIATED_TAXA =
+  public static final List<Term> TERMS =
       Arrays.asList(
           DwcTerm.occurrenceID,
           DwcTerm.associatedSequences,
@@ -98,34 +99,8 @@ public final class EmblAdapterConstants {
           DwcTerm.order,
           DwcTerm.family,
           DwcTerm.genus);
-  public static final List<Term> TERMS =
-      Arrays.asList(
-          DwcTerm.occurrenceID,
-          DwcTerm.associatedSequences,
-          DcTerm.references,
-          DwcTerm.decimalLatitude,
-          DwcTerm.decimalLongitude,
-          DwcTerm.country,
-          DwcTerm.locality,
-          DwcTerm.identifiedBy,
-          DwcTerm.recordedBy,
-          DwcTerm.eventDate,
-          DwcTerm.catalogNumber,
-          DwcTerm.basisOfRecord,
-          DwcTerm.taxonID,
-          DwcTerm.scientificName,
-          DwcTerm.taxonConceptID,
-          DwcTerm.minimumElevationInMeters,
-          DwcTerm.maximumElevationInMeters,
-          DwcTerm.sex,
-          DwcTerm.occurrenceRemarks,
-          DwcTerm.kingdom,
-          DwcTerm.phylum,
-          DwcTerm.class_,
-          DwcTerm.order,
-          DwcTerm.family,
-          DwcTerm.genus);
 
+  // Index constants - column index in downloaded data file
   public static final int ACCESSION_INDEX = 0;
   public static final int SAMPLE_ACCESSION_INDEX = 1;
   public static final int LOCATION_INDEX = 2;
@@ -142,6 +117,7 @@ public final class EmblAdapterConstants {
   public static final int DESCRIPTION_INDEX = 13;
   public static final int HOST_INDEX = 14;
 
+  // Index constants - column index in raw data database table
   public static final int ACCESSION_RS_INDEX = 1;
   public static final int SAMPLE_ACCESSION_RS_INDEX = 2;
   public static final int LOCATION_RS_INDEX = 3;
@@ -159,7 +135,6 @@ public final class EmblAdapterConstants {
   public static final int HOST_RS_INDEX = 15;
   // must equal the last index
   public static final int RS_MAX_INDEX = 15;
-
   public static final int KINGDOM_RS_INDEX = 16;
   public static final int PHYLUM_RS_INDEX = 17;
   public static final int CLASS_RS_INDEX = 18;
@@ -167,6 +142,7 @@ public final class EmblAdapterConstants {
   public static final int FAMILY_RS_INDEX = 20;
   public static final int GENUS_RS_INDEX = 21;
 
+  // Index constants - column index in taxonomy database select
   public static final int TAXON_ID_SELECT_INDEX = 1;
   public static final int KINGDOM_SELECT_INDEX = 2;
   public static final int PHYLUM_SELECT_INDEX = 3;
@@ -174,6 +150,34 @@ public final class EmblAdapterConstants {
   public static final int ORDER_SELECT_INDEX = 5;
   public static final int FAMILY_SELECT_INDEX = 6;
   public static final int GENUS_SELECT_INDEX = 7;
+
+  // Index constants - column index in processed data database table
+  public static final int OCCURRENCE_ID_INDEX = 1;
+  public static final int ASSOCIATED_SEQUENCES_INDEX = 2;
+  public static final int REFERENCES_INDEX = 3;
+  public static final int DECIMAL_LATITUDE_INDEX = 4;
+  public static final int DECIMAL_LONGITUDE_INDEX = 5;
+  public static final int COUNTRY_PROCESSED_INDEX = 6;
+  public static final int LOCALITY_INDEX = 7;
+  public static final int IDENTIFIED_BY_PROCESSED_INDEX = 8;
+  public static final int RECORDED_BY_INDEX = 9;
+  public static final int EVENT_DATE_INDEX = 10;
+  public static final int CATALOG_NUMBER_INDEX = 11;
+  public static final int BASIS_OF_RECORD_INDEX = 12;
+  public static final int TAXON_ID_INDEX = 13;
+  public static final int SCIENTIFIC_NAME_PROCESSED_INDEX = 14;
+  public static final int TAXON_CONCEPT_INDEX = 15;
+  public static final int MINIMUM_ELEVATION_IN_METERS_INDEX = 16;
+  public static final int MAXIMUM_ELEVATION_IN_METERS_INDEX = 17;
+  public static final int SEX_PROCESSED_INDEX = 18;
+  public static final int OCCURRENCE_REMARK_INDEX = 19;
+  public static final int ASSOCIATED_TAXA_INDEX = 20;
+  public static final int KINGDOM_INDEX = 21;
+  public static final int PHYLUM_INDEX = 22;
+  public static final int CLASS_INDEX = 23;
+  public static final int ORDER_INDEX = 24;
+  public static final int FAMILY_INDEX = 25;
+  public static final int GENUS_INDEX = 26;
 
   private EmblAdapterConstants() {}
 }

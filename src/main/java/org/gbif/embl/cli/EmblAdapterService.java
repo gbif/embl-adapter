@@ -13,8 +13,6 @@
  */
 package org.gbif.embl.cli;
 
-import org.gbif.embl.util.DwcArchiveBuilder;
-
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.Executors;
@@ -48,7 +46,6 @@ public class EmblAdapterService extends AbstractIdleService {
   private final Long initialDelay;
   private final EmblAdapterConfiguration config;
   private final DataSource dataSource;
-  private final DwcArchiveBuilder archiveBuilder;
 
   public EmblAdapterService(EmblAdapterConfiguration config) {
     this.config = config;
@@ -63,7 +60,6 @@ public class EmblAdapterService extends AbstractIdleService {
     hikariConfig.setConnectionTimeout(config.db.connectionTimeout);
 
     this.dataSource = new HikariDataSource(hikariConfig);
-    this.archiveBuilder = new DwcArchiveBuilder(dataSource, config.workingDirectory);
 
     Integer startHour;
     Integer startMinute;
@@ -94,9 +90,7 @@ public class EmblAdapterService extends AbstractIdleService {
   protected void startUp() {
     LOG.info("EmblAdapterService started");
     for (TaskConfiguration task : config.tasks) {
-      scheduleTask(
-          new ArchiveGeneratorDatabaseSourceTask(
-              task, dataSource, config.workingDirectory, archiveBuilder));
+      scheduleTask(new DataGeneratorTask(task, dataSource));
     }
   }
 
