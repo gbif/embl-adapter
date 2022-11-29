@@ -63,6 +63,7 @@ import static org.gbif.embl.util.EmblAdapterConstants.DECIMAL_LONGITUDE_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.DEFAULT_DELIMITER;
 import static org.gbif.embl.util.EmblAdapterConstants.DESCRIPTION_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.DESCRIPTION_RS_INDEX;
+import static org.gbif.embl.util.EmblAdapterConstants.EAST;
 import static org.gbif.embl.util.EmblAdapterConstants.EVENT_DATE_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.FAMILY_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.FAMILY_RS_INDEX;
@@ -82,6 +83,7 @@ import static org.gbif.embl.util.EmblAdapterConstants.LOCATION_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.MATERIAL_SAMPLE;
 import static org.gbif.embl.util.EmblAdapterConstants.MAXIMUM_ELEVATION_IN_METERS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.MINIMUM_ELEVATION_IN_METERS_INDEX;
+import static org.gbif.embl.util.EmblAdapterConstants.NORTH;
 import static org.gbif.embl.util.EmblAdapterConstants.OCCURRENCE_ID_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.OCCURRENCE_REMARK_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.ORDER_INDEX;
@@ -103,6 +105,7 @@ import static org.gbif.embl.util.EmblAdapterConstants.SEQUENCE_MD5_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.SEX_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.SEX_PROCESSED_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.SEX_RS_INDEX;
+import static org.gbif.embl.util.EmblAdapterConstants.SOUTH;
 import static org.gbif.embl.util.EmblAdapterConstants.SPECIMEN_VOUCHER_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.SPECIMEN_VOUCHER_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.SQL_CLEAN;
@@ -116,6 +119,7 @@ import static org.gbif.embl.util.EmblAdapterConstants.TAXON_ID_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.TAXON_ID_PREFIX;
 import static org.gbif.embl.util.EmblAdapterConstants.TAX_ID_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.TAX_ID_RS_INDEX;
+import static org.gbif.embl.util.EmblAdapterConstants.WEST;
 
 public class DataGeneratorTask implements Runnable {
 
@@ -487,7 +491,21 @@ public class DataGeneratorTask implements Runnable {
     if (StringUtils.isNotBlank(location)) {
       Matcher matcher = LOCATION_PATTERN.matcher(location);
       if (matcher.find()) {
-        return matcher.group(1);
+        // south - negative
+        if (SOUTH.equals(matcher.group(2))) {
+          return "-" + matcher.group(1);
+        }
+        // north - positive
+        else if (NORTH.equals(matcher.group(2))) {
+          return matcher.group(1);
+        }
+        // wrong letter - log error, return empty value
+        else {
+          LOG.error("Wrong coordinate letter: {}", matcher.group(2));
+          return StringUtils.EMPTY;
+        }
+      } else {
+        LOG.error("Coordinates {} do not match pattern", location);
       }
     }
     return StringUtils.EMPTY;
@@ -497,7 +515,21 @@ public class DataGeneratorTask implements Runnable {
     if (StringUtils.isNotBlank(location)) {
       Matcher matcher = LOCATION_PATTERN.matcher(location);
       if (matcher.find()) {
-        return matcher.group(2);
+        // west - negative
+        if (WEST.equals(matcher.group(4))) {
+          return "-" + matcher.group(3);
+        }
+        // east - positive
+        else if (EAST.equals(matcher.group(4))) {
+          return matcher.group(3);
+        }
+        // wrong letter - log error, return empty value
+        else {
+          LOG.error("Wrong coordinate letter: {}", matcher.group(4));
+          return StringUtils.EMPTY;
+        }
+      } else {
+        LOG.error("Coordinates {} do not match pattern", location);
       }
     }
     return StringUtils.EMPTY;

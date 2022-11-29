@@ -30,7 +30,12 @@ public final class EmblAdapterConstants {
   public static final int BATCH_SIZE = 5000;
 
   public static final Pattern LOCATION_PATTERN =
-      Pattern.compile("([0-9.]+\\s+\\w)\\s+([0-9.]+\\s+\\w)");
+      Pattern.compile("([0-9.]+)\\s+(\\w)\\s+([0-9.]+)\\s+(\\w)");
+
+  public static final String NORTH = "N";
+  public static final String SOUTH = "S";
+  public static final String WEST = "W";
+  public static final String EAST = "E";
 
   public static final String DEFAULT_DELIMITER = "\t";
   public static final String COUNTRY_DELIMITER = ":";
