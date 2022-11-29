@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.stream.Stream;
+
 import javax.sql.DataSource;
 
 import org.apache.commons.exec.CommandLine;
@@ -110,8 +111,8 @@ import static org.gbif.embl.util.EmblAdapterConstants.SPECIMEN_VOUCHER_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.SPECIMEN_VOUCHER_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.SQL_CLEAN;
 import static org.gbif.embl.util.EmblAdapterConstants.SQL_COLUMNS_RAW_DATA;
-import static org.gbif.embl.util.EmblAdapterConstants.SQL_INSERT_RAW_DATA;
 import static org.gbif.embl.util.EmblAdapterConstants.SQL_INSERT_PROCESSED_DATA;
+import static org.gbif.embl.util.EmblAdapterConstants.SQL_INSERT_RAW_DATA;
 import static org.gbif.embl.util.EmblAdapterConstants.SQL_TEST_SELECT;
 import static org.gbif.embl.util.EmblAdapterConstants.TAXON_CONCEPT_ID_URL;
 import static org.gbif.embl.util.EmblAdapterConstants.TAXON_CONCEPT_INDEX;
