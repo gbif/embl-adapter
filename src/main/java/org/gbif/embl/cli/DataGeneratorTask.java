@@ -164,7 +164,7 @@ public class DataGeneratorTask implements Runnable {
   }
 
   private void deleteDataFiles() throws IOException {
-    if (!taskConfiguration.steps.contains(TaskStep.DELETE_DATA_FILES)) {
+    if (taskConfiguration.steps.size() > 0 && !taskConfiguration.steps.contains(TaskStep.DELETE_DATA_FILES)) {
       LOG.info("Skipping store data step");
       return;
     }
@@ -176,7 +176,7 @@ public class DataGeneratorTask implements Runnable {
   }
 
   private void downloadData() throws IOException {
-    if (!taskConfiguration.steps.contains(TaskStep.DOWNLOAD_DATA)) {
+    if (taskConfiguration.steps.size() > 0 && !taskConfiguration.steps.contains(TaskStep.DOWNLOAD_DATA)) {
       LOG.info("Skipping download data step");
       return;
     }
@@ -235,7 +235,7 @@ public class DataGeneratorTask implements Runnable {
   }
 
   protected void storeData() throws IOException, SQLException {
-    if (!taskConfiguration.steps.contains(TaskStep.STORE_DATA)) {
+    if (taskConfiguration.steps.size() > 0 && !taskConfiguration.steps.contains(TaskStep.STORE_DATA)) {
       LOG.info("Skipping store data step");
       return;
     }
@@ -318,7 +318,7 @@ public class DataGeneratorTask implements Runnable {
   }
 
   private void processData() throws SQLException {
-    if (!taskConfiguration.steps.contains(TaskStep.PROCESS_DATA)) {
+    if (taskConfiguration.steps.size() > 0 && !taskConfiguration.steps.contains(TaskStep.PROCESS_DATA)) {
       LOG.info("Skipping store data step");
       return;
     }
