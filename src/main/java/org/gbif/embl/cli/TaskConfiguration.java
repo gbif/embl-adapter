@@ -24,8 +24,7 @@ public class TaskConfiguration {
 
   @NotNull public String name;
 
-  @NotNull
-  public List<TaskStep> steps = new ArrayList<>();
+  @NotNull public List<TaskStep> steps = new ArrayList<>();
 
   @NotNull public RequestConfiguration request1;
 

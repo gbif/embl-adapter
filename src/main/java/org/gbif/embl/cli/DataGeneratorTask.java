@@ -168,7 +168,8 @@ public class DataGeneratorTask implements Runnable {
   }
 
   private void deleteDataFiles() throws IOException {
-    if (taskConfiguration.steps.size() > 0 && !taskConfiguration.steps.contains(TaskStep.DELETE_DATA_FILES)) {
+    if (taskConfiguration.steps.size() > 0
+        && !taskConfiguration.steps.contains(TaskStep.DELETE_DATA_FILES)) {
       LOG.info(marker, "Skipping store data step");
       return;
     }
@@ -180,7 +181,8 @@ public class DataGeneratorTask implements Runnable {
   }
 
   private void downloadData() throws IOException {
-    if (taskConfiguration.steps.size() > 0 && !taskConfiguration.steps.contains(TaskStep.DOWNLOAD_DATA)) {
+    if (taskConfiguration.steps.size() > 0
+        && !taskConfiguration.steps.contains(TaskStep.DOWNLOAD_DATA)) {
       LOG.info(marker, "Skipping download data step");
       return;
     }
@@ -239,7 +241,8 @@ public class DataGeneratorTask implements Runnable {
   }
 
   protected void storeData() throws IOException, SQLException {
-    if (taskConfiguration.steps.size() > 0 && !taskConfiguration.steps.contains(TaskStep.STORE_DATA)) {
+    if (taskConfiguration.steps.size() > 0
+        && !taskConfiguration.steps.contains(TaskStep.STORE_DATA)) {
       LOG.info(marker, "Skipping store data step");
       return;
     }
@@ -251,13 +254,13 @@ public class DataGeneratorTask implements Runnable {
 
     // store data to DB
     try (Connection connection = dataSource.getConnection();
-         Statement st = connection.createStatement();
-         PreparedStatement ps = connection.prepareStatement(sqlInsert);
-         Statement test = connection.createStatement();
-         BufferedReader fileReader1 =
-             new BufferedReader(new FileReader(taskConfiguration.rawDataFile1));
-         BufferedReader fileReader2 =
-             new BufferedReader(new FileReader(taskConfiguration.rawDataFile2))) {
+        Statement st = connection.createStatement();
+        PreparedStatement ps = connection.prepareStatement(sqlInsert);
+        Statement test = connection.createStatement();
+        BufferedReader fileReader1 =
+            new BufferedReader(new FileReader(taskConfiguration.rawDataFile1));
+        BufferedReader fileReader2 =
+            new BufferedReader(new FileReader(taskConfiguration.rawDataFile2))) {
       // test table is fine and all columns are present
       test.execute(sqlTestSelect);
 
@@ -322,7 +325,8 @@ public class DataGeneratorTask implements Runnable {
   }
 
   private void processData() throws SQLException {
-    if (taskConfiguration.steps.size() > 0 && !taskConfiguration.steps.contains(TaskStep.PROCESS_DATA)) {
+    if (taskConfiguration.steps.size() > 0
+        && !taskConfiguration.steps.contains(TaskStep.PROCESS_DATA)) {
       LOG.info(marker, "Skipping store data step");
       return;
     }
@@ -345,17 +349,19 @@ public class DataGeneratorTask implements Runnable {
     String sqlSelectRawData = readSqlFile(query).replace("embl_data", tableName).trim();
     LOG.debug(marker, "SQL select (raw data): {}", sqlSelectRawData);
 
-    String sqlInsertProcessedData = SQL_INSERT_PROCESSED_DATA.replace("embl_data", tableName + "_processed");
+    String sqlInsertProcessedData =
+        SQL_INSERT_PROCESSED_DATA.replace("embl_data", tableName + "_processed");
     String sqlCleanProcessedData = SQL_CLEAN.replace("embl_data", tableName + "_processed");
     LOG.debug(marker, "SQL insert (processed data): {}", sqlInsertProcessedData);
 
-    try (Connection connection1 = dataSource.getConnection(); Connection connection2 = dataSource.getConnection()) {
+    try (Connection connection1 = dataSource.getConnection();
+        Connection connection2 = dataSource.getConnection()) {
       LOG.debug(marker, "DB connection established to retrieve raw data");
       connection1.setAutoCommit(false);
       connection2.setAutoCommit(true);
 
       try (Statement s = connection1.createStatement();
-           PreparedStatement ps = connection2.prepareStatement(sqlInsertProcessedData)) {
+          PreparedStatement ps = connection2.prepareStatement(sqlInsertProcessedData)) {
         // set batch size
         ps.setFetchSize(WRITE_BATCH_SIZE);
         s.setFetchSize(READ_BATCH_SIZE);
@@ -371,14 +377,17 @@ public class DataGeneratorTask implements Runnable {
           // processed data
           while (rs.next()) {
             // skip records with missing specimen_voucher and collection_date
-            if (StringUtils.isEmpty(getSpecimenVoucher(rs)) && StringUtils.isEmpty(getCollectionDate(rs))) {
+            if (StringUtils.isEmpty(getSpecimenVoucher(rs))
+                && StringUtils.isEmpty(getCollectionDate(rs))) {
               linesSkipped++;
               continue;
             }
 
             // check if the record was seen before
-            if (StringUtils.isNotEmpty(getSampleAccession(rs)) && StringUtils.isNotEmpty(getScientificName(rs))) {
-              String sampleAccessionPlusScientificName = getSampleAccession(rs) + getScientificName(rs);
+            if (StringUtils.isNotEmpty(getSampleAccession(rs))
+                && StringUtils.isNotEmpty(getScientificName(rs))) {
+              String sampleAccessionPlusScientificName =
+                  getSampleAccession(rs) + getScientificName(rs);
 
               // skip duplicate records (seen before) based on sample_accession and scientific_name
               // otherwise remember and write it
