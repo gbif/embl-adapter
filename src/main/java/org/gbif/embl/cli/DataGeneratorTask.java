@@ -47,7 +47,6 @@ import static org.gbif.embl.util.EmblAdapterConstants.ASSOCIATED_SEQUENCES_INDEX
 import static org.gbif.embl.util.EmblAdapterConstants.ASSOCIATED_SEQUENCES_URL;
 import static org.gbif.embl.util.EmblAdapterConstants.ASSOCIATED_TAXA_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.BASIS_OF_RECORD_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.BATCH_SIZE;
 import static org.gbif.embl.util.EmblAdapterConstants.CATALOG_NUMBER_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.CLASS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.CLASS_RS_INDEX;
@@ -92,6 +91,7 @@ import static org.gbif.embl.util.EmblAdapterConstants.ORDER_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.PHYLUM_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.PHYLUM_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.PRESERVED_SPECIMEN;
+import static org.gbif.embl.util.EmblAdapterConstants.READ_BATCH_SIZE;
 import static org.gbif.embl.util.EmblAdapterConstants.RECORDED_BY_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.REFERENCES_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.REFERENCES_URL;
@@ -121,6 +121,7 @@ import static org.gbif.embl.util.EmblAdapterConstants.TAXON_ID_PREFIX;
 import static org.gbif.embl.util.EmblAdapterConstants.TAX_ID_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.TAX_ID_RS_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.WEST;
+import static org.gbif.embl.util.EmblAdapterConstants.WRITE_BATCH_SIZE;
 
 public class DataGeneratorTask implements Runnable {
 
@@ -138,6 +139,47 @@ public class DataGeneratorTask implements Runnable {
   public void run() {
     Thread.currentThread().setName(taskConfiguration.name);
     LOG.info("Start running task");
+
+    LOG.info("Steps: {}", taskConfiguration.steps);
+
+    try {
+      // download data from URL
+      downloadData();
+
+      // store raw data into database
+      storeData();
+
+      // process raw data and store processed into database
+      processData();
+
+      // delete temp files
+      deleteDataFiles();
+    } catch (IOException e) {
+      LOG.error("IOException while producing data", e);
+    } catch (SQLException e) {
+      LOG.error("SQLException while producing data", e);
+    } catch (Exception e) {
+      LOG.error("Exception while producing data", e);
+    }
+  }
+
+  private void deleteDataFiles() throws IOException {
+    if (!taskConfiguration.steps.contains(TaskStep.DELETE_DATA_FILES)) {
+      LOG.info("Skipping store data step");
+      return;
+    }
+
+    Files.deleteIfExists(Paths.get(taskConfiguration.rawDataFile1));
+    Files.deleteIfExists(Paths.get(taskConfiguration.rawDataFile2));
+    LOG.info("Raw data file {} deleted", taskConfiguration.rawDataFile1);
+    LOG.info("Raw data file {} deleted", taskConfiguration.rawDataFile2);
+  }
+
+  private void downloadData() throws IOException {
+    if (!taskConfiguration.steps.contains(TaskStep.DOWNLOAD_DATA)) {
+      LOG.info("Skipping download data step");
+      return;
+    }
 
     // download non-CON sequences
     CommandLine downloadSequencesCommand = new CommandLine("curl");
@@ -186,36 +228,19 @@ public class DataGeneratorTask implements Runnable {
     DefaultExecutor executor = new DefaultExecutor();
     executor.setExitValue(0);
 
-    try {
-      // download data
-      LOG.info("Start downloading data");
-      executor.execute(downloadSequencesCommand);
-      executor.execute(downloadWgsSetCommand);
-
-      // store raw data into database
-      String tableName = prepareRawData();
-
-      // process raw data and store processed into database
-      LOG.info("Start processing {}", tableName);
-      processRawData(tableName, taskConfiguration.query);
-      LOG.info("Finished processing {}", tableName);
-
-      // delete temp files
-      Files.deleteIfExists(Paths.get(taskConfiguration.rawDataFile1));
-      Files.deleteIfExists(Paths.get(taskConfiguration.rawDataFile2));
-      LOG.info("Raw data file {} deleted", taskConfiguration.rawDataFile1);
-      LOG.info("Raw data file {} deleted", taskConfiguration.rawDataFile2);
-    } catch (IOException e) {
-      LOG.error("IOException while producing data", e);
-    } catch (SQLException e) {
-      LOG.error("SQLException while producing data", e);
-    } catch (Exception e) {
-      LOG.error("Exception while producing data", e);
-    }
+    // download data
+    LOG.info("Start downloading data");
+    executor.execute(downloadSequencesCommand);
+    executor.execute(downloadWgsSetCommand);
   }
 
-  protected String prepareRawData() throws IOException, SQLException {
-    LOG.debug("Database raw data");
+  protected void storeData() throws IOException, SQLException {
+    if (!taskConfiguration.steps.contains(TaskStep.STORE_DATA)) {
+      LOG.info("Skipping store data step");
+      return;
+    }
+
+    LOG.debug("Store raw data into DB");
     String sqlInsert = SQL_INSERT_RAW_DATA.replace("embl_data", taskConfiguration.tableName);
     String sqlClean = SQL_CLEAN.replace("embl_data", taskConfiguration.tableName);
     String sqlTestSelect = SQL_TEST_SELECT.replace("embl_data", taskConfiguration.tableName);
@@ -242,8 +267,6 @@ public class DataGeneratorTask implements Runnable {
       executeBatch(ps, fileReader2, true);
 
       LOG.debug("Finish writing DB");
-
-      return taskConfiguration.tableName;
     }
   }
 
@@ -286,7 +309,7 @@ public class DataGeneratorTask implements Runnable {
       ps.setString(HOST_RS_INDEX, split[HOST_INDEX]);
       ps.addBatch();
 
-      if (lineNumber % BATCH_SIZE == 0) {
+      if (lineNumber % WRITE_BATCH_SIZE == 0) {
         ps.executeBatch();
       }
     }
@@ -294,15 +317,17 @@ public class DataGeneratorTask implements Runnable {
     ps.executeBatch();
   }
 
-  private void processRawData(String tableName, String query) {
+  private void processData() throws SQLException {
+    if (!taskConfiguration.steps.contains(TaskStep.PROCESS_DATA)) {
+      LOG.info("Skipping store data step");
+      return;
+    }
+
+    String tableName = taskConfiguration.tableName;
+    String query = taskConfiguration.query;
     LOG.info("Start processing raw data {} ", tableName);
 
-    try {
-      processRawDataInternal(tableName, query);
-    } catch (Exception e) {
-      LOG.error("Error while processing raw data", e);
-      throw new RuntimeException(e);
-    }
+    processRawDataInternal(tableName, query);
   }
 
   private void processRawDataInternal(String tableName, String query) throws SQLException {
@@ -320,17 +345,21 @@ public class DataGeneratorTask implements Runnable {
     String sqlCleanProcessedData = SQL_CLEAN.replace("embl_data", tableName + "_processed");
     LOG.debug("SQL insert (processed data): {}", sqlInsertProcessedData);
 
-    try (Connection connection = dataSource.getConnection()) {
+    try (Connection connection1 = dataSource.getConnection(); Connection connection2 = dataSource.getConnection()) {
       LOG.debug("DB connection established to retrieve raw data");
-      connection.setAutoCommit(true);
+      connection1.setAutoCommit(false);
+      connection2.setAutoCommit(true);
 
-      try (Statement s = connection.createStatement();
-           PreparedStatement ps = connection.prepareStatement(sqlInsertProcessedData)) {
+      try (Statement s = connection1.createStatement();
+           PreparedStatement ps = connection2.prepareStatement(sqlInsertProcessedData)) {
         // set batch size
-        s.setFetchSize(BATCH_SIZE);
+        ps.setFetchSize(WRITE_BATCH_SIZE);
+        s.setFetchSize(READ_BATCH_SIZE);
 
         // clean processed data before
         s.executeUpdate(sqlCleanProcessedData);
+        connection1.commit();
+        LOG.debug("Processed data DB cleaned");
 
         try (ResultSet rs = s.executeQuery(sqlSelectRawData)) {
           LOG.debug("Start writing processed data");
@@ -361,7 +390,8 @@ public class DataGeneratorTask implements Runnable {
             lineNumber++;
             prepareLine(rs, ps);
 
-            if (lineNumber % BATCH_SIZE == 0) {
+            if (lineNumber % WRITE_BATCH_SIZE == 0) {
+              LOG.debug("Batch {}", lineNumber / WRITE_BATCH_SIZE);
               ps.executeBatch();
             }
           }

@@ -13,12 +13,6 @@
  */
 package org.gbif.embl.util;
 
-import org.gbif.dwc.terms.DcTerm;
-import org.gbif.dwc.terms.DwcTerm;
-import org.gbif.dwc.terms.Term;
-
-import java.util.Arrays;
-import java.util.List;
 import java.util.regex.Pattern;
 
 public final class EmblAdapterConstants {
@@ -27,7 +21,8 @@ public final class EmblAdapterConstants {
   public static final int DEFAULT_START_MINUTE = 0;
   public static final int DEFAULT_FREQUENCY = 7;
 
-  public static final int BATCH_SIZE = 5000;
+  public static final int WRITE_BATCH_SIZE = 5000;
+  public static final int READ_BATCH_SIZE = 500_000;
 
   public static final Pattern LOCATION_PATTERN =
       Pattern.compile("([0-9.]+)\\s+(\\w)\\s+([0-9.]+)\\s+(\\w)");
@@ -75,35 +70,6 @@ public final class EmblAdapterConstants {
       "INSERT INTO ena_taxonomy(taxon_id, kingdom, phylum, "
           + "class, \"order\", family, genus) "
           + "VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING";
-
-  public static final List<Term> TERMS =
-      Arrays.asList(
-          DwcTerm.occurrenceID,
-          DwcTerm.associatedSequences,
-          DcTerm.references,
-          DwcTerm.decimalLatitude,
-          DwcTerm.decimalLongitude,
-          DwcTerm.country,
-          DwcTerm.locality,
-          DwcTerm.identifiedBy,
-          DwcTerm.recordedBy,
-          DwcTerm.eventDate,
-          DwcTerm.catalogNumber,
-          DwcTerm.basisOfRecord,
-          DwcTerm.taxonID,
-          DwcTerm.scientificName,
-          DwcTerm.taxonConceptID,
-          DwcTerm.minimumElevationInMeters,
-          DwcTerm.maximumElevationInMeters,
-          DwcTerm.sex,
-          DwcTerm.occurrenceRemarks,
-          DwcTerm.associatedTaxa,
-          DwcTerm.kingdom,
-          DwcTerm.phylum,
-          DwcTerm.class_,
-          DwcTerm.order,
-          DwcTerm.family,
-          DwcTerm.genus);
 
   // Index constants - column index in downloaded data file
   public static final int ACCESSION_INDEX = 0;

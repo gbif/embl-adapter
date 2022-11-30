@@ -39,7 +39,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
-import static org.gbif.embl.util.EmblAdapterConstants.BATCH_SIZE;
 import static org.gbif.embl.util.EmblAdapterConstants.CLASS_SELECT_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.FAMILY_SELECT_INDEX;
 import static org.gbif.embl.util.EmblAdapterConstants.GENUS_SELECT_INDEX;
@@ -50,6 +49,7 @@ import static org.gbif.embl.util.EmblAdapterConstants.SQL_CLEAN_TAXONOMY;
 import static org.gbif.embl.util.EmblAdapterConstants.SQL_INSERT_TAXONOMY;
 import static org.gbif.embl.util.EmblAdapterConstants.TAXONOMY_TABLE;
 import static org.gbif.embl.util.EmblAdapterConstants.TAXON_ID_SELECT_INDEX;
+import static org.gbif.embl.util.EmblAdapterConstants.WRITE_BATCH_SIZE;
 
 public class EnaTaxonomyTask implements Runnable {
 
@@ -109,7 +109,7 @@ public class EnaTaxonomyTask implements Runnable {
         ps.setString(GENUS_SELECT_INDEX, trimToEmpty(rec.value(DwcTerm.genus)));
         ps.addBatch();
 
-        if (lineNumber % BATCH_SIZE == 0) {
+        if (lineNumber % WRITE_BATCH_SIZE == 0) {
           ps.executeBatch();
         }
       }

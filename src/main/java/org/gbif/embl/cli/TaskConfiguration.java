@@ -13,6 +13,8 @@
  */
 package org.gbif.embl.cli;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringJoiner;
 
 import javax.validation.constraints.NotNull;
@@ -21,6 +23,9 @@ import javax.validation.constraints.NotNull;
 public class TaskConfiguration {
 
   @NotNull public String name;
+
+  @NotNull
+  public List<TaskStep> steps = new ArrayList<>();
 
   @NotNull public RequestConfiguration request1;
 
@@ -38,8 +43,9 @@ public class TaskConfiguration {
   public String toString() {
     return new StringJoiner(", ", TaskConfiguration.class.getSimpleName() + "[", "]")
         .add("name='" + name + "'")
-        .add("request1='" + request1 + "'")
-        .add("request2='" + request2 + "'")
+        .add("steps=" + steps)
+        .add("request1=" + request1)
+        .add("request2=" + request2)
         .add("rawDataFile1='" + rawDataFile1 + "'")
         .add("rawDataFile2='" + rawDataFile2 + "'")
         .add("tableName='" + tableName + "'")
