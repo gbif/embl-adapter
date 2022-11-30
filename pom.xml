@@ -43,9 +43,9 @@
   <properties>
     <!-- GBIF dependencies -->
     <gbif-cli.version>0.14</gbif-cli.version>
-    <gbif-common.version>0.57</gbif-common.version>
-    <dwc-api.version>1.41</dwc-api.version>
-    <dwca-io.version>2.15</dwca-io.version>
+    <gbif-common.version>0.58</gbif-common.version>
+    <dwc-api.version>1.42</dwc-api.version>
+    <dwca-io.version>2.16</dwca-io.version>
 
     <!-- Third party dependencies -->
     <metainf-services.version>1.5</metainf-services.version>
