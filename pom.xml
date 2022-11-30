@@ -57,6 +57,8 @@
     <validation-api.version>2.0.1.Final</validation-api.version>
     <hibernate-validator.version>6.2.5.Final</hibernate-validator.version>
     <jakarta.el.version>3.0.4</jakarta.el.version>
+    <slf4j.version>1.7.36</slf4j.version>
+    <logback.version>1.2.11</logback.version>
   </properties>
 
   <dependencies>
@@ -127,6 +129,23 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-exec</artifactId>
       <version>${commons-exec.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <scope>runtime</scope>
+      <version>${logback.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-core</artifactId>
+      <scope>runtime</scope>
+      <version>${logback.version}</version>
     </dependency>
   </dependencies>
 

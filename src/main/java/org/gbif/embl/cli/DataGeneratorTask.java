@@ -37,6 +37,8 @@ import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.gbif.embl.util.EmblAdapterConstants.ACCESSION_INDEX;
@@ -129,10 +131,12 @@ public class DataGeneratorTask implements Runnable {
 
   private final DataSource dataSource;
   private final TaskConfiguration taskConfiguration;
+  private final Marker marker;
 
   public DataGeneratorTask(TaskConfiguration taskConfiguration, DataSource dataSource) {
     this.taskConfiguration = taskConfiguration;
     this.dataSource = dataSource;
+    this.marker = MarkerFactory.getMarker(taskConfiguration.name);
   }
 
   @Override
@@ -165,19 +169,19 @@ public class DataGeneratorTask implements Runnable {
 
   private void deleteDataFiles() throws IOException {
     if (taskConfiguration.steps.size() > 0 && !taskConfiguration.steps.contains(TaskStep.DELETE_DATA_FILES)) {
-      LOG.info("Skipping store data step");
+      LOG.info(marker, "Skipping store data step");
       return;
     }
 
     Files.deleteIfExists(Paths.get(taskConfiguration.rawDataFile1));
     Files.deleteIfExists(Paths.get(taskConfiguration.rawDataFile2));
-    LOG.info("Raw data file {} deleted", taskConfiguration.rawDataFile1);
-    LOG.info("Raw data file {} deleted", taskConfiguration.rawDataFile2);
+    LOG.info(marker, "Raw data file {} deleted", taskConfiguration.rawDataFile1);
+    LOG.info(marker, "Raw data file {} deleted", taskConfiguration.rawDataFile2);
   }
 
   private void downloadData() throws IOException {
     if (taskConfiguration.steps.size() > 0 && !taskConfiguration.steps.contains(TaskStep.DOWNLOAD_DATA)) {
-      LOG.info("Skipping download data step");
+      LOG.info(marker, "Skipping download data step");
       return;
     }
 
@@ -229,18 +233,18 @@ public class DataGeneratorTask implements Runnable {
     executor.setExitValue(0);
 
     // download data
-    LOG.info("Start downloading data");
+    LOG.info(marker, "Start downloading data");
     executor.execute(downloadSequencesCommand);
     executor.execute(downloadWgsSetCommand);
   }
 
   protected void storeData() throws IOException, SQLException {
     if (taskConfiguration.steps.size() > 0 && !taskConfiguration.steps.contains(TaskStep.STORE_DATA)) {
-      LOG.info("Skipping store data step");
+      LOG.info(marker, "Skipping store data step");
       return;
     }
 
-    LOG.debug("Store raw data into DB");
+    LOG.debug(marker, "Store raw data into DB");
     String sqlInsert = SQL_INSERT_RAW_DATA.replace("embl_data", taskConfiguration.tableName);
     String sqlClean = SQL_CLEAN.replace("embl_data", taskConfiguration.tableName);
     String sqlTestSelect = SQL_TEST_SELECT.replace("embl_data", taskConfiguration.tableName);
@@ -259,14 +263,14 @@ public class DataGeneratorTask implements Runnable {
 
       // clean database table before
       st.executeUpdate(sqlClean);
-      LOG.debug("DB cleaned");
+      LOG.debug(marker, "DB cleaned");
 
-      LOG.debug("Start writing DB");
+      LOG.debug(marker, "Start writing DB");
 
       executeBatch(ps, fileReader1, false);
       executeBatch(ps, fileReader2, true);
 
-      LOG.debug("Finish writing DB");
+      LOG.debug(marker, "Finish writing DB");
     }
   }
 
@@ -289,7 +293,7 @@ public class DataGeneratorTask implements Runnable {
       String line = it.next();
       String[] split = line.split(DEFAULT_DELIMITER, -1);
       if (split.length < 14) {
-        LOG.error("Must be at least 14 columns! Found {}", split.length);
+        LOG.error(marker, "Must be at least 14 columns! Found {}", split.length);
         continue;
       }
       ps.setString(ACCESSION_RS_INDEX, split[ACCESSION_INDEX]);
@@ -319,19 +323,19 @@ public class DataGeneratorTask implements Runnable {
 
   private void processData() throws SQLException {
     if (taskConfiguration.steps.size() > 0 && !taskConfiguration.steps.contains(TaskStep.PROCESS_DATA)) {
-      LOG.info("Skipping store data step");
+      LOG.info(marker, "Skipping store data step");
       return;
     }
 
     String tableName = taskConfiguration.tableName;
     String query = taskConfiguration.query;
-    LOG.info("Start processing raw data {} ", tableName);
+    LOG.info(marker, "Start processing raw data {} ", tableName);
 
     processRawDataInternal(tableName, query);
   }
 
   private void processRawDataInternal(String tableName, String query) throws SQLException {
-    LOG.debug("Processing raw data from database");
+    LOG.debug(marker, "Processing raw data from database");
 
     int lineNumber = 0;
     int linesSkipped = 0;
@@ -339,14 +343,14 @@ public class DataGeneratorTask implements Runnable {
 
     // SQL select for table
     String sqlSelectRawData = readSqlFile(query).replace("embl_data", tableName).trim();
-    LOG.debug("SQL select (raw data): {}", sqlSelectRawData);
+    LOG.debug(marker, "SQL select (raw data): {}", sqlSelectRawData);
 
     String sqlInsertProcessedData = SQL_INSERT_PROCESSED_DATA.replace("embl_data", tableName + "_processed");
     String sqlCleanProcessedData = SQL_CLEAN.replace("embl_data", tableName + "_processed");
-    LOG.debug("SQL insert (processed data): {}", sqlInsertProcessedData);
+    LOG.debug(marker, "SQL insert (processed data): {}", sqlInsertProcessedData);
 
     try (Connection connection1 = dataSource.getConnection(); Connection connection2 = dataSource.getConnection()) {
-      LOG.debug("DB connection established to retrieve raw data");
+      LOG.debug(marker, "DB connection established to retrieve raw data");
       connection1.setAutoCommit(false);
       connection2.setAutoCommit(true);
 
@@ -359,10 +363,10 @@ public class DataGeneratorTask implements Runnable {
         // clean processed data before
         s.executeUpdate(sqlCleanProcessedData);
         connection1.commit();
-        LOG.debug("Processed data DB cleaned");
+        LOG.debug(marker, "Processed data DB cleaned");
 
         try (ResultSet rs = s.executeQuery(sqlSelectRawData)) {
-          LOG.debug("Start writing processed data");
+          LOG.debug(marker, "Start writing processed data");
 
           // processed data
           while (rs.next()) {
@@ -391,7 +395,6 @@ public class DataGeneratorTask implements Runnable {
             prepareLine(rs, ps);
 
             if (lineNumber % WRITE_BATCH_SIZE == 0) {
-              LOG.debug("Batch {}", lineNumber / WRITE_BATCH_SIZE);
               ps.executeBatch();
             }
           }
@@ -400,8 +403,8 @@ public class DataGeneratorTask implements Runnable {
           ps.executeBatch();
         }
       }
-      LOG.debug("Raw data processing finished, processed data stored.");
-      LOG.debug("Lines processed: {}. Lines skipped: {}", lineNumber, linesSkipped);
+      LOG.debug(marker, "Raw data processing finished, processed data stored.");
+      LOG.debug(marker, "Lines processed: {}. Lines skipped: {}", lineNumber, linesSkipped);
     }
   }
 
@@ -463,17 +466,17 @@ public class DataGeneratorTask implements Runnable {
   }
 
   private String readSqlFile(String filePath) {
-    LOG.debug("Start reading SQL file {}", filePath);
+    LOG.debug(marker, "Start reading SQL file {}", filePath);
     StringBuilder sb = new StringBuilder();
 
     try (Stream<String> stream = Files.lines(Paths.get(filePath), StandardCharsets.UTF_8)) {
       stream.forEach(s -> sb.append(s).append("\n"));
     } catch (IOException e) {
-      LOG.error("Exception while reading SQL file {}", filePath);
+      LOG.error(marker, "Exception while reading SQL file {}", filePath);
       throw new RuntimeException(e);
     }
 
-    LOG.debug("Finished reading SQL file {}", filePath);
+    LOG.debug(marker, "Finished reading SQL file {}", filePath);
     return sb.toString();
   }
 
@@ -532,11 +535,11 @@ public class DataGeneratorTask implements Runnable {
         }
         // wrong letter - log error, return empty value
         else {
-          LOG.error("Wrong coordinate letter: {}", matcher.group(2));
+          LOG.error(marker, "Wrong coordinate letter: {}", matcher.group(2));
           return StringUtils.EMPTY;
         }
       } else {
-        LOG.error("Coordinates {} do not match pattern", location);
+        LOG.error(marker, "Coordinates {} do not match pattern", location);
       }
     }
     return StringUtils.EMPTY;
@@ -556,11 +559,11 @@ public class DataGeneratorTask implements Runnable {
         }
         // wrong letter - log error, return empty value
         else {
-          LOG.error("Wrong coordinate letter: {}", matcher.group(4));
+          LOG.error(marker, "Wrong coordinate letter: {}", matcher.group(4));
           return StringUtils.EMPTY;
         }
       } else {
-        LOG.error("Coordinates {} do not match pattern", location);
+        LOG.error(marker, "Coordinates {} do not match pattern", location);
       }
     }
     return StringUtils.EMPTY;

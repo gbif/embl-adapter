@@ -17,6 +17,54 @@
     </encoder>
   </appender>
 
+  <appender name="FILE_DATASET_FOR_ORGANISM_SEQUENCED" class="ch.qos.logback.core.FileAppender">
+    <file>embl_adapter_dataset_for_organism_sequenced.log</file>
+    <encoder>
+      <charset>UTF-8</charset>
+      <pattern>${defaultPattern}</pattern>
+    </encoder>
+
+    <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+      <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
+        <marker>datasetForOrganismSequenced</marker>
+      </evaluator>
+      <onMismatch>DENY</onMismatch>
+      <onMatch>ACCEPT</onMatch>
+    </filter>
+  </appender>
+
+  <appender name="FILE_DATASET_FOR_EDNA" class="ch.qos.logback.core.FileAppender">
+    <file>embl_adapter_dataset_for_edna.log</file>
+    <encoder>
+      <charset>UTF-8</charset>
+      <pattern>${defaultPattern}</pattern>
+    </encoder>
+
+    <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+      <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
+        <marker>datasetForEdna</marker>
+      </evaluator>
+      <onMismatch>DENY</onMismatch>
+      <onMatch>ACCEPT</onMatch>
+    </filter>
+  </appender>
+
+  <appender name="FILE_DATASET_WITH_HOSTS" class="ch.qos.logback.core.FileAppender">
+    <file>embl_adapter_dataset_with_hosts.log</file>
+    <encoder>
+      <charset>UTF-8</charset>
+      <pattern>${defaultPattern}</pattern>
+    </encoder>
+
+    <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+      <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
+        <marker>datasetWithHosts</marker>
+      </evaluator>
+      <onMismatch>DENY</onMismatch>
+      <onMatch>ACCEPT</onMatch>
+    </filter>
+  </appender>
+
   <logger name="org.gbif.dwc" level="ERROR" />
   <logger name="org.apache.http" level="ERROR" />
   <logger name="com.zaxxer.hikari" level="ERROR" />
@@ -27,6 +75,9 @@
   <root>
     <appender-ref ref="CONSOLE" />
     <appender-ref ref="FILE" />
+    <appender-ref ref="FILE_DATASET_FOR_ORGANISM_SEQUENCED" />
+    <appender-ref ref="FILE_DATASET_FOR_EDNA" />
+    <appender-ref ref="FILE_DATASET_WITH_HOSTS" />
   </root>
 
 </configuration>
