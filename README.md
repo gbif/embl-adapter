@@ -1,7 +1,7 @@
 # EMBL adapter
 Contains adapters for connecting EMBL content into GBIF.
 
-This repository contains an EMBL API crawler that builds DwC-A files suitable for ingestion into GBIF.
+This repository contains an EMBL API crawler that produces data that is later used for producing DwC-A files suitable for ingestion into GBIF.
 The result will replace the current [EMBL dataset](https://www.gbif.org/publisher/ada9d123-ddb4-467d-8891-806ea8d94230).
 
 Expected use of the EMBL API by the crawler is described in [this working document](https://docs.google.com/document/d/1GCBHAbKZasHRQWcsZFKVRkGlzqXT9XI_dnBTJQk1zj4/edit)
@@ -13,8 +13,8 @@ Basic steps of the adapter:
 
 1) Request data from ENA portal API, two requests for each dataset + one taxonomy request (optional)
 2) Store raw data into database
-3) Perform backend deduplication
-4) Produce DWC archive
+3) Process and store processed data into database (Perform backend deduplication)
+4) Clean temporal files
 
 
 ## Requests
@@ -68,7 +68,7 @@ Configuration is [here](https://github.com/gbif/gbif-configuration/blob/master/c
 
 
 ## Database
-The data is stored in the postgres database after execution. Each dataset has own table with raw data.
+The data is stored in the postgres database after execution. Each dataset has own table with raw and processed data.
 
 Database is created only once in the target environment and tables are cleaned up before every run.
 
@@ -95,17 +95,15 @@ Keep only one record with same `sample_accession` and `scientific_name` and get 
 
 
 ## DWC archives
-Adapter generates three DWC archives as output at directory `workingDirectory` named `output`.
+Adapter stores all processed data back into database (tables with postfix `_processed`) which then used by IPT as SQL sources.
 
-All archives are located in this directory https://hosted-datasets.gbif.org/embl/
-
-They added as endpoints to the following datasets (UAT):
+Test datasets (UAT):
 
 - https://www.gbif-uat.org/dataset/ee8da4a4-268b-4e91-ab5a-69a04ff58e7a
 - https://www.gbif-uat.org/dataset/768eeb1f-a208-4170-9335-2968d17c7bdc
 - https://www.gbif-uat.org/dataset/10628730-87d4-42f5-b593-bd438185517f
 
-and these (prod):
+and production ones (prod):
 
 - https://www.gbif.org/dataset/583d91fe-bbc0-4b4a-afe1-801f88263016
 - https://www.gbif.org/dataset/393b8c26-e4e0-4dd0-a218-93fc074ebf4e
