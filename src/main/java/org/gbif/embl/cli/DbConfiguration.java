@@ -35,10 +35,10 @@ public class DbConfiguration {
   public String password;
 
   @Parameter(names = "--db-maximumPoolSize")
-  public int maximumPoolSize = 3;
+  public int maximumPoolSize = 5;
 
   @Parameter(names = "--db-connectionTimeout")
-  public int connectionTimeout = 3000;
+  public int connectionTimeout = 30_000;
 
   @Override
   public String toString() {

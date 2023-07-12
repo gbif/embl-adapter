@@ -39,17 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
-import static org.gbif.embl.util.EmblAdapterConstants.CLASS_SELECT_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.FAMILY_SELECT_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.GENUS_SELECT_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.KINGDOM_SELECT_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.ORDER_SELECT_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.PHYLUM_SELECT_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.SQL_CLEAN_TAXONOMY;
-import static org.gbif.embl.util.EmblAdapterConstants.SQL_INSERT_TAXONOMY;
-import static org.gbif.embl.util.EmblAdapterConstants.TAXONOMY_TABLE;
-import static org.gbif.embl.util.EmblAdapterConstants.TAXON_ID_SELECT_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.WRITE_BATCH_SIZE;
+import static org.gbif.embl.util.EmblAdapterConstants.*;
 
 public class EnaTaxonomyTask implements Runnable {
 
@@ -100,13 +90,13 @@ public class EnaTaxonomyTask implements Runnable {
           LOG.warn("Missing taxonID line {}!", lineNumber);
           continue;
         }
-        ps.setString(TAXON_ID_SELECT_INDEX, rec.value(DwcTerm.taxonID));
-        ps.setString(KINGDOM_SELECT_INDEX, trimToEmpty(rec.value(DwcTerm.kingdom)));
-        ps.setString(PHYLUM_SELECT_INDEX, trimToEmpty(rec.value(DwcTerm.phylum)));
-        ps.setString(CLASS_SELECT_INDEX, trimToEmpty(rec.value(DwcTerm.class_)));
-        ps.setString(ORDER_SELECT_INDEX, trimToEmpty(rec.value(DwcTerm.order)));
-        ps.setString(FAMILY_SELECT_INDEX, trimToEmpty(rec.value(DwcTerm.family)));
-        ps.setString(GENUS_SELECT_INDEX, trimToEmpty(rec.value(DwcTerm.genus)));
+        ps.setString(TAXONOMY_INDEX_TAXON_ID, rec.value(DwcTerm.taxonID));
+        ps.setString(TAXONOMY_INDEX_KINGDOM, trimToEmpty(rec.value(DwcTerm.kingdom)));
+        ps.setString(TAXONOMY_INDEX_PHYLUM, trimToEmpty(rec.value(DwcTerm.phylum)));
+        ps.setString(TAXONOMY_INDEX_CLASS, trimToEmpty(rec.value(DwcTerm.class_)));
+        ps.setString(TAXONOMY_INDEX_ORDER, trimToEmpty(rec.value(DwcTerm.order)));
+        ps.setString(TAXONOMY_INDEX_FAMILY, trimToEmpty(rec.value(DwcTerm.family)));
+        ps.setString(TAXONOMY_INDEX_GENUS, trimToEmpty(rec.value(DwcTerm.genus)));
         ps.addBatch();
 
         if (lineNumber % WRITE_BATCH_SIZE == 0) {

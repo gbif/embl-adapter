@@ -16,6 +16,7 @@ package org.gbif.embl.cli;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -24,16 +25,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.exec.CommandLine;
-import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,89 +42,7 @@ import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
-import static org.gbif.embl.util.EmblAdapterConstants.ACCESSION_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.ACCESSION_RS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.ALTITUDE_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.ALTITUDE_RS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.ASSOCIATED_SEQUENCES_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.ASSOCIATED_SEQUENCES_URL;
-import static org.gbif.embl.util.EmblAdapterConstants.ASSOCIATED_TAXA_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.BASIS_OF_RECORD_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.CATALOG_NUMBER_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.CLASS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.CLASS_RS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.COLLECTED_BY_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.COLLECTED_BY_RS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.COLLECTION_DATE_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.COLLECTION_DATE_RS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.COUNTRY_DELIMITER;
-import static org.gbif.embl.util.EmblAdapterConstants.COUNTRY_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.COUNTRY_PROCESSED_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.COUNTRY_RS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.DECIMAL_LATITUDE_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.DECIMAL_LONGITUDE_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.DEFAULT_DELIMITER;
-import static org.gbif.embl.util.EmblAdapterConstants.DESCRIPTION_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.DESCRIPTION_RS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.EAST;
-import static org.gbif.embl.util.EmblAdapterConstants.EVENT_DATE_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.FAMILY_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.FAMILY_RS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.GENUS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.GENUS_RS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.HOST_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.HOST_RS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.IDENTIFIED_BY_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.IDENTIFIED_BY_PROCESSED_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.IDENTIFIED_BY_RS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.KINGDOM_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.KINGDOM_RS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.LOCALITY_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.LOCATION_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.LOCATION_PATTERN;
-import static org.gbif.embl.util.EmblAdapterConstants.LOCATION_RS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.MATERIAL_SAMPLE;
-import static org.gbif.embl.util.EmblAdapterConstants.MAXIMUM_ELEVATION_IN_METERS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.MINIMUM_ELEVATION_IN_METERS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.NORTH;
-import static org.gbif.embl.util.EmblAdapterConstants.OCCURRENCE_ID_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.OCCURRENCE_REMARK_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.ORDER_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.ORDER_RS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.PHYLUM_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.PHYLUM_RS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.PRESERVED_SPECIMEN;
-import static org.gbif.embl.util.EmblAdapterConstants.READ_BATCH_SIZE;
-import static org.gbif.embl.util.EmblAdapterConstants.RECORDED_BY_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.REFERENCES_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.REFERENCES_URL;
-import static org.gbif.embl.util.EmblAdapterConstants.RS_MAX_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.SAMPLE_ACCESSION_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.SAMPLE_ACCESSION_RS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.SCIENTIFIC_NAME_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.SCIENTIFIC_NAME_PROCESSED_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.SCIENTIFIC_NAME_RS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.SEQUENCE_MD5_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.SEQUENCE_MD5_RS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.SEX_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.SEX_PROCESSED_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.SEX_RS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.SOUTH;
-import static org.gbif.embl.util.EmblAdapterConstants.SPECIMEN_VOUCHER_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.SPECIMEN_VOUCHER_RS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.SQL_CLEAN;
-import static org.gbif.embl.util.EmblAdapterConstants.SQL_COLUMNS_RAW_DATA;
-import static org.gbif.embl.util.EmblAdapterConstants.SQL_INSERT_PROCESSED_DATA;
-import static org.gbif.embl.util.EmblAdapterConstants.SQL_INSERT_RAW_DATA;
-import static org.gbif.embl.util.EmblAdapterConstants.SQL_TEST_SELECT;
-import static org.gbif.embl.util.EmblAdapterConstants.TAXON_CONCEPT_ID_URL;
-import static org.gbif.embl.util.EmblAdapterConstants.TAXON_CONCEPT_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.TAXON_ID_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.TAXON_ID_PREFIX;
-import static org.gbif.embl.util.EmblAdapterConstants.TAX_ID_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.TAX_ID_RS_INDEX;
-import static org.gbif.embl.util.EmblAdapterConstants.WEST;
-import static org.gbif.embl.util.EmblAdapterConstants.WRITE_BATCH_SIZE;
+import static org.gbif.embl.util.EmblAdapterConstants.*;
 
 public class DataGeneratorTask implements Runnable {
 
@@ -187,9 +106,9 @@ public class DataGeneratorTask implements Runnable {
       return;
     }
 
-    // download non-CON sequences
-    CommandLine downloadSequencesCommand = new CommandLine("curl");
+    LOG.info(marker, "Start downloading data");
 
+    // download non-CON sequences
     String requestUrl1 =
         taskConfiguration.request1.url
             + "?dataPortal="
@@ -205,13 +124,11 @@ public class DataGeneratorTask implements Runnable {
             + "&query="
             + taskConfiguration.request1.query;
 
-    downloadSequencesCommand.addArgument(requestUrl1);
-    downloadSequencesCommand.addArgument("-o");
-    downloadSequencesCommand.addArgument(taskConfiguration.rawDataFile1);
+    LOG.debug("Downloading {}", requestUrl1);
+    URL download = new URL(requestUrl1);
+    Files.copy(download.openStream(), Paths.get(taskConfiguration.rawDataFile1));
 
     // download wgs_set
-    CommandLine downloadWgsSetCommand = new CommandLine("curl");
-
     String requestUrl2 =
         taskConfiguration.request2.url
             + "?dataPortal="
@@ -227,17 +144,11 @@ public class DataGeneratorTask implements Runnable {
             + "&query="
             + taskConfiguration.request2.query;
 
-    downloadWgsSetCommand.addArgument(requestUrl2);
-    downloadWgsSetCommand.addArgument("-o");
-    downloadWgsSetCommand.addArgument(taskConfiguration.rawDataFile2);
+    LOG.debug("Downloading {}", requestUrl2);
+    URL download2 = new URL(requestUrl2);
+    Files.copy(download2.openStream(), Paths.get(taskConfiguration.rawDataFile2));
 
-    DefaultExecutor executor = new DefaultExecutor();
-    executor.setExitValue(0);
-
-    // download data
-    LOG.info(marker, "Start downloading data");
-    executor.execute(downloadSequencesCommand);
-    executor.execute(downloadWgsSetCommand);
+    LOG.debug("Download complete.");
   }
 
   protected void storeData() throws IOException, SQLException {
@@ -261,8 +172,12 @@ public class DataGeneratorTask implements Runnable {
             new BufferedReader(new FileReader(taskConfiguration.rawDataFile1));
         BufferedReader fileReader2 =
             new BufferedReader(new FileReader(taskConfiguration.rawDataFile2))) {
+
       // test table is fine and all columns are present
       test.execute(sqlTestSelect);
+
+      // begin transaction
+      connection.setAutoCommit(false);
 
       // clean database table before
       st.executeUpdate(sqlClean);
@@ -273,6 +188,8 @@ public class DataGeneratorTask implements Runnable {
       executeBatch(ps, fileReader1, false);
       executeBatch(ps, fileReader2, true);
 
+      // complete transaction
+      connection.commit();
       LOG.debug(marker, "Finish writing DB");
     }
   }
@@ -285,35 +202,44 @@ public class DataGeneratorTask implements Runnable {
     int expectedAmountOfParameters = StringUtils.countMatches(SQL_INSERT_RAW_DATA, '?');
     int expectedAmountOfColumns = StringUtils.split(SQL_COLUMNS_RAW_DATA, ",").length;
 
-    if (expectedAmountOfParameters != RS_MAX_INDEX
+    if (expectedAmountOfParameters != RAW_MAX_INDEX
         || expectedAmountOfParameters != expectedAmountOfColumns) {
       throw new IllegalStateException(
           "Numbers of parameters do not match! Check query and configuration");
     }
 
-    // skip first header line
-    for (Iterator<String> it = fileReader.lines().skip(1).iterator(); it.hasNext(); lineNumber++) {
+    Map<String, Integer> columnMapping = new HashMap<>();
+    for (Iterator<String> it = fileReader.lines().iterator(); it.hasNext(); lineNumber++) {
       String line = it.next();
       String[] split = line.split(DEFAULT_DELIMITER, -1);
       if (split.length < 14) {
         LOG.error(marker, "Must be at least 14 columns! Found {}", split.length);
         continue;
       }
-      ps.setString(ACCESSION_RS_INDEX, split[ACCESSION_INDEX]);
-      ps.setString(SAMPLE_ACCESSION_RS_INDEX, split[SAMPLE_ACCESSION_INDEX]);
-      ps.setString(LOCATION_RS_INDEX, split[LOCATION_INDEX]);
-      ps.setString(COUNTRY_RS_INDEX, split[COUNTRY_INDEX]);
-      ps.setString(IDENTIFIED_BY_RS_INDEX, split[IDENTIFIED_BY_INDEX]);
-      ps.setString(COLLECTED_BY_RS_INDEX, split[COLLECTED_BY_INDEX]);
-      ps.setString(COLLECTION_DATE_RS_INDEX, split[COLLECTION_DATE_INDEX]);
-      ps.setString(SPECIMEN_VOUCHER_RS_INDEX, split[SPECIMEN_VOUCHER_INDEX]);
-      ps.setString(SEQUENCE_MD5_RS_INDEX, skipSequenceMd5 ? "" : split[SEQUENCE_MD5_INDEX]);
-      ps.setString(SCIENTIFIC_NAME_RS_INDEX, split[SCIENTIFIC_NAME_INDEX]);
-      ps.setString(TAX_ID_RS_INDEX, split[TAX_ID_INDEX]);
-      ps.setString(ALTITUDE_RS_INDEX, split[ALTITUDE_INDEX]);
-      ps.setString(SEX_RS_INDEX, split[SEX_INDEX]);
-      ps.setString(DESCRIPTION_RS_INDEX, split[DESCRIPTION_INDEX]);
-      ps.setString(HOST_RS_INDEX, split[HOST_INDEX]);
+
+      if (columnMapping.isEmpty()) {
+        // Determine the mapping from the header line. It may change!
+        for (int i = 0; i < split.length; i++) {
+          columnMapping.put(split[i], i);
+        }
+        continue;
+      }
+
+      ps.setString(RAW_INDEX_ACCESSION, split[columnMapping.get(ACCESSION_COLUMN)]);
+      ps.setString(RAW_INDEX_SAMPLE_ACCESSION, split[columnMapping.get(SAMPLE_ACCESSION_COLUMN)]);
+      ps.setString(RAW_INDEX_LOCATION, split[columnMapping.get(LOCATION_COLUMN)]);
+      ps.setString(RAW_INDEX_COUNTRY, split[columnMapping.get(COUNTRY_COLUMN)]);
+      ps.setString(RAW_INDEX_IDENTIFIED_BY, split[columnMapping.get(IDENTIFIED_BY_COLUMN)]);
+      ps.setString(RAW_INDEX_COLLECTED_BY, split[columnMapping.get(COLLECTED_BY_COLUMN)]);
+      ps.setString(RAW_INDEX_COLLECTION_DATE, split[columnMapping.get(COLLECTION_DATE_COLUMN)]);
+      ps.setString(RAW_INDEX_SPECIMEN_VOUCHER, split[columnMapping.get(SPECIMEN_VOUCHER_COLUMN)]);
+      ps.setString(RAW_INDEX_SEQUENCE_MD5, skipSequenceMd5 ? "" : split[columnMapping.get(SEQUENCE_MD5_COLUMN)]);
+      ps.setString(RAW_INDEX_SCIENTIFIC_NAME, split[columnMapping.get(SCIENTIFIC_NAME_COLUMN)]);
+      ps.setString(RAW_INDEX_TAX_ID, split[columnMapping.get(TAX_ID_COLUMN)]);
+      ps.setString(RAW_INDEX_ALTITUDE, split[columnMapping.get(ALTITUDE_COLUMN)]);
+      ps.setString(RAW_INDEX_SEX, split[columnMapping.get(SEX_COLUMN)]);
+      ps.setString(RAW_INDEX_DESCRIPTION, split[columnMapping.get(DESCRIPTION_COLUMN)]);
+      ps.setString(RAW_INDEX_HOST, split[columnMapping.get(HOST_COLUMN)]);
       ps.addBatch();
 
       if (lineNumber % WRITE_BATCH_SIZE == 0) {
@@ -358,7 +284,7 @@ public class DataGeneratorTask implements Runnable {
         Connection connection2 = dataSource.getConnection()) {
       LOG.debug(marker, "DB connection established to retrieve raw data");
       connection1.setAutoCommit(false);
-      connection2.setAutoCommit(true);
+      connection2.setAutoCommit(false);
 
       try (Statement s = connection1.createStatement();
           PreparedStatement ps = connection2.prepareStatement(sqlInsertProcessedData)) {
@@ -399,7 +325,7 @@ public class DataGeneratorTask implements Runnable {
               }
             }
 
-            // process raw data and
+            // process raw data
             lineNumber++;
             prepareLine(rs, ps);
 
@@ -412,6 +338,8 @@ public class DataGeneratorTask implements Runnable {
           ps.executeBatch();
         }
       }
+
+      connection2.commit();
       LOG.debug(marker, "Raw data processing finished, processed data stored.");
       LOG.debug(marker, "Lines processed: {}. Lines skipped: {}", lineNumber, linesSkipped);
     }
@@ -524,7 +452,7 @@ public class DataGeneratorTask implements Runnable {
 
   private String toLocality(String country) {
     if (StringUtils.isNotBlank(country) && country.contains(COUNTRY_DELIMITER)) {
-      return getOrEmpty(country.split(COUNTRY_DELIMITER, -1), 1);
+      return getOrEmpty(country.split(COUNTRY_DELIMITER, -1), 1).trim();
     }
 
     return StringUtils.EMPTY;
@@ -579,190 +507,190 @@ public class DataGeneratorTask implements Runnable {
   }
 
   private String getAccession(ResultSet rs) throws SQLException {
-    return rs.getString(ACCESSION_RS_INDEX);
+    return rs.getString(ACCESSION_COLUMN);
   }
 
   private String getSampleAccession(ResultSet rs) throws SQLException {
-    return rs.getString(SAMPLE_ACCESSION_RS_INDEX);
+    return rs.getString(SAMPLE_ACCESSION_COLUMN);
   }
 
   private String getLocation(ResultSet rs) throws SQLException {
-    return rs.getString(LOCATION_RS_INDEX);
+    return rs.getString(LOCATION_COLUMN);
   }
 
   private String getCountry(ResultSet rs) throws SQLException {
-    return rs.getString(COUNTRY_RS_INDEX);
+    return rs.getString(COUNTRY_COLUMN);
   }
 
   private String getIdentifiedBy(ResultSet rs) throws SQLException {
-    return rs.getString(IDENTIFIED_BY_RS_INDEX);
+    return rs.getString(IDENTIFIED_BY_COLUMN);
   }
 
   private String getCollectedBy(ResultSet rs) throws SQLException {
-    return rs.getString(COLLECTED_BY_RS_INDEX);
+    return rs.getString(COLLECTED_BY_COLUMN);
   }
 
   private String getCollectionDate(ResultSet rs) throws SQLException {
-    return rs.getString(COLLECTION_DATE_RS_INDEX);
+    return rs.getString(COLLECTION_DATE_COLUMN);
   }
 
   private String getSpecimenVoucher(ResultSet rs) throws SQLException {
-    return rs.getString(SPECIMEN_VOUCHER_RS_INDEX);
+    return rs.getString(SPECIMEN_VOUCHER_COLUMN);
   }
 
   private String getSequenceMd5(ResultSet rs) throws SQLException {
-    return rs.getString(SEQUENCE_MD5_RS_INDEX);
+    return rs.getString(SEQUENCE_MD5_COLUMN);
   }
 
   private String getScientificName(ResultSet rs) throws SQLException {
-    return rs.getString(SCIENTIFIC_NAME_RS_INDEX);
+    return rs.getString(SCIENTIFIC_NAME_COLUMN);
   }
 
   private String getTaxId(ResultSet rs) throws SQLException {
-    return rs.getString(TAX_ID_RS_INDEX);
+    return rs.getString(TAX_ID_COLUMN);
   }
 
   private String getAltitude(ResultSet rs) throws SQLException {
-    return rs.getString(ALTITUDE_RS_INDEX);
+    return rs.getString(ALTITUDE_COLUMN);
   }
 
   private String getSex(ResultSet rs) throws SQLException {
-    return rs.getString(SEX_RS_INDEX);
+    return rs.getString(SEX_COLUMN);
   }
 
   private String getDescription(ResultSet rs) throws SQLException {
-    return rs.getString(DESCRIPTION_RS_INDEX);
+    return rs.getString(DESCRIPTION_COLUMN);
   }
 
   private String getHost(ResultSet rs) throws SQLException {
-    return rs.getString(HOST_RS_INDEX);
+    return rs.getString(HOST_COLUMN);
   }
 
   private String getKingdom(ResultSet rs) throws SQLException {
-    return rs.getString(KINGDOM_RS_INDEX);
+    return rs.getString(KINGDOM_COLUMN);
   }
 
   private String getPhylum(ResultSet rs) throws SQLException {
-    return rs.getString(PHYLUM_RS_INDEX);
+    return rs.getString(PHYLUM_COLUMN);
   }
 
   private String getClass(ResultSet rs) throws SQLException {
-    return rs.getString(CLASS_RS_INDEX);
+    return rs.getString(CLASS_COLUMN);
   }
 
   private String getOrder(ResultSet rs) throws SQLException {
-    return rs.getString(ORDER_RS_INDEX);
+    return rs.getString(ORDER_COLUMN);
   }
 
   private String getFamily(ResultSet rs) throws SQLException {
-    return rs.getString(FAMILY_RS_INDEX);
+    return rs.getString(FAMILY_COLUMN);
   }
 
   private String getGenus(ResultSet rs) throws SQLException {
-    return rs.getString(GENUS_RS_INDEX);
+    return rs.getString(GENUS_COLUMN);
   }
 
   private void setOccurrenceId(PreparedStatement ps, String data) throws SQLException {
-    ps.setString(OCCURRENCE_ID_INDEX, data);
+    ps.setString(PROCESSED_INDEX_OCCURRENCE_ID, data);
   }
 
   private void setAssociatedSequences(PreparedStatement ps, String data) throws SQLException {
-    ps.setString(ASSOCIATED_SEQUENCES_INDEX, data);
+    ps.setString(PROCESSED_INDEX_ASSOCIATED_SEQUENCES, data);
   }
 
   private void setReferences(PreparedStatement ps, String data) throws SQLException {
-    ps.setString(REFERENCES_INDEX, data);
+    ps.setString(PROCESSED_INDEX_REFERENCES, data);
   }
 
   private void setDecimalLatitude(PreparedStatement ps, String data) throws SQLException {
-    ps.setString(DECIMAL_LATITUDE_INDEX, data);
+    ps.setString(PROCESSED_INDEX_DECIMAL_LATITUDE, data);
   }
 
   private void setDecimalLongitude(PreparedStatement ps, String data) throws SQLException {
-    ps.setString(DECIMAL_LONGITUDE_INDEX, data);
+    ps.setString(PROCESSED_INDEX_DECIMAL_LONGITUDE, data);
   }
 
   private void setCountry(PreparedStatement ps, String data) throws SQLException {
-    ps.setString(COUNTRY_PROCESSED_INDEX, data);
+    ps.setString(PROCESSED_INDEX_COUNTRY, data);
   }
 
   private void setLocality(PreparedStatement ps, String data) throws SQLException {
-    ps.setString(LOCALITY_INDEX, data);
+    ps.setString(PROCESSED_INDEX_LOCALITY, data);
   }
 
   private void setIdentifiedBy(PreparedStatement ps, String data) throws SQLException {
-    ps.setString(IDENTIFIED_BY_PROCESSED_INDEX, data);
+    ps.setString(PROCESSED_INDEX_IDENTIFIED_BY, data);
   }
 
   private void setRecordedBy(PreparedStatement ps, String data) throws SQLException {
-    ps.setString(RECORDED_BY_INDEX, data);
+    ps.setString(PROCESSED_INDEX_RECORDED_BY, data);
   }
 
   private void setEventDate(PreparedStatement ps, String data) throws SQLException {
-    ps.setString(EVENT_DATE_INDEX, data);
+    ps.setString(PROCESSED_INDEX_EVENT_DATE, data);
   }
 
   private void setCatalogNumber(PreparedStatement ps, String data) throws SQLException {
-    ps.setString(CATALOG_NUMBER_INDEX, data);
+    ps.setString(PROCESSED_INDEX_CATALOG_NUMBER, data);
   }
 
   private void setBasisOfRecord(PreparedStatement ps, String data) throws SQLException {
-    ps.setString(BASIS_OF_RECORD_INDEX, data);
+    ps.setString(PROCESSED_INDEX_BASIS_OF_RECORD, data);
   }
 
   private void setTaxonId(PreparedStatement ps, String data) throws SQLException {
-    ps.setString(TAXON_ID_INDEX, data);
+    ps.setString(PROCESSED_INDEX_TAXON_ID, data);
   }
 
   private void setScientificName(PreparedStatement ps, String data) throws SQLException {
-    ps.setString(SCIENTIFIC_NAME_PROCESSED_INDEX, data);
+    ps.setString(PROCESSED_INDEX_SCIENTIFIC_NAME, data);
   }
 
   private void setTaxonConceptId(PreparedStatement ps, String data) throws SQLException {
-    ps.setString(TAXON_CONCEPT_INDEX, data);
+    ps.setString(PROCESSED_INDEX_TAXON_CONCEPT_ID, data);
   }
 
   private void setMinimumElevation(PreparedStatement ps, String data) throws SQLException {
-    ps.setString(MINIMUM_ELEVATION_IN_METERS_INDEX, data);
+    ps.setString(PROCESSED_INDEX_MINIMUM_ELEVATION_IN_METERS, data);
   }
 
   private void setMaximumElevation(PreparedStatement ps, String data) throws SQLException {
-    ps.setString(MAXIMUM_ELEVATION_IN_METERS_INDEX, data);
+    ps.setString(PROCESSED_INDEX_MAXIMUM_ELEVATION_IN_METERS, data);
   }
 
   private void setSex(PreparedStatement ps, String data) throws SQLException {
-    ps.setString(SEX_PROCESSED_INDEX, data);
+    ps.setString(PROCESSED_INDEX_SEX, data);
   }
 
   private void setOccurrenceRemarks(PreparedStatement ps, String data) throws SQLException {
-    ps.setString(OCCURRENCE_REMARK_INDEX, data);
+    ps.setString(PROCESSED_INDEX_OCCURRENCE_REMARK, data);
   }
 
   private void setAssociatedTaxa(PreparedStatement ps, String data) throws SQLException {
-    ps.setString(ASSOCIATED_TAXA_INDEX, data);
+    ps.setString(PROCESSED_INDEX_ASSOCIATED_TAXA, data);
   }
 
   private void setKingdom(PreparedStatement ps, String data) throws SQLException {
-    ps.setString(KINGDOM_INDEX, data);
+    ps.setString(PROCESSED_INDEX_KINGDOM, data);
   }
 
   private void setPhylum(PreparedStatement ps, String data) throws SQLException {
-    ps.setString(PHYLUM_INDEX, data);
+    ps.setString(PROCESSED_INDEX_PHYLUM, data);
   }
 
   private void setClass(PreparedStatement ps, String data) throws SQLException {
-    ps.setString(CLASS_INDEX, data);
+    ps.setString(PROCESSED_INDEX_CLASS, data);
   }
 
   private void setOrder(PreparedStatement ps, String data) throws SQLException {
-    ps.setString(ORDER_INDEX, data);
+    ps.setString(PROCESSED_INDEX_ORDER, data);
   }
 
   private void setFamily(PreparedStatement ps, String data) throws SQLException {
-    ps.setString(FAMILY_INDEX, data);
+    ps.setString(PROCESSED_INDEX_FAMILY, data);
   }
 
   private void setGenus(PreparedStatement ps, String data) throws SQLException {
-    ps.setString(GENUS_INDEX, data);
+    ps.setString(PROCESSED_INDEX_GENUS, data);
   }
 }
