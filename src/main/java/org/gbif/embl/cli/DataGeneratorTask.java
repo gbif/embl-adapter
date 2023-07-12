@@ -233,7 +233,9 @@ public class DataGeneratorTask implements Runnable {
       ps.setString(RAW_INDEX_COLLECTED_BY, split[columnMapping.get(COLLECTED_BY_COLUMN)]);
       ps.setString(RAW_INDEX_COLLECTION_DATE, split[columnMapping.get(COLLECTION_DATE_COLUMN)]);
       ps.setString(RAW_INDEX_SPECIMEN_VOUCHER, split[columnMapping.get(SPECIMEN_VOUCHER_COLUMN)]);
-      ps.setString(RAW_INDEX_SEQUENCE_MD5, skipSequenceMd5 ? "" : split[columnMapping.get(SEQUENCE_MD5_COLUMN)]);
+      ps.setString(
+          RAW_INDEX_SEQUENCE_MD5,
+          skipSequenceMd5 ? "" : split[columnMapping.get(SEQUENCE_MD5_COLUMN)]);
       ps.setString(RAW_INDEX_SCIENTIFIC_NAME, split[columnMapping.get(SCIENTIFIC_NAME_COLUMN)]);
       ps.setString(RAW_INDEX_TAX_ID, split[columnMapping.get(TAX_ID_COLUMN)]);
       ps.setString(RAW_INDEX_ALTITUDE, split[columnMapping.get(ALTITUDE_COLUMN)]);
