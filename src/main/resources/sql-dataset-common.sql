@@ -41,6 +41,7 @@ FROM (
                 description,
                 host
          FROM embl_data
-         WHERE scientific_name != 'Homo sapiens') as ed
+         WHERE scientific_name NOT ILIKE 'Homo%sapiens%') as ed
+           AND host NOT ILIKE '%Homo%sap%'
          LEFT JOIN ena_taxonomy et ON ed.tax_id = et.taxon_id
 WHERE ed.row_num_1 < 50 AND (ed.row_num_2 = 1 OR ed.specimen_voucher = '')

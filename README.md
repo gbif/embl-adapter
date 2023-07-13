@@ -2,12 +2,18 @@
 Contains adapters for connecting EMBL content into GBIF.
 
 This repository contains an EMBL API crawler that produces data that is later used for producing DwC-A files suitable for ingestion into GBIF.
-The result will replace the current [EMBL dataset](https://www.gbif.org/publisher/ada9d123-ddb4-467d-8891-806ea8d94230).
+
+The results are the four [EMBL-EBI datasets](https://www.gbif.org/dataset/search?publishing_org=ada9d123-ddb4-467d-8891-806ea8d94230).
+
+* [INSDC Sequences](https://doi.org/10.15468/sbmztx)
+* [INSDC Environment Sample Sequences](https://doi.org/10.15468/mcmd5g)
+* [INSDC Host Organism Sequences](https://doi.org/10.15468/e97kmy)
+* [The European Nucleotide Archive (ENA) taxonomy](https://doi.org/10.15468/avkgwm)
 
 Expected use of the EMBL API by the crawler is described in [this working document](https://docs.google.com/document/d/1GCBHAbKZasHRQWcsZFKVRkGlzqXT9XI_dnBTJQk1zj4/edit)
 
-The adapter is configured to run once a week at a specific time (might be changed in the future).
-See properties `startTime` and `frequencyInDays` in the gbif-configuration project [here](https://github.com/gbif/gbif-configuration/blob/master/cli/dev/config/embl-adapter.yaml).
+The adapter is configured to run once a week at a specific time.
+See the properties `startTime` and `frequencyInDays` in the [gbif-configuration project](https://github.com/gbif/gbif-configuration/blob/master/cli/dev/config/embl-adapter.yaml).
 
 Basic steps of the adapter:
 
@@ -19,9 +25,9 @@ Basic steps of the adapter:
 
 ## Requests
 
-We get data from https://www.ebi.ac.uk/ena/portal/api. Query supports the following operators and characters: `AND`, `OR`, `NOT`, `()`, `"""`, `*`.
+We get data from https://www.ebi.ac.uk/ena/portal/api. See the [API documentation](https://www.ebi.ac.uk/ena/portal/api/doc) provided by EBI.
 
-Requests `requestUrl1` (sequence) and `requestUrl2` (wgs_set) can be seen at gbif-configuration project [here](https://github.com/gbif/gbif-configuration/blob/master/cli/dev/config/embl-adapter.yaml).
+Requests `requestUrl1` (sequence) and `requestUrl2` (wgs_set) can be seen in the [gbif-configuration project](https://github.com/gbif/gbif-configuration/blob/master/cli/dev/config/embl-adapter.yaml).
 
 
 ### Sequence requests
@@ -29,27 +35,27 @@ Request with `result=sequence`
 
 1) **a dataset for eDNA**: environmental_sample=True, host="" (no host)
 ```
-query=(specimen_voucher="*" OR country="*") AND dataclass!="CON" AND environmental_sample=true AND NOT host="*"
+query=(specimen_voucher="*" OR country="*") AND dataclass!="CON" AND environmental_sample=true AND host!="*"
 ```
 - include records with environmental_sample=true
-- include records with coordinates and\or specimen_voucher
+- include records with coordinates and/or specimen_voucher
 - exclude records dataclass="CON" see [here](https://github.com/gbif/embl-adapter/issues/10)
 - exclude records with host
 
 2) **a dataset for organism sequenced**: environmental_sample=False, host="" (no host)
 ```
-query=(specimen_voucher="*" OR country="*") AND dataclass!="CON" AND environmental_sample=false AND NOT host="*"
+query=(specimen_voucher="*" OR country="*") AND dataclass!="CON" AND environmental_sample=false AND host!="*"
 ```
 - include records with environmental_sample=false
-- include records with coordinates and\or specimen_voucher
+- include records with coordinates and/or specimen_voucher
 - exclude records dataclass="CON" see [here](https://github.com/gbif/embl-adapter/issues/10)
 - exclude records with host
 
 3) **a dataset with hosts**
 ```
-query=(specimen_voucher="*" OR country="*") AND dataclass!="CON" AND host="*" AND NOT host="human*" AND NOT host="*Homo sa*"
+query=(specimen_voucher="*" OR country="*") AND dataclass!="CON" AND host="*" AND host!="human" AND host!="Homo sapiens" AND host!="Homo_sapiens"
 ```
-- include records with coordinates and\or specimen_voucher
+- include records with coordinates and/or specimen_voucher
 - include records with host
 - exclude records dataclass="CON" see [here](https://github.com/gbif/embl-adapter/issues/10)
 - exclude records with human host
@@ -68,9 +74,9 @@ Configuration is [here](https://github.com/gbif/gbif-configuration/blob/master/c
 
 
 ## Database
-The data is stored in the postgres database after execution. Each dataset has own table with raw and processed data.
+The data is stored in the PostgreSQL database after execution. Each dataset has own table with raw and processed data.
 
-Database is created only once in the target environment and tables are cleaned up before every run.
+The database is created only once in the target environment and tables are cleaned up before every run.
 
 Database creation scripts for [data](src/main/resources/db.sql) and [taxonomy](src/main/resources/ena-taxonomy-db.sql).
 

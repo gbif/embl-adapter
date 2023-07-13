@@ -17,6 +17,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -122,7 +123,7 @@ public class DataGeneratorTask implements Runnable {
             + "&fields="
             + taskConfiguration.request1.fields
             + "&query="
-            + taskConfiguration.request1.query;
+            + URLEncoder.encode(taskConfiguration.request1.query, StandardCharsets.UTF_8.name());
 
     LOG.debug("Downloading {}", requestUrl1);
     URL download = new URL(requestUrl1);
@@ -142,7 +143,7 @@ public class DataGeneratorTask implements Runnable {
             + "&fields="
             + taskConfiguration.request2.fields
             + "&query="
-            + taskConfiguration.request2.query;
+            + URLEncoder.encode(taskConfiguration.request2.query, StandardCharsets.UTF_8.name());
 
     LOG.debug("Downloading {}", requestUrl2);
     URL download2 = new URL(requestUrl2);
