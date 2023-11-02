@@ -16,6 +16,7 @@
       "automerge": false
     }
   ],
+  "labels": ["dependencies"],
   "schedule": [
     "after 11pm every weekday",
     "before 5am every weekday",
