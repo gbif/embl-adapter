@@ -48,7 +48,7 @@
     <dwca-io.version>2.16</dwca-io.version>
 
     <!-- Third party dependencies -->
-    <metainf-services.version>1.5</metainf-services.version>
+    <metainf-services.version>1.11</metainf-services.version>
     <wagon-ssh.version>2.12</wagon-ssh.version>
     <guava.version>17.0</guava.version>
     <commons-exec.version>1.3</commons-exec.version>
