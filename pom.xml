@@ -57,7 +57,7 @@
     <validation-api.version>2.0.1.Final</validation-api.version>
     <hibernate-validator.version>6.2.5.Final</hibernate-validator.version>
     <jakarta.el.version>3.0.4</jakarta.el.version>
-    <slf4j.version>1.7.36</slf4j.version>
+    <slf4j.version>2.0.11</slf4j.version>
     <logback.version>1.4.13</logback.version>
   </properties>
 
