@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.gbif</groupId>
     <artifactId>motherpom</artifactId>
-    <version>55</version>
+    <version>59</version>
   </parent>
 
   <artifactId>embl-adapter</artifactId>
@@ -41,11 +41,15 @@
   </distributionManagement>
 
   <properties>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+    <java.version>11</java.version>
+
     <!-- GBIF dependencies -->
-    <gbif-cli.version>0.14</gbif-cli.version>
+    <gbif-cli.version>2.0.0</gbif-cli.version>
     <gbif-common.version>0.60</gbif-common.version>
-    <dwc-api.version>1.49</dwc-api.version>
-    <dwca-io.version>2.16</dwca-io.version>
+    <dwc-api.version>2.0.0</dwc-api.version>
+    <dwca-io.version>3.0.0</dwca-io.version>
 
     <!-- Third party dependencies -->
     <metainf-services.version>1.11</metainf-services.version>
@@ -55,7 +59,7 @@
     <postgresql.version>42.7.4</postgresql.version>
     <hikaricp.version>3.4.5</hikaricp.version>
     <validation-api.version>2.0.1.Final</validation-api.version>
-    <hibernate-validator.version>6.2.5.Final</hibernate-validator.version>
+    <hibernate-validator.version>8.0.2.Final</hibernate-validator.version>
     <jakarta.el.version>3.0.4</jakarta.el.version>
     <slf4j.version>1.7.36</slf4j.version>
     <logback.version>1.5.12</logback.version>
