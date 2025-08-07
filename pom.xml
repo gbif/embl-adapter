@@ -59,7 +59,7 @@
     <postgresql.version>42.7.7</postgresql.version>
     <hikaricp.version>3.4.5</hikaricp.version>
     <validation-api.version>2.0.1.Final</validation-api.version>
-    <hibernate-validator.version>8.0.2.Final</hibernate-validator.version>
+    <hibernate-validator.version>8.0.3.Final</hibernate-validator.version>
     <jakarta.el.version>3.0.4</jakarta.el.version>
     <slf4j.version>1.7.36</slf4j.version>
     <logback.version>1.5.18</logback.version>
