@@ -17,11 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParametersDelegate;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 public class EmblAdapterConfiguration {
 
