@@ -15,7 +15,7 @@ package org.gbif.embl.cli;
 
 import java.util.StringJoiner;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 @SuppressWarnings("PublicField")
 public class RequestConfiguration {

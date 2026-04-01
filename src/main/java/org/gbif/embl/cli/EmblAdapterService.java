@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 import javax.sql.DataSource;
 
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +50,7 @@ public class EmblAdapterService extends AbstractIdleService {
   public EmblAdapterService(EmblAdapterConfiguration config) {
     this.config = config;
     this.scheduler = Executors.newScheduledThreadPool(4);
-    this.frequencyInDays = ObjectUtils.defaultIfNull(config.frequencyInDays, DEFAULT_FREQUENCY);
+    this.frequencyInDays = ObjectUtils.getIfNull(config.frequencyInDays, DEFAULT_FREQUENCY);
 
     HikariConfig hikariConfig = new HikariConfig();
     hikariConfig.setJdbcUrl(config.db.url);
@@ -63,7 +63,7 @@ public class EmblAdapterService extends AbstractIdleService {
 
     Integer startHour;
     Integer startMinute;
-    if (StringUtils.contains(config.startTime, ":")) {
+    if (Strings.CI.contains(config.startTime, ":")) {
       String[] timeParts = config.startTime.split(":");
       startHour = NumberUtils.toInt(timeParts[0], DEFAULT_START_HOUR);
       startMinute = NumberUtils.toInt(timeParts[1], DEFAULT_START_MINUTE);
