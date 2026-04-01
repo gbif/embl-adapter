@@ -15,9 +15,9 @@ package org.gbif.embl.cli;
 
 import java.util.StringJoiner;
 
-import jakarta.validation.constraints.NotNull;
-
 import com.beust.jcommander.Parameter;
+
+import jakarta.validation.constraints.NotNull;
 
 @SuppressWarnings("PublicField")
 public class DbConfiguration {
