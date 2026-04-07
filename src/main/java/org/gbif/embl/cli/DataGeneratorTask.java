@@ -16,11 +16,13 @@ package org.gbif.embl.cli;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -127,7 +129,12 @@ public class DataGeneratorTask implements Runnable {
 
     LOG.debug("Downloading {}", requestUrl1);
     URL download = new URL(requestUrl1);
-    Files.copy(download.openStream(), Paths.get(taskConfiguration.rawDataFile1));
+    try (InputStream in = download.openStream()) {
+      Files.copy(
+          in,
+          Paths.get(taskConfiguration.rawDataFile1),
+          StandardCopyOption.REPLACE_EXISTING);
+    }
 
     // download wgs_set
     String requestUrl2 =
@@ -147,7 +154,12 @@ public class DataGeneratorTask implements Runnable {
 
     LOG.debug("Downloading {}", requestUrl2);
     URL download2 = new URL(requestUrl2);
-    Files.copy(download2.openStream(), Paths.get(taskConfiguration.rawDataFile2));
+    try (InputStream in = download2.openStream()) {
+      Files.copy(
+          in,
+          Paths.get(taskConfiguration.rawDataFile2),
+          StandardCopyOption.REPLACE_EXISTING);
+    }
 
     LOG.debug("Download complete.");
   }
