@@ -62,6 +62,7 @@
     <expressly.version>6.0.0</expressly.version>
     <slf4j.version>2.0.17</slf4j.version>
     <logback.version>1.5.32</logback.version>
+    <logstash-logback-encoder.version>8.1</logstash-logback-encoder.version>
   </properties>
 
   <dependencies>
@@ -144,6 +145,11 @@
       <artifactId>logback-core</artifactId>
       <scope>runtime</scope>
       <version>${logback.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.logstash.logback</groupId>
+      <artifactId>logstash-logback-encoder</artifactId>
+      <version>${logstash-logback-encoder.version}</version>
     </dependency>
   </dependencies>
 
