@@ -131,9 +131,7 @@ public class DataGeneratorTask implements Runnable {
     URL download = new URL(requestUrl1);
     try (InputStream in = download.openStream()) {
       Files.copy(
-          in,
-          Paths.get(taskConfiguration.rawDataFile1),
-          StandardCopyOption.REPLACE_EXISTING);
+          in, Paths.get(taskConfiguration.rawDataFile1), StandardCopyOption.REPLACE_EXISTING);
     }
 
     // download wgs_set
@@ -156,9 +154,7 @@ public class DataGeneratorTask implements Runnable {
     URL download2 = new URL(requestUrl2);
     try (InputStream in = download2.openStream()) {
       Files.copy(
-          in,
-          Paths.get(taskConfiguration.rawDataFile2),
-          StandardCopyOption.REPLACE_EXISTING);
+          in, Paths.get(taskConfiguration.rawDataFile2), StandardCopyOption.REPLACE_EXISTING);
     }
 
     LOG.debug("Download complete.");
