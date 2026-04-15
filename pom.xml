@@ -54,7 +54,7 @@
     <!-- Third party dependencies -->
     <metainf-services.version>1.11</metainf-services.version>
     <wagon-ssh.version>3.5.3</wagon-ssh.version>
-    <guava.version>33.5.0-jre</guava.version>
+    <guava.version>33.6.0-jre</guava.version>
     <postgresql.version>42.7.10</postgresql.version>
     <hikaricp.version>7.0.2</hikaricp.version>
     <validation-api.version>3.1.1</validation-api.version>
