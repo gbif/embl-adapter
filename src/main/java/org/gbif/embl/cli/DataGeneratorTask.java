@@ -212,6 +212,8 @@ public class DataGeneratorTask implements Runnable {
 
     int expectedAmountOfParameters = StringUtils.countMatches(SQL_INSERT_RAW_DATA, '?');
     int expectedAmountOfColumns = StringUtils.split(SQL_COLUMNS_RAW_DATA, ",").length;
+    // might or might not include the sequence_md5 column
+    int currentAmountOfColumns = 0;
 
     if (expectedAmountOfParameters != RAW_MAX_INDEX
         || expectedAmountOfParameters != expectedAmountOfColumns) {
@@ -222,40 +224,42 @@ public class DataGeneratorTask implements Runnable {
     Map<String, Integer> columnMapping = new HashMap<>();
     for (Iterator<String> it = fileReader.lines().iterator(); it.hasNext(); lineNumber++) {
       String line = it.next();
-      String[] split = line.split(DEFAULT_DELIMITER, -1);
+      String[] fields = line.split(DEFAULT_DELIMITER, -1);
 
+      // process the first row (header)
       if (columnMapping.isEmpty()) {
         // Determine the mapping from the header line. It may change!
-        for (int i = 0; i < split.length; i++) {
-          columnMapping.put(split[i], i);
+        for (int i = 0; i < fields.length; i++) {
+          columnMapping.put(fields[i], i);
         }
+        currentAmountOfColumns = columnMapping.size();
         continue;
       }
 
-      if (split.length < expectedAmountOfColumns) {
+      if (fields.length < currentAmountOfColumns) {
         throw new IllegalStateException(
             String.format("File '%s', line %d: expected %d columns but found %d. Line content: %s",
-                fileName, lineNumber, expectedAmountOfColumns, split.length, line));
+                fileName, lineNumber, currentAmountOfColumns, fields.length, line));
       }
 
       try {
-        ps.setString(RAW_INDEX_ACCESSION, split[safeGet(columnMapping, ACCESSION_COLUMN, lineNumber)]);
-        ps.setString(RAW_INDEX_SAMPLE_ACCESSION, split[safeGet(columnMapping, SAMPLE_ACCESSION_COLUMN, lineNumber)]);
-        ps.setString(RAW_INDEX_LOCATION, split[safeGet(columnMapping, LOCATION_COLUMN, lineNumber)]);
-        ps.setString(RAW_INDEX_COUNTRY, split[safeGet(columnMapping, COUNTRY_COLUMN, lineNumber)]);
-        ps.setString(RAW_INDEX_IDENTIFIED_BY, split[safeGet(columnMapping, IDENTIFIED_BY_COLUMN, lineNumber)]);
-        ps.setString(RAW_INDEX_COLLECTED_BY, split[safeGet(columnMapping, COLLECTED_BY_COLUMN, lineNumber)]);
-        ps.setString(RAW_INDEX_COLLECTION_DATE, split[safeGet(columnMapping, COLLECTION_DATE_COLUMN, lineNumber)]);
-        ps.setString(RAW_INDEX_SPECIMEN_VOUCHER, split[safeGet(columnMapping, SPECIMEN_VOUCHER_COLUMN, lineNumber)]);
+        ps.setString(RAW_INDEX_ACCESSION, fields[safeGet(columnMapping, ACCESSION_COLUMN, lineNumber)]);
+        ps.setString(RAW_INDEX_SAMPLE_ACCESSION, fields[safeGet(columnMapping, SAMPLE_ACCESSION_COLUMN, lineNumber)]);
+        ps.setString(RAW_INDEX_LOCATION, fields[safeGet(columnMapping, LOCATION_COLUMN, lineNumber)]);
+        ps.setString(RAW_INDEX_COUNTRY, fields[safeGet(columnMapping, COUNTRY_COLUMN, lineNumber)]);
+        ps.setString(RAW_INDEX_IDENTIFIED_BY, fields[safeGet(columnMapping, IDENTIFIED_BY_COLUMN, lineNumber)]);
+        ps.setString(RAW_INDEX_COLLECTED_BY, fields[safeGet(columnMapping, COLLECTED_BY_COLUMN, lineNumber)]);
+        ps.setString(RAW_INDEX_COLLECTION_DATE, fields[safeGet(columnMapping, COLLECTION_DATE_COLUMN, lineNumber)]);
+        ps.setString(RAW_INDEX_SPECIMEN_VOUCHER, fields[safeGet(columnMapping, SPECIMEN_VOUCHER_COLUMN, lineNumber)]);
         ps.setString(
             RAW_INDEX_SEQUENCE_MD5,
-            skipSequenceMd5 ? "" : split[safeGet(columnMapping, SEQUENCE_MD5_COLUMN, lineNumber)]);
-        ps.setString(RAW_INDEX_SCIENTIFIC_NAME, split[safeGet(columnMapping, SCIENTIFIC_NAME_COLUMN, lineNumber)]);
-        ps.setString(RAW_INDEX_TAX_ID, split[safeGet(columnMapping, TAX_ID_COLUMN, lineNumber)]);
-        ps.setString(RAW_INDEX_ALTITUDE, split[safeGet(columnMapping, ALTITUDE_COLUMN, lineNumber)]);
-        ps.setString(RAW_INDEX_SEX, split[safeGet(columnMapping, SEX_COLUMN, lineNumber)]);
-        ps.setString(RAW_INDEX_DESCRIPTION, split[safeGet(columnMapping, DESCRIPTION_COLUMN, lineNumber)]);
-        ps.setString(RAW_INDEX_HOST, split[safeGet(columnMapping, HOST_COLUMN, lineNumber)]);
+            skipSequenceMd5 ? "" : fields[safeGet(columnMapping, SEQUENCE_MD5_COLUMN, lineNumber)]);
+        ps.setString(RAW_INDEX_SCIENTIFIC_NAME, fields[safeGet(columnMapping, SCIENTIFIC_NAME_COLUMN, lineNumber)]);
+        ps.setString(RAW_INDEX_TAX_ID, fields[safeGet(columnMapping, TAX_ID_COLUMN, lineNumber)]);
+        ps.setString(RAW_INDEX_ALTITUDE, fields[safeGet(columnMapping, ALTITUDE_COLUMN, lineNumber)]);
+        ps.setString(RAW_INDEX_SEX, fields[safeGet(columnMapping, SEX_COLUMN, lineNumber)]);
+        ps.setString(RAW_INDEX_DESCRIPTION, fields[safeGet(columnMapping, DESCRIPTION_COLUMN, lineNumber)]);
+        ps.setString(RAW_INDEX_HOST, fields[safeGet(columnMapping, HOST_COLUMN, lineNumber)]);
         ps.addBatch();
       } catch (Exception e) {
         throw new IllegalStateException(
