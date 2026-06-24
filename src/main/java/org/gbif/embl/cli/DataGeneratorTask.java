@@ -238,32 +238,51 @@ public class DataGeneratorTask implements Runnable {
 
       if (fields.length < currentAmountOfColumns) {
         throw new IllegalStateException(
-            String.format("File '%s', line %d: expected %d columns but found %d. Line content: %s",
+            String.format(
+                "File '%s', line %d: expected %d columns but found %d. Line content: %s",
                 fileName, lineNumber, currentAmountOfColumns, fields.length, line));
       }
 
       try {
-        ps.setString(RAW_INDEX_ACCESSION, fields[safeGet(columnMapping, ACCESSION_COLUMN, lineNumber)]);
-        ps.setString(RAW_INDEX_SAMPLE_ACCESSION, fields[safeGet(columnMapping, SAMPLE_ACCESSION_COLUMN, lineNumber)]);
-        ps.setString(RAW_INDEX_LOCATION, fields[safeGet(columnMapping, LOCATION_COLUMN, lineNumber)]);
+        ps.setString(
+            RAW_INDEX_ACCESSION, fields[safeGet(columnMapping, ACCESSION_COLUMN, lineNumber)]);
+        ps.setString(
+            RAW_INDEX_SAMPLE_ACCESSION,
+            fields[safeGet(columnMapping, SAMPLE_ACCESSION_COLUMN, lineNumber)]);
+        ps.setString(
+            RAW_INDEX_LOCATION, fields[safeGet(columnMapping, LOCATION_COLUMN, lineNumber)]);
         ps.setString(RAW_INDEX_COUNTRY, fields[safeGet(columnMapping, COUNTRY_COLUMN, lineNumber)]);
-        ps.setString(RAW_INDEX_IDENTIFIED_BY, fields[safeGet(columnMapping, IDENTIFIED_BY_COLUMN, lineNumber)]);
-        ps.setString(RAW_INDEX_COLLECTED_BY, fields[safeGet(columnMapping, COLLECTED_BY_COLUMN, lineNumber)]);
-        ps.setString(RAW_INDEX_COLLECTION_DATE, fields[safeGet(columnMapping, COLLECTION_DATE_COLUMN, lineNumber)]);
-        ps.setString(RAW_INDEX_SPECIMEN_VOUCHER, fields[safeGet(columnMapping, SPECIMEN_VOUCHER_COLUMN, lineNumber)]);
+        ps.setString(
+            RAW_INDEX_IDENTIFIED_BY,
+            fields[safeGet(columnMapping, IDENTIFIED_BY_COLUMN, lineNumber)]);
+        ps.setString(
+            RAW_INDEX_COLLECTED_BY,
+            fields[safeGet(columnMapping, COLLECTED_BY_COLUMN, lineNumber)]);
+        ps.setString(
+            RAW_INDEX_COLLECTION_DATE,
+            fields[safeGet(columnMapping, COLLECTION_DATE_COLUMN, lineNumber)]);
+        ps.setString(
+            RAW_INDEX_SPECIMEN_VOUCHER,
+            fields[safeGet(columnMapping, SPECIMEN_VOUCHER_COLUMN, lineNumber)]);
         ps.setString(
             RAW_INDEX_SEQUENCE_MD5,
             skipSequenceMd5 ? "" : fields[safeGet(columnMapping, SEQUENCE_MD5_COLUMN, lineNumber)]);
-        ps.setString(RAW_INDEX_SCIENTIFIC_NAME, fields[safeGet(columnMapping, SCIENTIFIC_NAME_COLUMN, lineNumber)]);
+        ps.setString(
+            RAW_INDEX_SCIENTIFIC_NAME,
+            fields[safeGet(columnMapping, SCIENTIFIC_NAME_COLUMN, lineNumber)]);
         ps.setString(RAW_INDEX_TAX_ID, fields[safeGet(columnMapping, TAX_ID_COLUMN, lineNumber)]);
-        ps.setString(RAW_INDEX_ALTITUDE, fields[safeGet(columnMapping, ALTITUDE_COLUMN, lineNumber)]);
+        ps.setString(
+            RAW_INDEX_ALTITUDE, fields[safeGet(columnMapping, ALTITUDE_COLUMN, lineNumber)]);
         ps.setString(RAW_INDEX_SEX, fields[safeGet(columnMapping, SEX_COLUMN, lineNumber)]);
-        ps.setString(RAW_INDEX_DESCRIPTION, fields[safeGet(columnMapping, DESCRIPTION_COLUMN, lineNumber)]);
+        ps.setString(
+            RAW_INDEX_DESCRIPTION, fields[safeGet(columnMapping, DESCRIPTION_COLUMN, lineNumber)]);
         ps.setString(RAW_INDEX_HOST, fields[safeGet(columnMapping, HOST_COLUMN, lineNumber)]);
         ps.addBatch();
       } catch (Exception e) {
         throw new IllegalStateException(
-            String.format("File '%s', line %d: failed to process row: %s", fileName, lineNumber, line), e);
+            String.format(
+                "File '%s', line %d: failed to process row: %s", fileName, lineNumber, line),
+            e);
       }
 
       if (lineNumber % WRITE_BATCH_SIZE == 0) {
@@ -534,7 +553,8 @@ public class DataGeneratorTask implements Runnable {
     Integer idx = mapping.get(column);
     if (idx == null) {
       throw new IllegalStateException(
-          String.format("Line %d: column '%s' not found in header. Available columns: %s",
+          String.format(
+              "Line %d: column '%s' not found in header. Available columns: %s",
               lineNumber, column, mapping.keySet()));
     }
     return idx;
