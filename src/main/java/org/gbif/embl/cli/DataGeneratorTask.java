@@ -194,8 +194,8 @@ public class DataGeneratorTask implements Runnable {
 
       LOG.debug(marker, "Start writing DB");
 
-      executeBatch(ps, fileReader1, false);
-      executeBatch(ps, fileReader2, true);
+      executeBatch(ps, fileReader1, false, taskConfiguration.rawDataFile1);
+      executeBatch(ps, fileReader2, true, taskConfiguration.rawDataFile2);
 
       // complete transaction
       connection.commit();
@@ -204,9 +204,11 @@ public class DataGeneratorTask implements Runnable {
   }
 
   private void executeBatch(
-      PreparedStatement ps, BufferedReader fileReader, boolean skipSequenceMd5)
+      PreparedStatement ps, BufferedReader fileReader, boolean skipSequenceMd5, String fileName)
       throws SQLException {
-    int lineNumber = 0;
+    LOG.info(marker, "Processing file: {}", fileName);
+
+    int lineNumber = 1;
 
     int expectedAmountOfParameters = StringUtils.countMatches(SQL_INSERT_RAW_DATA, '?');
     int expectedAmountOfColumns = StringUtils.split(SQL_COLUMNS_RAW_DATA, ",").length;
@@ -221,10 +223,6 @@ public class DataGeneratorTask implements Runnable {
     for (Iterator<String> it = fileReader.lines().iterator(); it.hasNext(); lineNumber++) {
       String line = it.next();
       String[] split = line.split(DEFAULT_DELIMITER, -1);
-      if (split.length < 14) {
-        LOG.error(marker, "Must be at least 14 columns! Found {}", split.length);
-        continue;
-      }
 
       if (columnMapping.isEmpty()) {
         // Determine the mapping from the header line. It may change!
@@ -234,24 +232,35 @@ public class DataGeneratorTask implements Runnable {
         continue;
       }
 
-      ps.setString(RAW_INDEX_ACCESSION, split[columnMapping.get(ACCESSION_COLUMN)]);
-      ps.setString(RAW_INDEX_SAMPLE_ACCESSION, split[columnMapping.get(SAMPLE_ACCESSION_COLUMN)]);
-      ps.setString(RAW_INDEX_LOCATION, split[columnMapping.get(LOCATION_COLUMN)]);
-      ps.setString(RAW_INDEX_COUNTRY, split[columnMapping.get(COUNTRY_COLUMN)]);
-      ps.setString(RAW_INDEX_IDENTIFIED_BY, split[columnMapping.get(IDENTIFIED_BY_COLUMN)]);
-      ps.setString(RAW_INDEX_COLLECTED_BY, split[columnMapping.get(COLLECTED_BY_COLUMN)]);
-      ps.setString(RAW_INDEX_COLLECTION_DATE, split[columnMapping.get(COLLECTION_DATE_COLUMN)]);
-      ps.setString(RAW_INDEX_SPECIMEN_VOUCHER, split[columnMapping.get(SPECIMEN_VOUCHER_COLUMN)]);
-      ps.setString(
-          RAW_INDEX_SEQUENCE_MD5,
-          skipSequenceMd5 ? "" : split[columnMapping.get(SEQUENCE_MD5_COLUMN)]);
-      ps.setString(RAW_INDEX_SCIENTIFIC_NAME, split[columnMapping.get(SCIENTIFIC_NAME_COLUMN)]);
-      ps.setString(RAW_INDEX_TAX_ID, split[columnMapping.get(TAX_ID_COLUMN)]);
-      ps.setString(RAW_INDEX_ALTITUDE, split[columnMapping.get(ALTITUDE_COLUMN)]);
-      ps.setString(RAW_INDEX_SEX, split[columnMapping.get(SEX_COLUMN)]);
-      ps.setString(RAW_INDEX_DESCRIPTION, split[columnMapping.get(DESCRIPTION_COLUMN)]);
-      ps.setString(RAW_INDEX_HOST, split[columnMapping.get(HOST_COLUMN)]);
-      ps.addBatch();
+      if (split.length < expectedAmountOfColumns) {
+        throw new IllegalStateException(
+            String.format("File '%s', line %d: expected %d columns but found %d. Line content: %s",
+                fileName, lineNumber, expectedAmountOfColumns, split.length, line));
+      }
+
+      try {
+        ps.setString(RAW_INDEX_ACCESSION, split[safeGet(columnMapping, ACCESSION_COLUMN, lineNumber)]);
+        ps.setString(RAW_INDEX_SAMPLE_ACCESSION, split[safeGet(columnMapping, SAMPLE_ACCESSION_COLUMN, lineNumber)]);
+        ps.setString(RAW_INDEX_LOCATION, split[safeGet(columnMapping, LOCATION_COLUMN, lineNumber)]);
+        ps.setString(RAW_INDEX_COUNTRY, split[safeGet(columnMapping, COUNTRY_COLUMN, lineNumber)]);
+        ps.setString(RAW_INDEX_IDENTIFIED_BY, split[safeGet(columnMapping, IDENTIFIED_BY_COLUMN, lineNumber)]);
+        ps.setString(RAW_INDEX_COLLECTED_BY, split[safeGet(columnMapping, COLLECTED_BY_COLUMN, lineNumber)]);
+        ps.setString(RAW_INDEX_COLLECTION_DATE, split[safeGet(columnMapping, COLLECTION_DATE_COLUMN, lineNumber)]);
+        ps.setString(RAW_INDEX_SPECIMEN_VOUCHER, split[safeGet(columnMapping, SPECIMEN_VOUCHER_COLUMN, lineNumber)]);
+        ps.setString(
+            RAW_INDEX_SEQUENCE_MD5,
+            skipSequenceMd5 ? "" : split[safeGet(columnMapping, SEQUENCE_MD5_COLUMN, lineNumber)]);
+        ps.setString(RAW_INDEX_SCIENTIFIC_NAME, split[safeGet(columnMapping, SCIENTIFIC_NAME_COLUMN, lineNumber)]);
+        ps.setString(RAW_INDEX_TAX_ID, split[safeGet(columnMapping, TAX_ID_COLUMN, lineNumber)]);
+        ps.setString(RAW_INDEX_ALTITUDE, split[safeGet(columnMapping, ALTITUDE_COLUMN, lineNumber)]);
+        ps.setString(RAW_INDEX_SEX, split[safeGet(columnMapping, SEX_COLUMN, lineNumber)]);
+        ps.setString(RAW_INDEX_DESCRIPTION, split[safeGet(columnMapping, DESCRIPTION_COLUMN, lineNumber)]);
+        ps.setString(RAW_INDEX_HOST, split[safeGet(columnMapping, HOST_COLUMN, lineNumber)]);
+        ps.addBatch();
+      } catch (Exception e) {
+        throw new IllegalStateException(
+            String.format("File '%s', line %d: failed to process row: %s", fileName, lineNumber, line), e);
+      }
 
       if (lineNumber % WRITE_BATCH_SIZE == 0) {
         ps.executeBatch();
@@ -515,6 +524,16 @@ public class DataGeneratorTask implements Runnable {
       }
     }
     return StringUtils.EMPTY;
+  }
+
+  private Integer safeGet(Map<String, Integer> mapping, String column, int lineNumber) {
+    Integer idx = mapping.get(column);
+    if (idx == null) {
+      throw new IllegalStateException(
+          String.format("Line %d: column '%s' not found in header. Available columns: %s",
+              lineNumber, column, mapping.keySet()));
+    }
+    return idx;
   }
 
   private String getAccession(ResultSet rs) throws SQLException {
