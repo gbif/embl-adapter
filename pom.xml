@@ -49,7 +49,7 @@
     <gbif-cli.version>3.0.1</gbif-cli.version>
     <gbif-common.version>1.0</gbif-common.version>
     <dwc-api.version>2.1.10</dwc-api.version>
-    <dwca-io.version>3.0.1</dwca-io.version>
+    <dwca-io.version>3.0.2</dwca-io.version>
 
     <!-- Third party dependencies -->
     <metainf-services.version>1.11</metainf-services.version>
